@@ -76,6 +76,7 @@ import org.incenp.obofoundry.kgcl.model.SynonymPredicateChange;
 import org.incenp.obofoundry.kgcl.model.SynonymReplacement;
 import org.incenp.obofoundry.kgcl.model.TextDefinitionReplacement;
 import org.incenp.obofoundry.kgcl.model.Transaction;
+import org.obolibrary.obo2owl.Obo2OWLConstants;
 import org.semanticweb.owlapi.model.AddAxiom;
 import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLAnnotationAssertionAxiom;
@@ -450,7 +451,8 @@ public class Change2OwlVisitor implements IChangeVisitor {
             IRI replacementNodeIri = IRI.create(v.getHasDirectReplacement().getId());
             changes.add(new AddAxiom(ontology,
                     factory.getOWLAnnotationAssertionAxiom(
-                            factory.getOWLAnnotationProperty(IRI.create("http://purl.obolibrary.org/obo/IAO_0100001")),
+                            factory.getOWLAnnotationProperty(
+                                    Obo2OWLConstants.Obo2OWLVocabulary.IRI_IAO_0100001.getIRI()),
                             obsoleteNodeIri, replacementNodeIri)));
         }
     }
