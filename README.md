@@ -50,8 +50,34 @@ current ontology.
 
 Todo
 ----
-Everything! Only the _NodeRename_ change is currently implemented, and
-there is no handling of errors at all.
+Everything! Most types of change are not implemented yet, and there is
+no handling of errors at all.
+
+KGCL implementation chart (_parsed_ means the library can recognize the
+instruction and convert it to its object representation; _applied_ means
+the library can apply the change to an ontology):
+
+| Change type         | Parsed | Applied |
+| ------------------- | -------| ------- |
+| rename              | yes    | yes     |
+| create              | no     | no      |
+| obsolete            | yes    | yes (except for non-direct replacement) |
+| delete              | no     | no      |
+| move                | no     | no      |
+| unobsolete          | no     | no      |
+| deepen              | no     | no      |
+| shallow             | no     | no      |
+| change relationship | no     | no      |
+| change annotation   | no     | no      |
+| create edge         | no     | no      |
+| delete edge         | no     | no      |
+| create synonym      | no     | no      |
+| remove synonym      | no     | no      |
+| remove from subset  | no     | no      |
+| add to subset       | no     | no      |
+| add definition      | no     | no      |
+| change definition   | no     | no      |
+| remove definition   | no     | no      |
 
 Copying
 -------
