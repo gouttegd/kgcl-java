@@ -80,10 +80,12 @@ import org.semanticweb.owlapi.model.AddAxiom;
 import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLAnnotationAssertionAxiom;
 import org.semanticweb.owlapi.model.OWLAnnotationValue;
+import org.semanticweb.owlapi.model.OWLAxiom;
 import org.semanticweb.owlapi.model.OWLDataFactory;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyChange;
 import org.semanticweb.owlapi.model.RemoveAxiom;
+import org.semanticweb.owlapi.model.parameters.Imports;
 import org.semanticweb.owlapi.vocab.OWLRDFVocabulary;
 
 /**
@@ -417,8 +419,40 @@ public class Change2OwlVisitor implements IChangeVisitor {
 
     @Override
     public void visit(NodeObsoletion v) {
-        // TODO Auto-generated method stub
+        IRI obsoleteNodeIri = IRI.create(v.getAboutNode().getId());
 
+        // Remove the axioms that make up the class definition
+        for ( OWLAxiom ax : ontology.getAxioms(factory.getOWLClass(obsoleteNodeIri), Imports.INCLUDED) ) {
+            changes.add(new RemoveAxiom(ontology, ax));
+        }
+
+        // Remove annotation properties
+        for (OWLAnnotationAssertionAxiom ax : ontology.getAnnotationAssertionAxioms(obsoleteNodeIri)) {
+            if ( ax.getProperty().getIRI().equals(OWLRDFVocabulary.RDFS_LABEL.getIRI()) ) {
+                // Prepend "obsolete " to the existing label
+                String oldLabel = ax.getValue().asLiteral().get().getLiteral();
+                changes.add(new AddAxiom(ontology,
+                        factory.getOWLAnnotationAssertionAxiom(
+                                factory.getOWLAnnotationProperty(OWLRDFVocabulary.RDFS_LABEL.getIRI()), obsoleteNodeIri,
+                                factory.getOWLLiteral("obsolete " + oldLabel))));
+            }
+            changes.add(new RemoveAxiom(ontology, ax));
+        }
+
+        // Add deprecation annotation property
+        changes.add(new AddAxiom(ontology,
+                factory.getOWLAnnotationAssertionAxiom(
+                        factory.getOWLAnnotationProperty(OWLRDFVocabulary.OWL_DEPRECATED.getIRI()), obsoleteNodeIri,
+                        factory.getOWLLiteral(true))));
+
+        // Add "term replaced by"
+        if ( v.getHasDirectReplacement() != null ) {
+            IRI replacementNodeIri = IRI.create(v.getHasDirectReplacement().getId());
+            changes.add(new AddAxiom(ontology,
+                    factory.getOWLAnnotationAssertionAxiom(
+                            factory.getOWLAnnotationProperty(IRI.create("http://purl.obolibrary.org/obo/IAO_0100001")),
+                            obsoleteNodeIri, replacementNodeIri)));
+        }
     }
 
     @Override
@@ -429,14 +463,12 @@ public class Change2OwlVisitor implements IChangeVisitor {
 
     @Override
     public void visit(NodeObsoletionWithDirectReplacement v) {
-        // TODO Auto-generated method stub
-
+        visit((NodeObsoletion) v);
     }
 
     @Override
     public void visit(NodeObsoletionWithNoDirectReplacement v) {
-        // TODO Auto-generated method stub
-
+        visit((NodeObsoletion) v);
     }
 
     @Override

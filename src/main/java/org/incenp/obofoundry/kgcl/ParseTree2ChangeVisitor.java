@@ -23,6 +23,8 @@ import java.util.List;
 
 import org.incenp.obofoundry.kgcl.model.Change;
 import org.incenp.obofoundry.kgcl.model.Node;
+import org.incenp.obofoundry.kgcl.model.NodeObsoletionWithDirectReplacement;
+import org.incenp.obofoundry.kgcl.model.NodeObsoletionWithNoDirectReplacement;
 import org.incenp.obofoundry.kgcl.model.NodeRename;
 import org.incenp.obofoundry.kgcl.parser.KGCLBaseVisitor;
 import org.incenp.obofoundry.kgcl.parser.KGCLParser;
@@ -80,6 +82,37 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
 
         changes.add(change);
 
+        return null;
+    }
+
+    @Override
+    public Void visitObsoleteNoReplacement(KGCLParser.ObsoleteNoReplacementContext ctx) {
+        NodeObsoletionWithNoDirectReplacement change = new NodeObsoletionWithNoDirectReplacement();
+
+        Node aboutNode = new Node();
+        ctx.old_id.accept(this);
+        aboutNode.setId(currentId);
+        change.setAboutNode(aboutNode);
+
+        changes.add(change);
+        return null;
+    }
+
+    @Override
+    public Void visitObsoleteWithReplacement(KGCLParser.ObsoleteWithReplacementContext ctx) {
+        NodeObsoletionWithDirectReplacement change = new NodeObsoletionWithDirectReplacement();
+
+        Node aboutNode = new Node();
+        ctx.old_id.accept(this);
+        aboutNode.setId(currentId);
+        change.setAboutNode(aboutNode);
+
+        Node replacementNode = new Node();
+        ctx.new_id.accept(this);
+        replacementNode.setId(currentId);
+        change.setHasDirectReplacement(replacementNode);
+
+        changes.add(change);
         return null;
     }
 
