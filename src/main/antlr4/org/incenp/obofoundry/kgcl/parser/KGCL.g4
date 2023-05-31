@@ -6,7 +6,7 @@ change    : rename
           | obsolete
           ;
       
-rename    : 'rename' id 'from' old_label=label 'to' new_label=label;
+rename    : 'rename' id 'from' old_label=text 'to' new_label=text;
 
 obsolete  : 'obsolete' old_id=id                               #ObsoleteNoReplacement
           | 'obsolete' old_id=id 'with replacement' new_id=id  #ObsoleteWithReplacement
@@ -16,7 +16,7 @@ id        : IRI    #IdAsIRI
           | CURIE  #IdAsCURIE
           ;
           
-label     : string lang=LANGTAG?;
+text      : string lang=LANGTAG?;
 
 string    : SQ_STRING
           | DQ_STRING

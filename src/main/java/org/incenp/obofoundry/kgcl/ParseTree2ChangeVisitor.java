@@ -129,7 +129,7 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
     }
 
     @Override
-    public Void visitLabel(KGCLParser.LabelContext ctx) {
+    public Void visitText(KGCLParser.TextContext ctx) {
         currentText = unquote(ctx.string().getText());
 
         currentLang = "";
