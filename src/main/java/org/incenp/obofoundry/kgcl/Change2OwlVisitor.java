@@ -294,8 +294,33 @@ public class Change2OwlVisitor implements IChangeVisitor {
 
     @Override
     public void visit(NewSynonym v) {
-        // TODO Auto-generated method stub
+        IRI aboutNodeIri = IRI.create(v.getAboutNode().getId());
 
+        // The KGCL spec says the qualifier is optional, but if we use oboInOwl
+        // properties to represent synonyms a qualifier is mandatory (there is no
+        // unqualified "hasSynonym" property AFAIK), so if no qualifier was specified we
+        // default to 'exact'.
+        IRI propertyIri = Obo2OWLConstants.Obo2OWLVocabulary.IRI_OIO_hasExactSynonym.getIRI();
+        String qualifier = v.getQualifier();
+        if ( qualifier != null ) {
+            switch ( qualifier ) {
+            case "narrow":
+                propertyIri = Obo2OWLConstants.Obo2OWLVocabulary.IRI_OIO_hasNarrowSynonym.getIRI();
+                break;
+
+            case "broad":
+                propertyIri = Obo2OWLConstants.Obo2OWLVocabulary.IRI_OIO_hasBroadSynonym.getIRI();
+                break;
+
+            case "related":
+                propertyIri = Obo2OWLConstants.Obo2OWLVocabulary.IRI_OIO_hasRelatedSynonym.getIRI();
+                break;
+            }
+        }
+
+        changes.add(new AddAxiom(ontology,
+                factory.getOWLAnnotationAssertionAxiom(factory.getOWLAnnotationProperty(propertyIri), aboutNodeIri,
+                        factory.getOWLLiteral(v.getNewValue(), v.getNewLanguage()))));
     }
 
     @Override

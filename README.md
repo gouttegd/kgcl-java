@@ -71,7 +71,7 @@ the library can apply the change to an ontology):
 | change annotation   | no     | no      |
 | create edge         | no     | no      |
 | delete edge         | no     | no      |
-| create synonym      | no     | no      |
+| create synonym      | yes    | yes     |
 | remove synonym      | no     | no      |
 | remove from subset  | no     | no      |
 | add to subset       | no     | no      |
