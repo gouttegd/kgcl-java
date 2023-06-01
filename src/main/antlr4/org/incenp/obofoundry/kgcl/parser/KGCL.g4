@@ -5,6 +5,7 @@ changeset : change (NL change)* EOF;
 change    : rename
           | obsolete
           | newSynonym
+          | removeSynonym
           ;
       
 rename    : 'rename' id 'from' old_label=text 'to' new_label=text;
@@ -14,6 +15,8 @@ obsolete  : 'obsolete' old_id=id                               #ObsoleteNoReplac
           ;
 
 newSynonym: 'create' qualifier? 'synonym' synonym=text 'for' id;
+
+removeSynonym: 'remove' 'synonym' synonym=text 'for' id;
 
 id        : IRI    #IdAsIRI
           | CURIE  #IdAsCURIE

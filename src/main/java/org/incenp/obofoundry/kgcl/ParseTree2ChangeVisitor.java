@@ -27,6 +27,7 @@ import org.incenp.obofoundry.kgcl.model.Node;
 import org.incenp.obofoundry.kgcl.model.NodeObsoletionWithDirectReplacement;
 import org.incenp.obofoundry.kgcl.model.NodeObsoletionWithNoDirectReplacement;
 import org.incenp.obofoundry.kgcl.model.NodeRename;
+import org.incenp.obofoundry.kgcl.model.RemoveSynonym;
 import org.incenp.obofoundry.kgcl.parser.KGCLBaseVisitor;
 import org.incenp.obofoundry.kgcl.parser.KGCLParser;
 import org.semanticweb.owlapi.model.PrefixManager;
@@ -133,6 +134,24 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
         if ( ctx.qualifier() != null ) {
             change.setQualifier(ctx.qualifier().getText());
         }
+
+        changes.add(change);
+
+        return null;
+    }
+
+    @Override
+    public Void visitRemoveSynonym(KGCLParser.RemoveSynonymContext ctx) {
+        RemoveSynonym change = new RemoveSynonym();
+
+        Node aboutNode = new Node();
+        ctx.id().accept(this);
+        aboutNode.setId(currentId);
+        change.setAboutNode(aboutNode);
+
+        ctx.synonym.accept(this);
+        change.setOldValue(currentText);
+        change.setOldLanguage(currentLang);
 
         changes.add(change);
 

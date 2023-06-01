@@ -331,8 +331,20 @@ public class Change2OwlVisitor implements IChangeVisitor {
 
     @Override
     public void visit(RemoveSynonym v) {
-        // TODO Auto-generated method stub
-
+        for ( OWLAnnotationAssertionAxiom ax : ontology
+                .getAnnotationAssertionAxioms(IRI.create(v.getAboutNode().getId())) ) {
+            // The KGCL 'remove synonym' instruction is qualifier-agnostic, so we remove ANY
+            // matching synonym regardless of its type
+            IRI propertyIRI = ax.getProperty().getIRI();
+            if ( propertyIRI.equals(Obo2OWLConstants.Obo2OWLVocabulary.IRI_OIO_hasExactSynonym.getIRI())
+                    || propertyIRI.equals(Obo2OWLConstants.Obo2OWLVocabulary.IRI_OIO_hasBroadSynonym.getIRI())
+                    || propertyIRI.equals(Obo2OWLConstants.Obo2OWLVocabulary.IRI_OIO_hasNarrowSynonym.getIRI())
+                    || propertyIRI.equals(Obo2OWLConstants.Obo2OWLVocabulary.IRI_OIO_hasRelatedSynonym.getIRI()) ) {
+                if ( compareValue(ax.getValue(), v.getOldValue(), v.getOldLanguage()) ) {
+                    changes.add(new RemoveAxiom(ontology, ax));
+                }
+            }
+        }
     }
 
     @Override
