@@ -349,8 +349,25 @@ public class Change2OwlVisitor implements IChangeVisitor {
 
     @Override
     public void visit(SynonymReplacement v) {
-        // TODO Auto-generated method stub
-
+        // I’d like to implement this as a RemoveSynonym followed by a AddSynonym to
+        // avoid code duplication, but the catch is that we need to find out the type of
+        // the synonym to remove (exact, narrow, broad, related?) so that we can create
+        // a new synonym of the same type.
+        IRI aboutNodeIri = IRI.create(v.getAboutNode().getId());
+        for ( OWLAnnotationAssertionAxiom ax : ontology.getAnnotationAssertionAxioms(aboutNodeIri) ) {
+            IRI propertyIri = ax.getProperty().getIRI();
+            if ( propertyIri.equals(Obo2OWLConstants.Obo2OWLVocabulary.IRI_OIO_hasExactSynonym.getIRI())
+                    || propertyIri.equals(Obo2OWLConstants.Obo2OWLVocabulary.IRI_OIO_hasBroadSynonym.getIRI())
+                    || propertyIri.equals(Obo2OWLConstants.Obo2OWLVocabulary.IRI_OIO_hasNarrowSynonym.getIRI())
+                    || propertyIri.equals(Obo2OWLConstants.Obo2OWLVocabulary.IRI_OIO_hasRelatedSynonym.getIRI()) ) {
+                if ( compareValue(ax.getValue(), v.getOldValue(), v.getOldLanguage()) ) {
+                    changes.add(new RemoveAxiom(ontology, ax));
+                    changes.add(new AddAxiom(ontology,
+                            factory.getOWLAnnotationAssertionAxiom(factory.getOWLAnnotationProperty(propertyIri),
+                                    aboutNodeIri, factory.getOWLLiteral(v.getNewValue(), v.getNewLanguage()))));
+                }
+            }
+        }
     }
 
     @Override

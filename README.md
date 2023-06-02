@@ -73,6 +73,7 @@ the library can apply the change to an ontology):
 | delete edge         | no     | no      |
 | create synonym      | yes    | yes     |
 | remove synonym      | yes    | yes     |
+| change synonym      | yes    | yes     |
 | remove from subset  | no     | no      |
 | add to subset       | no     | no      |
 | add definition      | no     | no      |
