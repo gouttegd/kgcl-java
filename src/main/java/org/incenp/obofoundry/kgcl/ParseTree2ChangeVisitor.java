@@ -199,7 +199,7 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
 
         currentLang = "";
         if ( ctx.lang != null ) {
-            currentLang = ctx.lang.getText();
+            currentLang = ctx.lang.getText().substring(1);
         }
 
         return null;
