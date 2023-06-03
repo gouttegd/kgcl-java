@@ -23,12 +23,15 @@ import java.util.List;
 
 import org.incenp.obofoundry.kgcl.model.Change;
 import org.incenp.obofoundry.kgcl.model.NewSynonym;
+import org.incenp.obofoundry.kgcl.model.NewTextDefinition;
 import org.incenp.obofoundry.kgcl.model.Node;
 import org.incenp.obofoundry.kgcl.model.NodeObsoletionWithDirectReplacement;
 import org.incenp.obofoundry.kgcl.model.NodeObsoletionWithNoDirectReplacement;
 import org.incenp.obofoundry.kgcl.model.NodeRename;
 import org.incenp.obofoundry.kgcl.model.RemoveSynonym;
+import org.incenp.obofoundry.kgcl.model.RemoveTextDefinition;
 import org.incenp.obofoundry.kgcl.model.SynonymReplacement;
+import org.incenp.obofoundry.kgcl.model.TextDefinitionReplacement;
 import org.incenp.obofoundry.kgcl.parser.KGCLBaseVisitor;
 import org.incenp.obofoundry.kgcl.parser.KGCLParser;
 import org.semanticweb.owlapi.model.PrefixManager;
@@ -173,6 +176,62 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
         change.setOldLanguage(currentLang);
 
         ctx.new_synonym.accept(this);
+        change.setNewValue(currentText);
+        change.setNewLanguage(currentLang);
+
+        changes.add(change);
+
+        return null;
+    }
+
+    @Override
+    public Void visitNewDefinition(KGCLParser.NewDefinitionContext ctx) {
+        NewTextDefinition change = new NewTextDefinition();
+
+        Node aboutNode = new Node();
+        ctx.id().accept(this);
+        aboutNode.setId(currentId);
+        change.setAboutNode(aboutNode);
+
+        ctx.new_definition.accept(this);
+        change.setNewValue(currentText);
+        change.setNewLanguage(currentLang);
+
+        changes.add(change);
+
+        return null;
+    }
+
+    @Override
+    public Void visitRemoveDefinition(KGCLParser.RemoveDefinitionContext ctx) {
+        RemoveTextDefinition change = new RemoveTextDefinition();
+
+        Node aboutNode = new Node();
+        ctx.id().accept(this);
+        aboutNode.setId(currentId);
+        change.setAboutNode(aboutNode);
+
+        changes.add(change);
+
+        return null;
+    }
+
+    @Override
+    public Void visitChangeDefinition(KGCLParser.ChangeDefinitionContext ctx) {
+        TextDefinitionReplacement change = new TextDefinitionReplacement();
+
+        Node aboutNode = new Node();
+        ctx.id().accept(this);
+        aboutNode.setId(currentId);
+        change.setAboutNode(aboutNode);
+
+        if ( ctx.old_definition != null ) {
+            ctx.old_definition.accept(this);
+            change.setOldValue(currentText);
+            change.setOldLanguage(currentLang);
+        }
+
+        ctx.new_definition.accept(this);
         change.setNewValue(currentText);
         change.setNewLanguage(currentLang);
 

@@ -76,9 +76,9 @@ the library can apply the change to an ontology):
 | change synonym      | yes    | yes     |
 | remove from subset  | no     | no      |
 | add to subset       | no     | no      |
-| add definition      | no     | no      |
-| change definition   | no     | no      |
-| remove definition   | no     | no      |
+| add definition      | yes    | yes     |
+| change definition   | yes    | yes     |
+| remove definition   | yes    | yes     |
 
 Copying
 -------

@@ -7,6 +7,9 @@ change    : rename
           | newSynonym
           | removeSynonym
           | changeSynonym
+          | newDefinition
+          | removeDefinition
+          | changeDefinition
           ;
       
 rename    : 'rename' id 'from' old_label=text 'to' new_label=text;
@@ -20,6 +23,10 @@ newSynonym: 'create' qualifier? 'synonym' synonym=text 'for' id;
 removeSynonym: 'remove' 'synonym' synonym=text 'for' id;
 
 changeSynonym: 'change' 'synonym' 'from' old_synonym=text 'to' new_synonym=text 'for' id;
+
+newDefinition: 'add' 'definition' new_definition=text 'to' id;
+removeDefinition: 'remove' 'definition' 'for' id;
+changeDefinition: 'change' 'definition' 'of' id ('from' old_definition=text)? 'to' new_definition=text;
 
 id        : IRI    #IdAsIRI
           | CURIE  #IdAsCURIE

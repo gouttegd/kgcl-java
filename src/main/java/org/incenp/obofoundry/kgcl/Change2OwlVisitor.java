@@ -444,20 +444,46 @@ public class Change2OwlVisitor implements IChangeVisitor {
 
     @Override
     public void visit(NewTextDefinition v) {
-        // TODO Auto-generated method stub
-
+        changes.add(new AddAxiom(ontology, factory.getOWLAnnotationAssertionAxiom(
+                factory.getOWLAnnotationProperty(Obo2OWLConstants.Obo2OWLVocabulary.IRI_IAO_0000115.getIRI()),
+                IRI.create(v.getAboutNode().getId()), factory.getOWLLiteral(v.getNewValue(), v.getNewLanguage()))));
     }
 
     @Override
     public void visit(RemoveTextDefinition v) {
-        // TODO Auto-generated method stub
-
+        for ( OWLAnnotationAssertionAxiom ax : ontology
+                .getAnnotationAssertionAxioms(IRI.create(v.getAboutNode().getId())) ) {
+            if ( ax.getProperty().getIRI().equals(Obo2OWLConstants.Obo2OWLVocabulary.IRI_IAO_0000115.getIRI()) ) {
+                // If we have the text of the definition to remove, check that it matches the
+                // definition we found. The KGCL command syntax does not allow specifying the
+                // text of the definition to remove, but the KGCL model does.
+                if ( v.getOldValue() == null || compareValue(ax.getValue(), v.getOldValue(), v.getOldLanguage()) ) {
+                    changes.add(new RemoveAxiom(ontology, ax));
+                }
+            }
+        }
     }
 
     @Override
     public void visit(TextDefinitionReplacement v) {
-        // TODO Auto-generated method stub
+        RemoveTextDefinition removeOldDefinition = new RemoveTextDefinition();
+        removeOldDefinition.setAboutNode(v.getAboutNode());
+        removeOldDefinition.setOldValue(v.getOldValue());
+        removeOldDefinition.setOldLanguage(v.getOldLanguage());
 
+        NewTextDefinition addNewDefinition = new NewTextDefinition();
+        addNewDefinition.setAboutNode(v.getAboutNode());
+        addNewDefinition.setNewValue(v.getNewValue());
+        addNewDefinition.setNewLanguage(v.getNewLanguage());
+
+        // Hack: the remove part may fail if we were provided with the text of the
+        // definition to remove and it doesn't match the existing definition -- in which
+        // case we should not proceed with the add part.
+        int n = changes.size();
+        removeOldDefinition.accept(this);
+        if ( changes.size() > n ) {
+            addNewDefinition.accept(this);
+        }
     }
 
     @Override
