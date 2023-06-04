@@ -25,6 +25,7 @@ import org.incenp.obofoundry.kgcl.model.Change;
 import org.incenp.obofoundry.kgcl.model.NewSynonym;
 import org.incenp.obofoundry.kgcl.model.NewTextDefinition;
 import org.incenp.obofoundry.kgcl.model.Node;
+import org.incenp.obofoundry.kgcl.model.NodeObsoletion;
 import org.incenp.obofoundry.kgcl.model.NodeObsoletionWithDirectReplacement;
 import org.incenp.obofoundry.kgcl.model.NodeObsoletionWithNoDirectReplacement;
 import org.incenp.obofoundry.kgcl.model.NodeRename;
@@ -93,7 +94,7 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
 
     @Override
     public Void visitObsoleteNoReplacement(KGCLParser.ObsoleteNoReplacementContext ctx) {
-        NodeObsoletionWithNoDirectReplacement change = new NodeObsoletionWithNoDirectReplacement();
+        NodeObsoletion change = new NodeObsoletion();
 
         Node aboutNode = new Node();
         ctx.old_id.accept(this);
@@ -119,6 +120,28 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
         change.setHasDirectReplacement(replacementNode);
 
         changes.add(change);
+        return null;
+    }
+
+    @Override
+    public Void visitObsoleteWithAlternative(KGCLParser.ObsoleteWithAlternativeContext ctx) {
+        NodeObsoletionWithNoDirectReplacement change = new NodeObsoletionWithNoDirectReplacement();
+
+        Node aboutNode = new Node();
+        ctx.old_id.accept(this);
+        aboutNode.setId(currentId);
+        change.setAboutNode(aboutNode);
+
+        ArrayList<Node> alternatives = new ArrayList<Node>();
+        for ( String id : ctx.alt_id.getText().split(",") ) {
+            Node alt = new Node();
+            alt.setId(id);
+            alternatives.add(alt);
+        }
+        change.setHasNondirectReplacement(alternatives);
+
+        changes.add(change);
+
         return null;
     }
 

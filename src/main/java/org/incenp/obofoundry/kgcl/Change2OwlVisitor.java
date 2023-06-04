@@ -43,6 +43,7 @@ import org.incenp.obofoundry.kgcl.model.NewMapping;
 import org.incenp.obofoundry.kgcl.model.NewMetadataAssertion;
 import org.incenp.obofoundry.kgcl.model.NewSynonym;
 import org.incenp.obofoundry.kgcl.model.NewTextDefinition;
+import org.incenp.obofoundry.kgcl.model.Node;
 import org.incenp.obofoundry.kgcl.model.NodeAnnotationChange;
 import org.incenp.obofoundry.kgcl.model.NodeAnnotationReplacement;
 import org.incenp.obofoundry.kgcl.model.NodeChange;
@@ -534,6 +535,16 @@ public class Change2OwlVisitor implements IChangeVisitor {
                             factory.getOWLAnnotationProperty(
                                     Obo2OWLConstants.Obo2OWLVocabulary.IRI_IAO_0100001.getIRI()),
                             obsoleteNodeIri, replacementNodeIri)));
+        }
+        else if ( v.getHasNondirectReplacement() != null ) {
+            // Add "consider"
+            for ( Node consider : v.getHasNondirectReplacement() ) {
+                changes.add(new AddAxiom(ontology,
+                        factory.getOWLAnnotationAssertionAxiom(
+                                factory.getOWLAnnotationProperty(
+                                        Obo2OWLConstants.Obo2OWLVocabulary.IRI_OIO_consider.getIRI()),
+                                obsoleteNodeIri, IRI.create(consider.getId()))));
+            }
         }
     }
 

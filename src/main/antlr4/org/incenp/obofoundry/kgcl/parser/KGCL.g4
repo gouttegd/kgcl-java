@@ -14,8 +14,9 @@ change    : rename
       
 rename    : 'rename' id 'from' old_label=text 'to' new_label=text;
 
-obsolete  : 'obsolete' old_id=id                               #ObsoleteNoReplacement
-          | 'obsolete' old_id=id 'with replacement' new_id=id  #ObsoleteWithReplacement
+obsolete  : 'obsolete' old_id=id                                   #ObsoleteNoReplacement
+          | 'obsolete' old_id=id 'with replacement' new_id=id      #ObsoleteWithReplacement
+          | 'obsolete' old_id=id 'with alternative' alt_id=idlist  #ObsoleteWithAlternative
           ;
 
 newSynonym: 'create' qualifier? 'synonym' synonym=text 'for' id;
@@ -27,6 +28,8 @@ changeSynonym: 'change' 'synonym' 'from' old_synonym=text 'to' new_synonym=text 
 newDefinition: 'add' 'definition' new_definition=text 'to' id;
 removeDefinition: 'remove' 'definition' 'for' id;
 changeDefinition: 'change' 'definition' 'of' id ('from' old_definition=text)? 'to' new_definition=text;
+
+idlist    : id (',' id)*;
 
 id        : IRI    #IdAsIRI
           | CURIE  #IdAsCURIE

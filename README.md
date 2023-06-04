@@ -61,7 +61,7 @@ the library can apply the change to an ontology):
 | ------------------- | -------| ------- |
 | rename              | yes    | yes     |
 | create              | no     | no      |
-| obsolete            | yes    | yes (except for non-direct replacement) |
+| obsolete            | yes    | yes     |
 | delete              | no     | no      |
 | move                | no     | no      |
 | unobsolete          | no     | no      |
