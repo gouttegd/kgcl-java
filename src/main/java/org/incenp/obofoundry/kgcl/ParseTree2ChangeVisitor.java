@@ -133,10 +133,11 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
         change.setAboutNode(aboutNode);
 
         ArrayList<Node> alternatives = new ArrayList<Node>();
-        for ( String id : ctx.alt_id.getText().split(",") ) {
-            Node alt = new Node();
-            alt.setId(id);
-            alternatives.add(alt);
+        for ( KGCLParser.IdContext alt : ctx.alt_id.id() ) {
+            Node altNode = new Node();
+            alt.accept(this);
+            altNode.setId(currentId);
+            alternatives.add(altNode);
         }
         change.setHasNondirectReplacement(alternatives);
 
