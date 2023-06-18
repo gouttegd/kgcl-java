@@ -91,7 +91,7 @@
               <transformers>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                  <mainClass>org.incenp.obofoundry.kgcl.StandaloneRobot</mainClass>
+                  <mainClass>org.incenp.obofoundry.kgcl.robot.StandaloneRobot</mainClass>
                 </transformer>
               </transformers>
             </configuration>

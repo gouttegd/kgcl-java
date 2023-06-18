@@ -1,1 +1,1 @@
-org.incenp.obofoundry.kgcl.ApplyCommand
+org.incenp.obofoundry.kgcl.robot.ApplyCommand

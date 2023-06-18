@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.incenp.obofoundry.kgcl;
+package org.incenp.obofoundry.kgcl.robot;
 
 import org.obolibrary.robot.AnnotateCommand;
 import org.obolibrary.robot.CollapseCommand;
