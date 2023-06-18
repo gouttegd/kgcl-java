@@ -71,11 +71,13 @@
         <version>3.2.4</version>
         <executions>
           <execution>
+            <id>robot-standalone</id>
             <phase>package</phase>
             <goals>
               <goal>shade</goal>
             </goals>
             <configuration>
+              <finalName>kgcl-robot-standalone-${project.version}</finalName>
               <filters>
                 <filter>
                   <artifact>*:*</artifact>
@@ -92,6 +94,22 @@
                   <mainClass>org.incenp.obofoundry.kgcl.StandaloneRobot</mainClass>
                 </transformer>
               </transformers>
+            </configuration>
+          </execution>
+          <execution>
+            <id>robot-plugin</id>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <finalName>kgcl-robot-plugin-${project.version}</finalName>
+              <artifactSet>
+                <includes>
+                  <include>org.projectlombok:lombok</include>
+                  <include>org.antlr:antlr4-runtime</include>
+                </includes>
+              </artifactSet>
             </configuration>
           </execution>
         </executions>
