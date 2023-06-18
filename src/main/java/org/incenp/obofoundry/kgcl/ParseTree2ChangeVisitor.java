@@ -288,7 +288,15 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
     }
 
     private String unquote(String s) {
-        return s.substring(1, s.length() - 1);
+        StringBuilder sb = new StringBuilder();
+        for ( int i = 1, n = s.length(); i < n - 1; i++ ) {
+            char c = s.charAt(i);
+            if ( c != '\\' ) {
+                sb.append(c);
+            }
+        }
+
+        return sb.toString();
     }
 
     private String expandCurie(String curie) {

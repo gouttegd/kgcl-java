@@ -53,10 +53,13 @@ IRI       : '<' ~[\p{Z}>]+ '>';
 
 CURIE     : [a-zA-Z0-9_]+ ':' [a-zA-Z0-9_]+;
 
-SQ_STRING : '\'' ~[']*? '\'';
-DQ_STRING : '"' ~["]*? '"';
+SQ_STRING : '\'' (SQ_ESCAPE|.)*? '\'';
+DQ_STRING : '"' (DQ_ESCAPE|.)*? '"';
 
 LANGTAG   : '@' [a-zA-Z][a-zA-Z][a-zA-Z]?('-'[a-zA-Z]+)?;
 
 WS        : (' ' | '\t') -> skip;
 NL        : '\r'? '\n';
+
+fragment SQ_ESCAPE: '\\\'' | '\\\\';
+fragment DQ_ESCAPE: '\\"' | '\\\\';
