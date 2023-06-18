@@ -1,6 +1,6 @@
 grammar KGCL;
 
-changeset : change (NL change)* EOF;
+changeset : change (NL change)* NL? EOF;
 
 change    : rename
           | obsolete
@@ -26,7 +26,9 @@ removeSynonym: 'remove' 'synonym' synonym=text 'for' id;
 changeSynonym: 'change' 'synonym' 'from' old_synonym=text 'to' new_synonym=text 'for' id;
 
 newDefinition: 'add' 'definition' new_definition=text 'to' id;
+
 removeDefinition: 'remove' 'definition' 'for' id;
+
 changeDefinition: 'change' 'definition' 'of' id ('from' old_definition=text)? 'to' new_definition=text;
 
 idlist    : id (',' id)*;
