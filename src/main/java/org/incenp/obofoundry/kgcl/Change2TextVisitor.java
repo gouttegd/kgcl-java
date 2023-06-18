@@ -22,63 +22,18 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import org.incenp.obofoundry.kgcl.model.AddNodeToSubset;
-import org.incenp.obofoundry.kgcl.model.Change;
-import org.incenp.obofoundry.kgcl.model.ClassCreation;
-import org.incenp.obofoundry.kgcl.model.ComplexChange;
-import org.incenp.obofoundry.kgcl.model.EdgeChange;
-import org.incenp.obofoundry.kgcl.model.EdgeCreation;
-import org.incenp.obofoundry.kgcl.model.EdgeDeletion;
-import org.incenp.obofoundry.kgcl.model.EdgeLogicalInterpretationChange;
-import org.incenp.obofoundry.kgcl.model.EdgeObsoletion;
-import org.incenp.obofoundry.kgcl.model.EdgeRewiring;
-import org.incenp.obofoundry.kgcl.model.IChangeVisitor;
-import org.incenp.obofoundry.kgcl.model.LogicalAxiomChange;
-import org.incenp.obofoundry.kgcl.model.MappingCreation;
-import org.incenp.obofoundry.kgcl.model.MappingPredicateChange;
-import org.incenp.obofoundry.kgcl.model.MappingReplacement;
-import org.incenp.obofoundry.kgcl.model.MetadataAssertionPredicateChange;
-import org.incenp.obofoundry.kgcl.model.MetadataAssertionReplacement;
-import org.incenp.obofoundry.kgcl.model.MultiNodeObsoletion;
-import org.incenp.obofoundry.kgcl.model.NameBecomesSynonym;
-import org.incenp.obofoundry.kgcl.model.NewMapping;
-import org.incenp.obofoundry.kgcl.model.NewMetadataAssertion;
 import org.incenp.obofoundry.kgcl.model.NewSynonym;
 import org.incenp.obofoundry.kgcl.model.NewTextDefinition;
 import org.incenp.obofoundry.kgcl.model.Node;
-import org.incenp.obofoundry.kgcl.model.NodeAnnotationChange;
-import org.incenp.obofoundry.kgcl.model.NodeAnnotationReplacement;
-import org.incenp.obofoundry.kgcl.model.NodeChange;
-import org.incenp.obofoundry.kgcl.model.NodeCreation;
-import org.incenp.obofoundry.kgcl.model.NodeDeepening;
-import org.incenp.obofoundry.kgcl.model.NodeDeletion;
-import org.incenp.obofoundry.kgcl.model.NodeDirectMerge;
-import org.incenp.obofoundry.kgcl.model.NodeMappingChange;
-import org.incenp.obofoundry.kgcl.model.NodeMetadataAssertionChange;
-import org.incenp.obofoundry.kgcl.model.NodeMove;
 import org.incenp.obofoundry.kgcl.model.NodeObsoletion;
 import org.incenp.obofoundry.kgcl.model.NodeObsoletionWithDirectReplacement;
 import org.incenp.obofoundry.kgcl.model.NodeObsoletionWithNoDirectReplacement;
 import org.incenp.obofoundry.kgcl.model.NodeRename;
-import org.incenp.obofoundry.kgcl.model.NodeShallowing;
-import org.incenp.obofoundry.kgcl.model.NodeSynonymChange;
-import org.incenp.obofoundry.kgcl.model.NodeTextDefinitionChange;
-import org.incenp.obofoundry.kgcl.model.NodeUnobsoletion;
-import org.incenp.obofoundry.kgcl.model.ObjectPropertyCreation;
-import org.incenp.obofoundry.kgcl.model.PlaceUnder;
-import org.incenp.obofoundry.kgcl.model.PredicateChange;
-import org.incenp.obofoundry.kgcl.model.RemoveMapping;
-import org.incenp.obofoundry.kgcl.model.RemoveMetadataAssertion;
-import org.incenp.obofoundry.kgcl.model.RemoveNodeFromSubset;
 import org.incenp.obofoundry.kgcl.model.RemoveSynonym;
 import org.incenp.obofoundry.kgcl.model.RemoveTextDefinition;
-import org.incenp.obofoundry.kgcl.model.RemoveUnder;
-import org.incenp.obofoundry.kgcl.model.SetLanguageForName;
 import org.incenp.obofoundry.kgcl.model.SimpleChange;
-import org.incenp.obofoundry.kgcl.model.SynonymPredicateChange;
 import org.incenp.obofoundry.kgcl.model.SynonymReplacement;
 import org.incenp.obofoundry.kgcl.model.TextDefinitionReplacement;
-import org.incenp.obofoundry.kgcl.model.Transaction;
 import org.semanticweb.owlapi.model.PrefixManager;
 
 /**
@@ -86,7 +41,7 @@ import org.semanticweb.owlapi.model.PrefixManager;
  * {@link org.incenp.obofoundry.kgcl.model.Change} objects into their textual
  * representation in the KGCL language.
  */
-public class Change2TextVisitor implements IChangeVisitor {
+public class Change2TextVisitor extends ChangeVisitorBase {
 
     private ArrayList<String> commands = new ArrayList<String>();
     private HashMap<String, String> shortIdentifierCache = new HashMap<String, String>();
@@ -198,134 +153,9 @@ public class Change2TextVisitor implements IChangeVisitor {
     }
 
     @Override
-    public void visit(Change v) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(SimpleChange v) {
-        // TODO Auto-generated method stub
-    }
-
-    @Override
-    public void visit(EdgeChange v) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(EdgeCreation v) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(PlaceUnder v) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(MappingCreation v) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(EdgeDeletion v) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(RemoveUnder v) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(EdgeObsoletion v) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(EdgeRewiring v) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(NodeMove v) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(NodeDeepening v) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(NodeShallowing v) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(PredicateChange v) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(EdgeLogicalInterpretationChange v) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(LogicalAxiomChange v) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(NodeChange v) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
     public void visit(NodeRename v) {
         commands.add(String.format("rename %s from %s to %s", renderNode(v.getAboutNode()), renderOldValue(v),
                 renderNewValue(v)));
-    }
-
-    @Override
-    public void visit(SetLanguageForName v) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(NodeAnnotationChange v) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(NodeAnnotationReplacement v) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(NodeSynonymChange v) {
-        // TODO Auto-generated method stub
-
     }
 
     @Override
@@ -347,12 +177,6 @@ public class Change2TextVisitor implements IChangeVisitor {
     }
 
     @Override
-    public void visit(NameBecomesSynonym v) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
     public void visit(RemoveSynonym v) {
         commands.add(String.format("remove synonym %s for %s", renderOldValue(v), renderNode(v.getAboutNode())));
     }
@@ -361,78 +185,6 @@ public class Change2TextVisitor implements IChangeVisitor {
     public void visit(SynonymReplacement v) {
         commands.add(String.format("change synonym from %s to %s for %s", renderOldValue(v), renderNewValue(v),
                 renderNode(v.getAboutNode())));
-    }
-
-    @Override
-    public void visit(SynonymPredicateChange v) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(NodeMappingChange v) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(NewMapping v) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(RemoveMapping v) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(MappingReplacement v) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(MappingPredicateChange v) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(NodeMetadataAssertionChange v) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(NewMetadataAssertion v) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(RemoveMetadataAssertion v) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(MetadataAssertionReplacement v) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(MetadataAssertionPredicateChange v) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(NodeTextDefinitionChange v) {
-        // TODO Auto-generated method stub
-
     }
 
     @Override
@@ -463,18 +215,6 @@ public class Change2TextVisitor implements IChangeVisitor {
     }
 
     @Override
-    public void visit(AddNodeToSubset v) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(RemoveNodeFromSubset v) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
     public void visit(NodeObsoletion v) {
         StringBuilder sb = new StringBuilder();
         sb.append("obsolete ");
@@ -499,12 +239,6 @@ public class Change2TextVisitor implements IChangeVisitor {
     }
 
     @Override
-    public void visit(NodeDirectMerge v) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
     public void visit(NodeObsoletionWithDirectReplacement v) {
         visit((NodeObsoletion) v);
     }
@@ -513,53 +247,4 @@ public class Change2TextVisitor implements IChangeVisitor {
     public void visit(NodeObsoletionWithNoDirectReplacement v) {
         visit((NodeObsoletion) v);
     }
-
-    @Override
-    public void visit(NodeUnobsoletion v) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(NodeCreation v) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(ClassCreation v) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(ObjectPropertyCreation v) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(NodeDeletion v) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(ComplexChange v) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(MultiNodeObsoletion v) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(Transaction v) {
-        // TODO Auto-generated method stub
-
-    }
-
 }
