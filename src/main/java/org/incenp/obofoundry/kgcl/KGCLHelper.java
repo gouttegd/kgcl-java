@@ -19,45 +19,17 @@
 package org.incenp.obofoundry.kgcl;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.List;
 
-import org.antlr.v4.runtime.CharStream;
-import org.antlr.v4.runtime.CharStreams;
-import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.tree.ParseTree;
 import org.incenp.obofoundry.kgcl.model.Change;
-import org.incenp.obofoundry.kgcl.parser.KGCLLexer;
-import org.incenp.obofoundry.kgcl.parser.KGCLParser;
 import org.semanticweb.owlapi.model.OWLOntology;
-import org.semanticweb.owlapi.model.PrefixManager;
 
 /**
- * A class providing static helper methods to work with KGCL. This is intended
- * to be the main public interface.
+ * A class providing static helper methods to work with KGCL.
  */
 public class KGCLHelper {
-
-    private static KGCLParser getParser(CharStream stream) {
-        KGCLLexer lexer = new KGCLLexer(stream);
-        CommonTokenStream tokens = new CommonTokenStream(lexer);
-        return new KGCLParser(tokens);
-    }
-
-    private static List<Change> doParse(KGCLParser parser, OWLOntology ontology) {
-        ParseTree tree = parser.changeset();
-
-        PrefixManager prefixManager = null;
-        if ( ontology.getOWLOntologyManager().getOntologyFormat(ontology).isPrefixOWLOntologyFormat() ) {
-            prefixManager = ontology.getOWLOntologyManager().getOntologyFormat(ontology).asPrefixOWLOntologyFormat();
-        }
-
-        ParseTree2ChangeVisitor visitor = new ParseTree2ChangeVisitor(prefixManager);
-        visitor.visit(tree);
-        return visitor.getChangeSet();
-    }
 
     /**
      * Parse KGCL from a string.
@@ -66,10 +38,12 @@ public class KGCLHelper {
      * @param ontology An ontology that may provide a prefix manager to allow the
      *                 parser to expand CURIEs into IRIs. May be null.
      * @return A KGCL changeset.
+     * @throws IOException
      */
-    public static List<Change> parse(String kgcl, OWLOntology ontology) {
-        KGCLParser parser = getParser(CharStreams.fromString(kgcl));
-        return doParse(parser, ontology);
+    public static List<Change> parse(String kgcl, OWLOntology ontology) throws IOException {
+        KGCLReader reader = new KGCLReader(new StringReader(kgcl));
+        reader.setPrefixManager(ontology);
+        return reader.read();
     }
 
     /**
@@ -79,12 +53,12 @@ public class KGCLHelper {
      * @param ontology An ontology that may provide a prefix manager to allow the
      *                 parser to expand CURIEs into IRIs. May be null.
      * @return A KGCL changeset.
-     * @throws FileNotFoundException
      * @throws IOException
      */
-    public static List<Change> parse(File kgcl, OWLOntology ontology) throws FileNotFoundException, IOException {
-        KGCLParser parser = getParser(CharStreams.fromStream(new FileInputStream(kgcl)));
-        return doParse(parser, ontology);
+    public static List<Change> parse(File kgcl, OWLOntology ontology) throws IOException {
+        KGCLReader reader = new KGCLReader(kgcl);
+        reader.setPrefixManager(ontology);
+        return reader.read();
     }
 
     /**
