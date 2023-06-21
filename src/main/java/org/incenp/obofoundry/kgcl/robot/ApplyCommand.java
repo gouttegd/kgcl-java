@@ -19,21 +19,27 @@
 package org.incenp.obofoundry.kgcl.robot;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.incenp.obofoundry.kgcl.KGCLHelper;
+import org.incenp.obofoundry.kgcl.KGCLSyntaxError;
 import org.incenp.obofoundry.kgcl.model.Change;
 import org.obolibrary.robot.Command;
 import org.obolibrary.robot.CommandLineHelper;
 import org.obolibrary.robot.CommandState;
 import org.obolibrary.robot.IOHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A ROBOT command to apply KGCL-described changes to an ontology.
  */
 public class ApplyCommand implements Command {
+
+    private static final Logger logger = LoggerFactory.getLogger(ApplyCommand.class);
 
     private Options options;
 
@@ -88,11 +94,19 @@ public class ApplyCommand implements Command {
         state = CommandLineHelper.updateInputOntology(ioHelper, state, line);
 
         List<Change> changeset = null;
+        List<KGCLSyntaxError> errors = new ArrayList<KGCLSyntaxError>();
         if ( line.hasOption('k') ) {
-            changeset = KGCLHelper.parse(line.getOptionValue('k'), state.getOntology());
+            changeset = KGCLHelper.parse(line.getOptionValue('k'), state.getOntology(), errors);
         } else if ( line.hasOption('K') ) {
             File f = new File(line.getOptionValue('K'));
-            changeset = KGCLHelper.parse(f, state.getOntology());
+            changeset = KGCLHelper.parse(f, state.getOntology(), errors);
+        }
+
+        if ( !errors.isEmpty() ) {
+            for ( KGCLSyntaxError error : errors ) {
+                logger.error(String.format("KGCL syntax error: %s", error));
+            }
+            throw new Exception("Invalid KGCL input, aborting");
         }
 
         if ( changeset != null && changeset.size() > 0 ) {
