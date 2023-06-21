@@ -38,12 +38,26 @@ public class KGCLHelper {
      * @param ontology An ontology that may provide a prefix manager to allow the
      *                 parser to expand CURIEs into IRIs. May be null.
      * @return A KGCL changeset.
-     * @throws IOException
+     * @throws IOException If any non-KGCL I/O error occurs.
      */
     public static List<Change> parse(String kgcl, OWLOntology ontology) throws IOException {
-        KGCLReader reader = new KGCLReader(new StringReader(kgcl));
-        reader.setPrefixManager(ontology);
-        return reader.read();
+        return doParse(new KGCLReader(new StringReader(kgcl)), ontology, null);
+    }
+
+    /**
+     * Parse KGCL from a string and collect syntax errors.
+     * 
+     * @param kgcl     The KGCL instructions to parse.
+     * @param ontology An ontology that may provide a prefix manager to allow the
+     *                 parser to expand CURIEs into IRIs. May be null.
+     * @param errors   A list that will collect any syntax error encountered when
+     *                 parsing. If {@code null}, errors will be ignored.
+     * @return A KGCL changeset.
+     * @throws IOException If any non-KGCL I/O error occurs.
+     */
+    public static List<Change> parse(String kgcl, OWLOntology ontology, List<KGCLSyntaxError> errors)
+            throws IOException {
+        return doParse(new KGCLReader(new StringReader(kgcl)), ontology, errors);
     }
 
     /**
@@ -53,12 +67,39 @@ public class KGCLHelper {
      * @param ontology An ontology that may provide a prefix manager to allow the
      *                 parser to expand CURIEs into IRIs. May be null.
      * @return A KGCL changeset.
-     * @throws IOException
+     * @throws IOException If any non-KGCL I/O error occurs.
      */
     public static List<Change> parse(File kgcl, OWLOntology ontology) throws IOException {
-        KGCLReader reader = new KGCLReader(kgcl);
+        return doParse(new KGCLReader(kgcl), ontology, null);
+    }
+
+    /**
+     * Parse KGCL from a file and collect syntax errors.
+     * 
+     * @param kgcl     The file to parse.
+     * @param ontology An ontology that may provide a prefix manager to allow the
+     *                 parser to expand CURIEs into IRIs. May be null.
+     * @param errors   A list that will collect any syntax error encountered when
+     *                 parsing. If {@code null}, errors will be ignored.
+     * @return A KGCL changeset.
+     * @throws IOException If any non-KGCL I/O error occurs.
+     */
+    public static List<Change> parse(File kgcl, OWLOntology ontology, List<KGCLSyntaxError> errors) throws IOException {
+        return doParse(new KGCLReader(kgcl), ontology, errors);
+    }
+
+    private static List<Change> doParse(KGCLReader reader, OWLOntology ontology, List<KGCLSyntaxError> errors)
+            throws IOException {
         reader.setPrefixManager(ontology);
-        return reader.read();
+
+        if ( !reader.read() ) {
+            if ( errors != null ) {
+                errors.addAll(reader.getErrors());
+            }
+            return null;
+        }
+
+        return reader.getChangeSet();
     }
 
     /**

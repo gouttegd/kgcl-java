@@ -25,10 +25,14 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
+import java.util.ArrayList;
 import java.util.List;
 
+import org.antlr.v4.runtime.BaseErrorListener;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.RecognitionException;
+import org.antlr.v4.runtime.Recognizer;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.incenp.obofoundry.kgcl.model.Change;
 import org.incenp.obofoundry.kgcl.parser.KGCLLexer;
@@ -43,6 +47,8 @@ import org.semanticweb.owlapi.model.PrefixManager;
 public class KGCLReader {
     private Reader input;
     private PrefixManager prefixManager;
+    private ErrorListener errorListener = new ErrorListener();
+    public List<Change> changeSet;
 
     /**
      * Create a new instance to read from a reader object.
@@ -106,19 +112,79 @@ public class KGCLReader {
     }
 
     /**
-     * Parse the KGCL program from the source.
+     * Parse the KGCL program from the source. After this method returns true, call
+     * the {@link getChangeSet} method to get the result.
      * 
-     * @return A list of KGCL change objects.
-     * @throws IOException If any I/O error occurs when parsing.
+     * @return {@code true} if the program was successfully parsed, {@code false} if
+     *         syntax errors were found.
+     * @throws IOException If any non-KGCL I/O error occurs when parsing.
      */
-    public List<Change> read() throws IOException {
+    public boolean read() throws IOException {
         KGCLLexer lexer = new KGCLLexer(CharStreams.fromReader(input));
+        lexer.removeErrorListeners();
+        lexer.addErrorListener(errorListener);
+
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         KGCLParser parser = new KGCLParser(tokens);
+        parser.removeErrorListeners();
+        parser.addErrorListener(errorListener);
 
         ParseTree tree = parser.changeset();
-        ParseTree2ChangeVisitor visitor = new ParseTree2ChangeVisitor(prefixManager);
-        visitor.visit(tree);
-        return visitor.getChangeSet();
+        if ( !hasErrors() ) {
+            ParseTree2ChangeVisitor visitor = new ParseTree2ChangeVisitor(prefixManager);
+            visitor.visit(tree);
+            changeSet = visitor.getChangeSet();
+        }
+
+        return !hasErrors();
+    }
+
+    /**
+     * Get the KGCL changeset read from the source. This method should be called
+     * after calling {@link read} and checking that it returned {@code true}. As a
+     * convenience, if the {@code read} method has not been called, this method will
+     * automatically it; however in that case it will not possible to get the syntax
+     * errors that may have been encountered.
+     * 
+     * @return The KGCL changeset. May be {@code null} if syntax errors occurred
+     *         when parsing.
+     * @throws IOException If any non-KGCL I/O error occurs when parsing.
+     */
+    public List<Change> getChangeSet() throws IOException {
+        if ( changeSet == null && !hasErrors() ) {
+            read();
+        }
+        return changeSet;
+    }
+
+    /**
+     * Indicate whether parsing errors occurred.
+     * 
+     * @return {@code true} if at least one parsing error occurred, otherwise
+     *         {@code false}.
+     */
+    public boolean hasErrors() {
+        return !errorListener.errors.isEmpty();
+    }
+
+    /**
+     * Get all parsing errors that occurred, if any.
+     * 
+     * @return A list of objects representing the syntax errors (empty if no errors
+     *         occurred).
+     */
+    public List<KGCLSyntaxError> getErrors() {
+        return errorListener.errors;
+    }
+
+    private class ErrorListener extends BaseErrorListener {
+
+        private ArrayList<KGCLSyntaxError> errors = new ArrayList<KGCLSyntaxError>();
+
+        @Override
+        public void syntaxError(Recognizer<?, ?> recognizer, Object symbol, int line, int column,
+                String msg, RecognitionException e) {
+            errors.add(new KGCLSyntaxError(line, column, msg));
+        }
     }
 }
