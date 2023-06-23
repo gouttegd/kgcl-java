@@ -56,6 +56,7 @@ public class Change2OwlVisitor extends ChangeVisitorBase<List<OWLOntologyChange>
 
     private OWLOntology ontology;
     private OWLDataFactory factory;
+    private List<Change2OwlRejectListener> listeners;
 
     /**
      * Creates a new instance for the specified ontology.
@@ -65,9 +66,22 @@ public class Change2OwlVisitor extends ChangeVisitorBase<List<OWLOntologyChange>
     public Change2OwlVisitor(OWLOntology ontology) {
         this.ontology = ontology;
         factory = ontology.getOWLOntologyManager().getOWLDataFactory();
+        listeners = new ArrayList<Change2OwlRejectListener>();
     }
 
-    protected void onError(Change change, String format, Object... args) {
+    /**
+     * Adds a listener for change rejection events.
+     * 
+     * @param listener The listener to add.
+     */
+    public void addRejectListener(Change2OwlRejectListener listener) {
+        listeners.add(listener);
+    }
+
+    protected void onReject(Change change, String format, Object... args) {
+        for ( Change2OwlRejectListener listener : listeners ) {
+            listener.rejected(change, String.format(format, args));
+        }
     }
 
     protected List<OWLOntologyChange> doDefault(Change v) {
@@ -110,7 +124,7 @@ public class Change2OwlVisitor extends ChangeVisitorBase<List<OWLOntologyChange>
         }
 
         if ( oldLabelAxiom == null ) {
-            onError(v, "No node with IRI '%s' and label '%s'%s", v.getAboutNode().getId(), v.getOldValue(),
+            onReject(v, "No node with IRI '%s' and label '%s'%s", v.getAboutNode().getId(), v.getOldValue(),
                     v.getOldLanguage());
             return doDefault(v);
         }
