@@ -49,6 +49,7 @@ public class ApplyCommand implements Command {
         options.addOption("o", "output", true, "save ontology to file");
         options.addOption("k", "kgcl", true, "apply a single change");
         options.addOption("K", "kgcl-file", true, "apply all changes in specified file");
+        options.addOption(null, "no-partial-apply", false, "apply all changes or none at all");
     }
 
     @Override
@@ -110,7 +111,7 @@ public class ApplyCommand implements Command {
         }
 
         if ( changeset != null && changeset.size() > 0 ) {
-            KGCLHelper.apply(changeset, state.getOntology());
+            KGCLHelper.apply(changeset, state.getOntology(), line.hasOption("no-partial-apply"));
         }
 
         CommandLineHelper.maybeSaveOutput(line, state.getOntology());

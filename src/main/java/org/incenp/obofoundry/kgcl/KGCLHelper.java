@@ -21,12 +21,10 @@ package org.incenp.obofoundry.kgcl;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.incenp.obofoundry.kgcl.model.Change;
 import org.semanticweb.owlapi.model.OWLOntology;
-import org.semanticweb.owlapi.model.OWLOntologyChange;
 
 /**
  * A class providing static helper methods to work with KGCL.
@@ -107,18 +105,13 @@ public class KGCLHelper {
     /**
      * Apply a KGCL changeset to an ontology.
      * 
-     * @param changeset The changeset to apply.
-     * @param ontology  The ontology to apply it to.
+     * @param changeset      The changeset to apply.
+     * @param ontology       The ontology to apply it to.
+     * @param noPartialApply If {@code true}, changes will only be applied if they
+     *                       all can be applied.
      */
-    public static void apply(List<Change> changeset, OWLOntology ontology) {
-        Change2OwlVisitor visitor = new Change2OwlVisitor(ontology);
-        ArrayList<OWLOntologyChange> changes = new ArrayList<OWLOntologyChange>();
-        for ( Change change : changeset ) {
-            changes.addAll(change.accept(visitor));
-        }
-
-        if ( changes.size() > 0 ) {
-            ontology.getOWLOntologyManager().applyChanges(changes);
-        }
+    public static void apply(List<Change> changeset, OWLOntology ontology, boolean noPartialApply) {
+        OntologyPatcher patcher = new OntologyPatcher(ontology);
+        patcher.apply(changeset, noPartialApply);
     }
 }
