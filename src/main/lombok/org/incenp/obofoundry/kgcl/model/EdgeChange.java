@@ -11,7 +11,7 @@ public class EdgeChange extends SimpleChange {
     private String objectType;
     private String language;
     private String datatype;
-    public void accept(IChangeVisitor v) {
-        v.visit(this);
+    public <T> T accept(IChangeVisitor<T> v) {
+        return v.visit(this);
     }
 }

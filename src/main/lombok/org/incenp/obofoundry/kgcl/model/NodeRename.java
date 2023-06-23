@@ -8,7 +8,7 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper=false)
 public class NodeRename extends NodeChange {
     private TextualDiff hasTextualDiff;
-    public void accept(IChangeVisitor v) {
-        v.visit(this);
+    public <T> T accept(IChangeVisitor<T> v) {
+        return v.visit(this);
     }
 }

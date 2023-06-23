@@ -9,7 +9,7 @@ import lombok.EqualsAndHashCode;
 public class RemoveMetadataAssertion extends NodeMetadataAssertionChange {
     private Node object;
     private Node predicate;
-    public void accept(IChangeVisitor v) {
-        v.visit(this);
+    public <T> T accept(IChangeVisitor<T> v) {
+        return v.visit(this);
     }
 }

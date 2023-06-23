@@ -9,7 +9,7 @@ import lombok.EqualsAndHashCode;
 public class NodeObsoletion extends NodeChange {
     private Node hasDirectReplacement;
     private List<Node> hasNondirectReplacement;
-    public void accept(IChangeVisitor v) {
-        v.visit(this);
+    public <T> T accept(IChangeVisitor<T> v) {
+        return v.visit(this);
     }
 }

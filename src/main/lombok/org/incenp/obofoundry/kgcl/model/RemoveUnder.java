@@ -7,7 +7,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper=false)
 public class RemoveUnder extends EdgeDeletion {
-    public void accept(IChangeVisitor v) {
-        v.visit(this);
+    public <T> T accept(IChangeVisitor<T> v) {
+        return v.visit(this);
     }
 }

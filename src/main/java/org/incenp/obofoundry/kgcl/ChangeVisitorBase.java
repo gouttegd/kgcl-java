@@ -80,225 +80,288 @@ import org.incenp.obofoundry.kgcl.model.Transaction;
  * class instead of implementing the interface directly, and override only the
  * methods they need to implement.
  */
-public class ChangeVisitorBase implements IChangeVisitor {
+public class ChangeVisitorBase<T> implements IChangeVisitor<T> {
 
-    @Override
-    public void visit(Change v) {
+    /*
+     * Override this method in derived classes to change the value returned by
+     * unimplemented methods.
+     */
+    protected T doDefault(Change v) {
+        return null;
     }
 
     @Override
-    public void visit(SimpleChange v) {
+    public T visit(Change v) {
+        return doDefault(v);
     }
 
     @Override
-    public void visit(EdgeChange v) {
+    public T visit(SimpleChange v) {
+        return doDefault(v);
     }
 
     @Override
-    public void visit(EdgeCreation v) {
+    public T visit(EdgeChange v) {
+        return doDefault(v);
     }
 
     @Override
-    public void visit(PlaceUnder v) {
+    public T visit(EdgeCreation v) {
+        return doDefault(v);
     }
 
     @Override
-    public void visit(MappingCreation v) {
+    public T visit(PlaceUnder v) {
+        return doDefault(v);
     }
 
     @Override
-    public void visit(EdgeDeletion v) {
+    public T visit(MappingCreation v) {
+        return doDefault(v);
     }
 
     @Override
-    public void visit(RemoveUnder v) {
+    public T visit(EdgeDeletion v) {
+        return doDefault(v);
     }
 
     @Override
-    public void visit(EdgeObsoletion v) {
+    public T visit(RemoveUnder v) {
+        return doDefault(v);
     }
 
     @Override
-    public void visit(EdgeRewiring v) {
+    public T visit(EdgeObsoletion v) {
+        return doDefault(v);
     }
 
     @Override
-    public void visit(NodeMove v) {
+    public T visit(EdgeRewiring v) {
+        return doDefault(v);
     }
 
     @Override
-    public void visit(NodeDeepening v) {
+    public T visit(NodeMove v) {
+        return doDefault(v);
     }
 
     @Override
-    public void visit(NodeShallowing v) {
+    public T visit(NodeDeepening v) {
+        return doDefault(v);
     }
 
     @Override
-    public void visit(PredicateChange v) {
+    public T visit(NodeShallowing v) {
+        return doDefault(v);
     }
 
     @Override
-    public void visit(EdgeLogicalInterpretationChange v) {
+    public T visit(PredicateChange v) {
+        return doDefault(v);
     }
 
     @Override
-    public void visit(LogicalAxiomChange v) {
+    public T visit(EdgeLogicalInterpretationChange v) {
+        return doDefault(v);
     }
 
     @Override
-    public void visit(NodeChange v) {
+    public T visit(LogicalAxiomChange v) {
+        return doDefault(v);
     }
 
     @Override
-    public void visit(NodeRename v) {
+    public T visit(NodeChange v) {
+        return doDefault(v);
     }
 
     @Override
-    public void visit(SetLanguageForName v) {
+    public T visit(NodeRename v) {
+        return doDefault(v);
     }
 
     @Override
-    public void visit(NodeAnnotationChange v) {
+    public T visit(SetLanguageForName v) {
+        return doDefault(v);
     }
 
     @Override
-    public void visit(NodeAnnotationReplacement v) {
+    public T visit(NodeAnnotationChange v) {
+        return doDefault(v);
     }
 
     @Override
-    public void visit(NodeSynonymChange v) {
+    public T visit(NodeAnnotationReplacement v) {
+        return doDefault(v);
     }
 
     @Override
-    public void visit(NewSynonym v) {
+    public T visit(NodeSynonymChange v) {
+        return doDefault(v);
     }
 
     @Override
-    public void visit(NameBecomesSynonym v) {
+    public T visit(NewSynonym v) {
+        return doDefault(v);
     }
 
     @Override
-    public void visit(RemoveSynonym v) {
+    public T visit(NameBecomesSynonym v) {
+        return doDefault(v);
     }
 
     @Override
-    public void visit(SynonymReplacement v) {
+    public T visit(RemoveSynonym v) {
+        return doDefault(v);
     }
 
     @Override
-    public void visit(SynonymPredicateChange v) {
+    public T visit(SynonymReplacement v) {
+        return doDefault(v);
     }
 
     @Override
-    public void visit(NodeMappingChange v) {
+    public T visit(SynonymPredicateChange v) {
+        return doDefault(v);
     }
 
     @Override
-    public void visit(NewMapping v) {
+    public T visit(NodeMappingChange v) {
+        return doDefault(v);
     }
 
     @Override
-    public void visit(RemoveMapping v) {
+    public T visit(NewMapping v) {
+        return doDefault(v);
     }
 
     @Override
-    public void visit(MappingReplacement v) {
+    public T visit(RemoveMapping v) {
+        return doDefault(v);
     }
 
     @Override
-    public void visit(MappingPredicateChange v) {
+    public T visit(MappingReplacement v) {
+        return doDefault(v);
     }
 
     @Override
-    public void visit(NodeMetadataAssertionChange v) {
+    public T visit(MappingPredicateChange v) {
+        return doDefault(v);
     }
 
     @Override
-    public void visit(NewMetadataAssertion v) {
+    public T visit(NodeMetadataAssertionChange v) {
+        return doDefault(v);
     }
 
     @Override
-    public void visit(RemoveMetadataAssertion v) {
+    public T visit(NewMetadataAssertion v) {
+        return doDefault(v);
     }
 
     @Override
-    public void visit(MetadataAssertionReplacement v) {
+    public T visit(RemoveMetadataAssertion v) {
+        return doDefault(v);
     }
 
     @Override
-    public void visit(MetadataAssertionPredicateChange v) {
+    public T visit(MetadataAssertionReplacement v) {
+        return doDefault(v);
     }
 
     @Override
-    public void visit(NodeTextDefinitionChange v) {
+    public T visit(MetadataAssertionPredicateChange v) {
+        return doDefault(v);
     }
 
     @Override
-    public void visit(NewTextDefinition v) {
+    public T visit(NodeTextDefinitionChange v) {
+        return doDefault(v);
     }
 
     @Override
-    public void visit(RemoveTextDefinition v) {
+    public T visit(NewTextDefinition v) {
+        return doDefault(v);
     }
 
     @Override
-    public void visit(TextDefinitionReplacement v) {
+    public T visit(RemoveTextDefinition v) {
+        return doDefault(v);
     }
 
     @Override
-    public void visit(AddNodeToSubset v) {
+    public T visit(TextDefinitionReplacement v) {
+        return doDefault(v);
     }
 
     @Override
-    public void visit(RemoveNodeFromSubset v) {
+    public T visit(AddNodeToSubset v) {
+        return doDefault(v);
     }
 
     @Override
-    public void visit(NodeObsoletion v) {
+    public T visit(RemoveNodeFromSubset v) {
+        return doDefault(v);
     }
 
     @Override
-    public void visit(NodeDirectMerge v) {
+    public T visit(NodeObsoletion v) {
+        return doDefault(v);
     }
 
     @Override
-    public void visit(NodeObsoletionWithDirectReplacement v) {
+    public T visit(NodeDirectMerge v) {
+        return doDefault(v);
     }
 
     @Override
-    public void visit(NodeObsoletionWithNoDirectReplacement v) {
+    public T visit(NodeObsoletionWithDirectReplacement v) {
+        return doDefault(v);
     }
 
     @Override
-    public void visit(NodeUnobsoletion v) {
+    public T visit(NodeObsoletionWithNoDirectReplacement v) {
+        return doDefault(v);
     }
 
     @Override
-    public void visit(NodeCreation v) {
+    public T visit(NodeUnobsoletion v) {
+        return doDefault(v);
     }
 
     @Override
-    public void visit(ClassCreation v) {
+    public T visit(NodeCreation v) {
+        return doDefault(v);
     }
 
     @Override
-    public void visit(ObjectPropertyCreation v) {
+    public T visit(ClassCreation v) {
+        return doDefault(v);
     }
 
     @Override
-    public void visit(NodeDeletion v) {
+    public T visit(ObjectPropertyCreation v) {
+        return doDefault(v);
     }
 
     @Override
-    public void visit(ComplexChange v) {
+    public T visit(NodeDeletion v) {
+        return doDefault(v);
     }
 
     @Override
-    public void visit(MultiNodeObsoletion v) {
+    public T visit(ComplexChange v) {
+        return doDefault(v);
     }
 
     @Override
-    public void visit(Transaction v) {
+    public T visit(MultiNodeObsoletion v) {
+        return doDefault(v);
+    }
+
+    @Override
+    public T visit(Transaction v) {
+        return doDefault(v);
     }
 }

@@ -15,7 +15,7 @@ public class SimpleChange extends Change {
     private String oldLanguage;
     private String newDatatype;
     private String oldDatatype;
-    public void accept(IChangeVisitor v) {
-        v.visit(this);
+    public <T> T accept(IChangeVisitor<T> v) {
+        return v.visit(this);
     }
 }

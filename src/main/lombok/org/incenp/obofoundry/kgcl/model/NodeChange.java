@@ -10,7 +10,7 @@ public class NodeChange extends SimpleChange {
     private Node aboutNode;
     private String aboutNodeRepresentation;
     private String language;
-    public void accept(IChangeVisitor v) {
-        v.visit(this);
+    public <T> T accept(IChangeVisitor<T> v) {
+        return v.visit(this);
     }
 }

@@ -9,7 +9,7 @@ import lombok.EqualsAndHashCode;
 public class NodeAnnotationChange extends NodeChange {
     private String annotationProperty;
     private String annotationPropertyType;
-    public void accept(IChangeVisitor v) {
-        v.visit(this);
+    public <T> T accept(IChangeVisitor<T> v) {
+        return v.visit(this);
     }
 }

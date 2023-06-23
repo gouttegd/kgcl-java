@@ -13,7 +13,7 @@ public class EdgeCreation extends EdgeChange {
     private String subjectType;
     private String predicateType;
     private Annotation annotationSet;
-    public void accept(IChangeVisitor v) {
-        v.visit(this);
+    public <T> T accept(IChangeVisitor<T> v) {
+        return v.visit(this);
     }
 }

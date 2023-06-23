@@ -19,6 +19,7 @@
 package org.incenp.obofoundry.kgcl;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.incenp.obofoundry.kgcl.model.Change;
 import org.incenp.obofoundry.kgcl.model.NewSynonym;
@@ -51,11 +52,10 @@ import org.semanticweb.owlapi.vocab.OWLRDFVocabulary;
  * API {@link org.semanticweb.owlapi.model.OWLOntologyChange} objects that, when
  * applied to an ontology, would implement the requested changes.
  */
-public class Change2OwlVisitor extends ChangeVisitorBase {
+public class Change2OwlVisitor extends ChangeVisitorBase<List<OWLOntologyChange>> {
 
     private OWLOntology ontology;
     private OWLDataFactory factory;
-    private ArrayList<OWLOntologyChange> changes;
 
     /**
      * Creates a new instance for the specified ontology.
@@ -65,19 +65,13 @@ public class Change2OwlVisitor extends ChangeVisitorBase {
     public Change2OwlVisitor(OWLOntology ontology) {
         this.ontology = ontology;
         factory = ontology.getOWLOntologyManager().getOWLDataFactory();
-        changes = new ArrayList<OWLOntologyChange>();
-    }
-
-    /**
-     * Apply the changes to the ontology.
-     */
-    public void apply() {
-        if ( changes.size() > 0 ) {
-            ontology.getOWLOntologyManager().applyChanges(changes);
-        }
     }
 
     protected void onError(Change change, String format, Object... args) {
+    }
+
+    protected List<OWLOntologyChange> doDefault(Change v) {
+        return new ArrayList<OWLOntologyChange>();
     }
 
     private boolean compareValue(OWLAnnotationValue value, String changeText, String changeLang) {
@@ -95,8 +89,16 @@ public class Change2OwlVisitor extends ChangeVisitorBase {
         return valueLang.equals(changeLang);
     }
 
+    private List<OWLOntologyChange> makeList(OWLOntologyChange... args) {
+        ArrayList<OWLOntologyChange> list = new ArrayList<OWLOntologyChange>();
+        for ( OWLOntologyChange c : args ) {
+            list.add(c);
+        }
+        return list;
+    }
+
     @Override
-    public void visit(NodeRename v) {
+    public List<OWLOntologyChange> visit(NodeRename v) {
         OWLAnnotationAssertionAxiom oldLabelAxiom = null;
         for ( OWLAnnotationAssertionAxiom ax : ontology
                 .getAnnotationAssertionAxioms(IRI.create(v.getAboutNode().getId())) ) {
@@ -110,7 +112,7 @@ public class Change2OwlVisitor extends ChangeVisitorBase {
         if ( oldLabelAxiom == null ) {
             onError(v, "No node with IRI '%s' and label '%s'%s", v.getAboutNode().getId(), v.getOldValue(),
                     v.getOldLanguage());
-            return;
+            return doDefault(v);
         }
 
         RemoveAxiom removeOldLabel = new RemoveAxiom(ontology, oldLabelAxiom);
@@ -118,12 +120,11 @@ public class Change2OwlVisitor extends ChangeVisitorBase {
                 factory.getOWLAnnotationProperty(OWLRDFVocabulary.RDFS_LABEL.getIRI()),
                 IRI.create(v.getAboutNode().getId()), factory.getOWLLiteral(v.getNewValue(), v.getNewLanguage())));
 
-        changes.add(removeOldLabel);
-        changes.add(addNewLabel);
+        return makeList(removeOldLabel, addNewLabel);
     }
 
     @Override
-    public void visit(NewSynonym v) {
+    public List<OWLOntologyChange> visit(NewSynonym v) {
         IRI aboutNodeIri = IRI.create(v.getAboutNode().getId());
 
         // The KGCL spec says the qualifier is optional, but if we use oboInOwl
@@ -148,13 +149,13 @@ public class Change2OwlVisitor extends ChangeVisitorBase {
             }
         }
 
-        changes.add(new AddAxiom(ontology,
+        return makeList(new AddAxiom(ontology,
                 factory.getOWLAnnotationAssertionAxiom(factory.getOWLAnnotationProperty(propertyIri), aboutNodeIri,
                         factory.getOWLLiteral(v.getNewValue(), v.getNewLanguage()))));
     }
 
     @Override
-    public void visit(RemoveSynonym v) {
+    public List<OWLOntologyChange> visit(RemoveSynonym v) {
         for ( OWLAnnotationAssertionAxiom ax : ontology
                 .getAnnotationAssertionAxioms(IRI.create(v.getAboutNode().getId())) ) {
             // The KGCL 'remove synonym' instruction is qualifier-agnostic, so we remove ANY
@@ -165,14 +166,16 @@ public class Change2OwlVisitor extends ChangeVisitorBase {
                     || propertyIRI.equals(Obo2OWLConstants.Obo2OWLVocabulary.IRI_OIO_hasNarrowSynonym.getIRI())
                     || propertyIRI.equals(Obo2OWLConstants.Obo2OWLVocabulary.IRI_OIO_hasRelatedSynonym.getIRI()) ) {
                 if ( compareValue(ax.getValue(), v.getOldValue(), v.getOldLanguage()) ) {
-                    changes.add(new RemoveAxiom(ontology, ax));
+                    return makeList(new RemoveAxiom(ontology, ax));
                 }
             }
         }
+
+        return doDefault(v);
     }
 
     @Override
-    public void visit(SynonymReplacement v) {
+    public List<OWLOntologyChange> visit(SynonymReplacement v) {
         // I’d like to implement this as a RemoveSynonym followed by a AddSynonym to
         // avoid code duplication, but the catch is that we need to find out the type of
         // the synonym to remove (exact, narrow, broad, related?) so that we can create
@@ -185,24 +188,27 @@ public class Change2OwlVisitor extends ChangeVisitorBase {
                     || propertyIri.equals(Obo2OWLConstants.Obo2OWLVocabulary.IRI_OIO_hasNarrowSynonym.getIRI())
                     || propertyIri.equals(Obo2OWLConstants.Obo2OWLVocabulary.IRI_OIO_hasRelatedSynonym.getIRI()) ) {
                 if ( compareValue(ax.getValue(), v.getOldValue(), v.getOldLanguage()) ) {
-                    changes.add(new RemoveAxiom(ontology, ax));
-                    changes.add(new AddAxiom(ontology,
-                            factory.getOWLAnnotationAssertionAxiom(factory.getOWLAnnotationProperty(propertyIri),
-                                    aboutNodeIri, factory.getOWLLiteral(v.getNewValue(), v.getNewLanguage()))));
+                    return makeList(new RemoveAxiom(ontology, ax),
+                            new AddAxiom(ontology,
+                                    factory.getOWLAnnotationAssertionAxiom(
+                                            factory.getOWLAnnotationProperty(propertyIri), aboutNodeIri,
+                                            factory.getOWLLiteral(v.getNewValue(), v.getNewLanguage()))));
                 }
             }
         }
+
+        return doDefault(v);
     }
 
     @Override
-    public void visit(NewTextDefinition v) {
-        changes.add(new AddAxiom(ontology, factory.getOWLAnnotationAssertionAxiom(
+    public List<OWLOntologyChange> visit(NewTextDefinition v) {
+        return makeList(new AddAxiom(ontology, factory.getOWLAnnotationAssertionAxiom(
                 factory.getOWLAnnotationProperty(Obo2OWLConstants.Obo2OWLVocabulary.IRI_IAO_0000115.getIRI()),
                 IRI.create(v.getAboutNode().getId()), factory.getOWLLiteral(v.getNewValue(), v.getNewLanguage()))));
     }
 
     @Override
-    public void visit(RemoveTextDefinition v) {
+    public List<OWLOntologyChange> visit(RemoveTextDefinition v) {
         for ( OWLAnnotationAssertionAxiom ax : ontology
                 .getAnnotationAssertionAxioms(IRI.create(v.getAboutNode().getId())) ) {
             if ( ax.getProperty().getIRI().equals(Obo2OWLConstants.Obo2OWLVocabulary.IRI_IAO_0000115.getIRI()) ) {
@@ -210,14 +216,16 @@ public class Change2OwlVisitor extends ChangeVisitorBase {
                 // definition we found. The KGCL command syntax does not allow specifying the
                 // text of the definition to remove, but the KGCL model does.
                 if ( v.getOldValue() == null || compareValue(ax.getValue(), v.getOldValue(), v.getOldLanguage()) ) {
-                    changes.add(new RemoveAxiom(ontology, ax));
+                    return makeList(new RemoveAxiom(ontology, ax));
                 }
             }
         }
+
+        return doDefault(v);
     }
 
     @Override
-    public void visit(TextDefinitionReplacement v) {
+    public List<OWLOntologyChange> visit(TextDefinitionReplacement v) {
         RemoveTextDefinition removeOldDefinition = new RemoveTextDefinition();
         removeOldDefinition.setAboutNode(v.getAboutNode());
         removeOldDefinition.setOldValue(v.getOldValue());
@@ -231,16 +239,18 @@ public class Change2OwlVisitor extends ChangeVisitorBase {
         // Hack: the remove part may fail if we were provided with the text of the
         // definition to remove and it doesn't match the existing definition -- in which
         // case we should not proceed with the add part.
-        int n = changes.size();
-        removeOldDefinition.accept(this);
-        if ( changes.size() > n ) {
-            addNewDefinition.accept(this);
+
+        List<OWLOntologyChange> changes = removeOldDefinition.accept(this);
+        if ( changes != null ) {
+            changes.addAll(addNewDefinition.accept(this));
         }
+        return changes;
     }
 
     @Override
-    public void visit(NodeObsoletion v) {
+    public List<OWLOntologyChange> visit(NodeObsoletion v) {
         IRI obsoleteNodeIri = IRI.create(v.getAboutNode().getId());
+        ArrayList<OWLOntologyChange> changes = new ArrayList<OWLOntologyChange>();
 
         // Remove the axioms that make up the class definition
         for ( OWLAxiom ax : ontology.getAxioms(factory.getOWLClass(obsoleteNodeIri), Imports.INCLUDED) ) {
@@ -285,15 +295,17 @@ public class Change2OwlVisitor extends ChangeVisitorBase {
                                 obsoleteNodeIri, IRI.create(consider.getId()))));
             }
         }
+
+        return changes;
     }
 
     @Override
-    public void visit(NodeObsoletionWithDirectReplacement v) {
-        visit((NodeObsoletion) v);
+    public List<OWLOntologyChange> visit(NodeObsoletionWithDirectReplacement v) {
+        return visit((NodeObsoletion) v);
     }
 
     @Override
-    public void visit(NodeObsoletionWithNoDirectReplacement v) {
-        visit((NodeObsoletion) v);
+    public List<OWLOntologyChange> visit(NodeObsoletionWithNoDirectReplacement v) {
+        return visit((NodeObsoletion) v);
     }
 }

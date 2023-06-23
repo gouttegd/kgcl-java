@@ -18,9 +18,7 @@
 
 package org.incenp.obofoundry.kgcl;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 import org.incenp.obofoundry.kgcl.model.NewSynonym;
 import org.incenp.obofoundry.kgcl.model.NewTextDefinition;
@@ -41,9 +39,8 @@ import org.semanticweb.owlapi.model.PrefixManager;
  * {@link org.incenp.obofoundry.kgcl.model.Change} objects into their textual
  * representation in the KGCL language.
  */
-public class Change2TextVisitor extends ChangeVisitorBase {
+public class Change2TextVisitor extends ChangeVisitorBase<String> {
 
-    private ArrayList<String> commands = new ArrayList<String>();
     private HashMap<String, String> shortIdentifierCache = new HashMap<String, String>();
     private PrefixManager prefixManager;
 
@@ -62,15 +59,6 @@ public class Change2TextVisitor extends ChangeVisitorBase {
      */
     public Change2TextVisitor() {
         this(null);
-    }
-
-    /**
-     * Get all the converted commands made by the visitor so far.
-     * 
-     * @return A list of KGCL instructions.
-     */
-    public List<String> getCommands() {
-        return commands;
     }
 
     /*
@@ -153,13 +141,13 @@ public class Change2TextVisitor extends ChangeVisitorBase {
     }
 
     @Override
-    public void visit(NodeRename v) {
-        commands.add(String.format("rename %s from %s to %s", renderNode(v.getAboutNode()), renderOldValue(v),
-                renderNewValue(v)));
+    public String visit(NodeRename v) {
+        return String.format("rename %s from %s to %s", renderNode(v.getAboutNode()), renderOldValue(v),
+                renderNewValue(v));
     }
 
     @Override
-    public void visit(NewSynonym v) {
+    public String visit(NewSynonym v) {
         StringBuilder sb = new StringBuilder();
         sb.append("create ");
 
@@ -173,32 +161,32 @@ public class Change2TextVisitor extends ChangeVisitorBase {
         sb.append(" for ");
         sb.append(renderNode(v.getAboutNode()));
 
-        commands.add(sb.toString());
+        return sb.toString();
     }
 
     @Override
-    public void visit(RemoveSynonym v) {
-        commands.add(String.format("remove synonym %s for %s", renderOldValue(v), renderNode(v.getAboutNode())));
+    public String visit(RemoveSynonym v) {
+        return String.format("remove synonym %s for %s", renderOldValue(v), renderNode(v.getAboutNode()));
     }
 
     @Override
-    public void visit(SynonymReplacement v) {
-        commands.add(String.format("change synonym from %s to %s for %s", renderOldValue(v), renderNewValue(v),
-                renderNode(v.getAboutNode())));
+    public String visit(SynonymReplacement v) {
+        return String.format("change synonym from %s to %s for %s", renderOldValue(v), renderNewValue(v),
+                renderNode(v.getAboutNode()));
     }
 
     @Override
-    public void visit(NewTextDefinition v) {
-        commands.add(String.format("add definition %s for %s", renderNewValue(v), renderNode(v.getAboutNode())));
+    public String visit(NewTextDefinition v) {
+        return String.format("add definition %s for %s", renderNewValue(v), renderNode(v.getAboutNode()));
     }
 
     @Override
-    public void visit(RemoveTextDefinition v) {
-        commands.add(String.format("remove definition for %s", renderNode(v.getAboutNode())));
+    public String visit(RemoveTextDefinition v) {
+        return String.format("remove definition for %s", renderNode(v.getAboutNode()));
     }
 
     @Override
-    public void visit(TextDefinitionReplacement v) {
+    public String visit(TextDefinitionReplacement v) {
         StringBuilder sb = new StringBuilder();
         sb.append("change definition of ");
         sb.append(renderNode(v.getAboutNode()));
@@ -211,11 +199,11 @@ public class Change2TextVisitor extends ChangeVisitorBase {
         sb.append(" to ");
         sb.append(renderNewValue(v));
 
-        commands.add(sb.toString());
+        return sb.toString();
     }
 
     @Override
-    public void visit(NodeObsoletion v) {
+    public String visit(NodeObsoletion v) {
         StringBuilder sb = new StringBuilder();
         sb.append("obsolete ");
         sb.append(renderNode(v.getAboutNode()));
@@ -235,16 +223,16 @@ public class Change2TextVisitor extends ChangeVisitorBase {
             }
         }
 
-        commands.add(sb.toString());
+        return sb.toString();
     }
 
     @Override
-    public void visit(NodeObsoletionWithDirectReplacement v) {
-        visit((NodeObsoletion) v);
+    public String visit(NodeObsoletionWithDirectReplacement v) {
+        return visit((NodeObsoletion) v);
     }
 
     @Override
-    public void visit(NodeObsoletionWithNoDirectReplacement v) {
-        visit((NodeObsoletion) v);
+    public String visit(NodeObsoletionWithNoDirectReplacement v) {
+        return visit((NodeObsoletion) v);
     }
 }

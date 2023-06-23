@@ -9,7 +9,7 @@ import lombok.EqualsAndHashCode;
 public class NodeMove extends EdgeChange {
     private String oldObjectType;
     private String newObjectType;
-    public void accept(IChangeVisitor v) {
-        v.visit(this);
+    public <T> T accept(IChangeVisitor<T> v) {
+        return v.visit(this);
     }
 }

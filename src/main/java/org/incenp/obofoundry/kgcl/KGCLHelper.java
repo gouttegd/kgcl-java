@@ -21,10 +21,12 @@ package org.incenp.obofoundry.kgcl;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.incenp.obofoundry.kgcl.model.Change;
 import org.semanticweb.owlapi.model.OWLOntology;
+import org.semanticweb.owlapi.model.OWLOntologyChange;
 
 /**
  * A class providing static helper methods to work with KGCL.
@@ -110,9 +112,13 @@ public class KGCLHelper {
      */
     public static void apply(List<Change> changeset, OWLOntology ontology) {
         Change2OwlVisitor visitor = new Change2OwlVisitor(ontology);
+        ArrayList<OWLOntologyChange> changes = new ArrayList<OWLOntologyChange>();
         for ( Change change : changeset ) {
-            change.accept(visitor);
+            changes.addAll(change.accept(visitor));
         }
-        visitor.apply();
+
+        if ( changes.size() > 0 ) {
+            ontology.getOWLOntologyManager().applyChanges(changes);
+        }
     }
 }

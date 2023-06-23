@@ -11,7 +11,7 @@ public class NodeCreation extends NodeChange {
     private String name;
     private String owlType;
     private Annotation annotationSet;
-    public void accept(IChangeVisitor v) {
-        v.visit(this);
+    public <T> T accept(IChangeVisitor<T> v) {
+        return v.visit(this);
     }
 }

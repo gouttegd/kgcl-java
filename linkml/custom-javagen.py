@@ -21,8 +21,8 @@ public class {{ cls.name }} {% if cls.is_a -%} extends {{ cls.is_a }} {%- endif 
 {%- endfor -%}
 
 {% if cls.name == "Change" or gen.has_ancestor(cls, "Change") %}
-    public void accept(IChangeVisitor v) {
-        v.visit(this);
+    public <T> T accept(IChangeVisitor<T> v) {
+        return v.visit(this);
     }
 {% endif -%}
 }
@@ -31,10 +31,10 @@ public class {{ cls.name }} {% if cls.is_a -%} extends {{ cls.is_a }} {%- endif 
 visitor_template = """\
 package org.incenp.obofoundry.kgcl.model;
 
-public interface IChangeVisitor {
-    void visit(Change v);
+public interface IChangeVisitor<T> {
+    T visit(Change v);
 {%- for descendant in gen.get_descendants("Change") %}
-    void visit({{ descendant }} v);
+    T visit({{ descendant }} v);
 {%- endfor %}
 }
 """

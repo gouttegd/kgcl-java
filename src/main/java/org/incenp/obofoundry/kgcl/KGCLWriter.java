@@ -99,11 +99,11 @@ public class KGCLWriter {
     public void write(List<Change> changes) throws IOException {
         Change2TextVisitor visitor = new Change2TextVisitor(prefixManager);
         for ( Change change : changes ) {
-            change.accept(visitor);
-        }
-        for ( String command : visitor.getCommands() ) {
-            output.write(command);
-            output.newLine();
+            String kgcl = change.accept(visitor);
+            if ( kgcl != null ) {
+                output.write(kgcl);
+                output.newLine();
+            }
         }
     }
 
