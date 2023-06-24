@@ -12,8 +12,7 @@ The code is organized in three distinct packages.
 
 The `org.incenp.obofoundry.kgcl` package is intended to provide a
 reasonably high-level API to parse KGCL instructions and apply the
-changes to an OWL ontology. The main interface, at least for now, is the
-`KGCLHelper` class.
+changes to an OWL ontology.
 
 The `org.incenp.obofoundry.kgcl.model` package provides the classes that
 make up the object model for KGCL. Those classes are directly derived
@@ -27,6 +26,88 @@ instructions into a corresponding object representation. The classes
 there may be used by those who want to parse KGCL and manipulate the
 parse tree themselves (knowledge of the ANTLR runtime library is
 needed).
+
+Library API
+-----------
+
+### Parsing a KGCL file
+Use the `org.incenp.obofoundry.kgcl.KGCLReader` to parse a KGCL file:
+
+```java
+import org.incenp.obofoundry.kgcl.KGCLReader;
+import org.incenp.obofoundry.kgcl.model.Change;
+import java.util.List;
+
+KGCLReader reader = new KGCLReader([filename, file, InputStream, or Reader object]);
+if ( reader.read() ) {
+    // File successfully parsed
+    List<Change> changes = read.getChangeset();
+} else {
+    // Syntax errors found
+    for ( KGCLSyntaxError error : reader.getErrors() ) {
+        System.err.printf("syntax error %s\n", error.toString());
+    }
+}
+```
+
+The reader will throw the standard exceptions (`FileNotFoundException`,
+`IOException`) if some non-KGCL-related I/O errors occur.
+
+Before attempting to read, you can pass a OWL API `PrefixManager` to the
+reader, which will use it to expand CURIEs in the KGCL file. As a
+convenience, if you have a `OWLOntology` object that was obtained from a
+format that supports prefixes, you can pass that object directly as the
+prefix manager:
+
+```java
+OWLOntology o = OWLManager.createOWLOntologyManager().loadOntologyFrom...;
+reader.setPrefixManager(o);
+```
+
+### Writing a KGCL file
+Use the `org.incenp.obofoundry.kgcl.KGCLWriter` to serialise KGCL
+change objects into the KGCL language:
+
+```java
+import org.incenp.obofoundry.kgcl.KGCLWriter
+import org.incenp.obofoundry.kgcl.model.Change;
+
+KGCLWriter writer = new KGCLWriter([filename, file, or OutputStream object]);
+writer.write(change); // write an individual change;
+writer.write(changes); // write several changes in one step,
+                       // changes is a List<Change>
+writer.close();
+```
+
+The writer will throw standard I/O exceptions upon I/O errors.
+
+As for parsing, you can pass a OWL API `PrefixManager` to the writer to
+condense identifiers into short, “CURIEfied” identifiers.
+
+### Applying the changes to a OWL ontology
+Use the `org.incenp.obofoundry.kgcl.OntologyPatcher` to apply changes to
+an ontology:
+
+```java
+import org.incenp.obofoundry.kgcl.OntologyPatcher;
+import org.incenp.obofoundry.kgcl.RejectedChange;
+import org.incenp.obofoundry.kgcl.model.Change;
+import org.semanticweb.owlapi.model.OWLOntology;
+import java.util.List;
+
+OWLOntology o = ...;
+List<Change> changes = ...;
+OntologyPatcher patcher = new OntologyPatcher(o);
+if ( patcher.apply(changes, false) ) {
+    // All changes were applied
+    o.saveOntology(...);
+} else {
+    // Some changes could not be applied
+    for ( RejectedChange rc : patcher.getRejectedChanges() ) {
+        System.err.printf("Change rejected: %s\n", rc.getReason());
+    }
+}
+```
 
 ROBOT command
 -------------
@@ -48,11 +129,20 @@ The `apply` command takes a single KGCL instruction in its `-k` (or
 `-K` (or `--kgcl-file`) option, and apply the requested changes to the
 current ontology.
 
+```sh
+robot apply -i input.ofn -K changes.kgcl -o output.ofn
+```
+
+If some changes cannot be applied because they don’t match the contents
+of the ontology (for example, trying to add a label to a class that does
+not exist), they will be written back to a file with the same name as
+the original KGCL file, with a ".rej" extension appended.
+
+If the `--no-partial-apply` option is used, then the command will refuse
+to apply any changes if at least one change cannot be applied.
+
 Todo
 ----
-Everything! Most types of change are not implemented yet, and there is
-no handling of errors at all.
-
 KGCL implementation chart (_parsed_ means the library can recognize the
 instruction and convert it to its object representation; _applied_ means
 the library can apply the change to an ontology):
