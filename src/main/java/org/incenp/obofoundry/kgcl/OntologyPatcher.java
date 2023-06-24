@@ -33,7 +33,7 @@ public class OntologyPatcher implements Change2OwlRejectListener {
 
     private OWLOntology ontology;
     private Change2OwlVisitor visitor;
-    private int nRejected;
+    private ArrayList<RejectedChange> rejectedChanges;
 
     /**
      * Create a new instance to update the specified ontology.
@@ -44,6 +44,7 @@ public class OntologyPatcher implements Change2OwlRejectListener {
         this.ontology = ontology;
         visitor = new Change2OwlVisitor(ontology);
         visitor.addRejectListener(this);
+        rejectedChanges = new ArrayList<RejectedChange>();
     }
 
     /**
@@ -53,23 +54,45 @@ public class OntologyPatcher implements Change2OwlRejectListener {
      * @param noPartialApply If {@code true}, changes will only be applied if they
      *                       can be applied; otherwise, changes that can be applied
      *                       will be applied, rejected changes will be ignored.
+     * @return {@code true} if no changes were rejected, otherwise {@code false}.
      */
-    public void apply(List<Change> changes, boolean noPartialApply) {
+    public boolean apply(List<Change> changes, boolean noPartialApply) {
         ArrayList<OWLOntologyChange> owlChanges = new ArrayList<OWLOntologyChange>();
-        nRejected = 0;
+        int nRejected = rejectedChanges.size();
         for ( Change change : changes ) {
             owlChanges.addAll(change.accept(visitor));
         }
 
         if ( owlChanges.size() > 0 ) {
-            if ( nRejected == 0 || !noPartialApply ) {
+            if ( rejectedChanges.size() == nRejected || !noPartialApply ) {
                 ontology.getOWLOntologyManager().applyChanges(owlChanges);
             }
         }
+
+        return rejectedChanges.size() == nRejected;
+    }
+
+    /**
+     * Indicate whether changes have been rejected by this patcher.
+     * 
+     * @return {@code true} if at least one change has ever been rejected.
+     */
+    public boolean hasRejectedChanges() {
+        return !rejectedChanges.isEmpty();
+    }
+
+    /**
+     * Get the changes that have been rejected by this patcher.
+     * 
+     * @return A list of all the changes that have been rejected in the lifetime of
+     *         this patcher.
+     */
+    public List<RejectedChange> getRejectedChanges() {
+        return rejectedChanges;
     }
 
     @Override
     public void rejected(Change change, String reason) {
-        nRejected += 1;
+        rejectedChanges.add(new RejectedChange(change, reason));
     }
 }
