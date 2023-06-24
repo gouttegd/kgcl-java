@@ -29,6 +29,7 @@ import org.incenp.obofoundry.kgcl.model.NodeObsoletion;
 import org.incenp.obofoundry.kgcl.model.NodeObsoletionWithDirectReplacement;
 import org.incenp.obofoundry.kgcl.model.NodeObsoletionWithNoDirectReplacement;
 import org.incenp.obofoundry.kgcl.model.NodeRename;
+import org.incenp.obofoundry.kgcl.model.PlaceUnder;
 import org.incenp.obofoundry.kgcl.model.RemoveSynonym;
 import org.incenp.obofoundry.kgcl.model.RemoveTextDefinition;
 import org.incenp.obofoundry.kgcl.model.SimpleChange;
@@ -246,6 +247,12 @@ public class Change2TextVisitor extends ChangeVisitorBase<String> {
     @Override
     public String visit(EdgeCreation v) {
         return String.format("create edge %s %s %s", renderNode(v.getSubject()), renderNode(v.getPredicate()),
+                renderNode(v.getObject()));
+    }
+
+    @Override
+    public String visit(PlaceUnder v) {
+        return String.format("create edge %s rdfs:subClassOf %s", renderNode(v.getSubject()),
                 renderNode(v.getObject()));
     }
 }

@@ -34,6 +34,7 @@ import org.incenp.obofoundry.kgcl.model.NodeObsoletion;
 import org.incenp.obofoundry.kgcl.model.NodeObsoletionWithDirectReplacement;
 import org.incenp.obofoundry.kgcl.model.NodeObsoletionWithNoDirectReplacement;
 import org.incenp.obofoundry.kgcl.model.NodeRename;
+import org.incenp.obofoundry.kgcl.model.PlaceUnder;
 import org.incenp.obofoundry.kgcl.model.RemoveSynonym;
 import org.incenp.obofoundry.kgcl.model.RemoveTextDefinition;
 import org.incenp.obofoundry.kgcl.model.SynonymReplacement;
@@ -419,5 +420,24 @@ public class Change2OwlVisitor extends ChangeVisitorBase<List<OWLOntologyChange>
         }
 
         return makeList(new AddAxiom(ontology, edgeAxiom));
+    }
+
+    @Override
+    public List<OWLOntologyChange> visit(PlaceUnder v) {
+        /*
+         * The KGCL documentation says "PlaceUnder" is merely an "EdgeCreation" where
+         * the predicate is rdfs:subClassOf. The KGCL language has no separate
+         * instruction to create such a change, but one could create it directly
+         * in-memory. In this case it's unclear whether the predicate should be
+         * explicitly set to rdfs:subClassOf, so in case it has not been set we do so
+         * here.
+         */
+        if ( v.getPredicate() == null ) {
+            Node predicate = new Node();
+            predicate.setId(OWLRDFVocabulary.RDFS_SUBCLASS_OF.toString());
+            v.setPredicate(predicate);
+        }
+
+        return visit((EdgeCreation) v);
     }
 }
