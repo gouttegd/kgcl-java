@@ -24,6 +24,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
@@ -65,7 +66,7 @@ public class KGCLReader {
      * @param kgclInput The stream to get the KGCL instructions from.
      */
     public KGCLReader(InputStream kgclInput) {
-        input = new BufferedReader(input);
+        input = new BufferedReader(new InputStreamReader(kgclInput));
     }
 
     /**
