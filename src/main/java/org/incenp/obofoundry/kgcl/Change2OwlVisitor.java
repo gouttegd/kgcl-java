@@ -25,6 +25,7 @@ import java.util.Set;
 
 import org.incenp.obofoundry.kgcl.model.Change;
 import org.incenp.obofoundry.kgcl.model.ClassCreation;
+import org.incenp.obofoundry.kgcl.model.EdgeCreation;
 import org.incenp.obofoundry.kgcl.model.NewSynonym;
 import org.incenp.obofoundry.kgcl.model.NewTextDefinition;
 import org.incenp.obofoundry.kgcl.model.Node;
@@ -389,5 +390,34 @@ public class Change2OwlVisitor extends ChangeVisitorBase<List<OWLOntologyChange>
         addedIRIs.add(classIRI);
 
         return makeList(new AddAxiom(ontology, newClassAxiom), new AddAxiom(ontology, newLabelAxiom));
+    }
+
+    @Override
+    public List<OWLOntologyChange> visit(EdgeCreation v) {
+        // TODO: Support subject and object being something else than OWL classes
+        IRI subjectIRI = IRI.create(v.getSubject().getId());
+        if ( !ontology.containsClassInSignature(subjectIRI) && !addedIRIs.contains(subjectIRI) ) {
+            onReject(v, "Class <%s> not found in signature", v.getSubject().getId());
+            return doDefault(v);
+        }
+
+        IRI predicateIRI = IRI.create(v.getPredicate().getId());
+        IRI objectIRI = IRI.create(v.getObject().getId());
+        OWLAxiom edgeAxiom = null;
+
+        if ( predicateIRI.equals(OWLRDFVocabulary.RDFS_SUBCLASS_OF.getIRI()) ) {
+            edgeAxiom = factory.getOWLSubClassOfAxiom(factory.getOWLClass(subjectIRI), factory.getOWLClass(objectIRI));
+        } else if (ontology.containsObjectPropertyInSignature(predicateIRI)) {
+            edgeAxiom = factory.getOWLSubClassOfAxiom(factory.getOWLClass(subjectIRI),
+                    factory.getOWLObjectSomeValuesFrom(factory.getOWLObjectProperty(predicateIRI),
+                            factory.getOWLClass(objectIRI)));
+        }
+
+        if ( edgeAxiom == null ) {
+            onReject(v, "Edge predicate <%s> not found", v.getPredicate().getId());
+            return doDefault(v);
+        }
+
+        return makeList(new AddAxiom(ontology, edgeAxiom));
     }
 }

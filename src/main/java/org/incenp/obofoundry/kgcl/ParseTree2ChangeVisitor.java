@@ -23,6 +23,7 @@ import java.util.List;
 
 import org.incenp.obofoundry.kgcl.model.Change;
 import org.incenp.obofoundry.kgcl.model.ClassCreation;
+import org.incenp.obofoundry.kgcl.model.EdgeCreation;
 import org.incenp.obofoundry.kgcl.model.NewSynonym;
 import org.incenp.obofoundry.kgcl.model.NewTextDefinition;
 import org.incenp.obofoundry.kgcl.model.Node;
@@ -277,6 +278,30 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
         ctx.label.accept(this);
         change.setNewValue(currentText);
         change.setNewLanguage(currentLang);
+
+        changes.add(change);
+
+        return null;
+    }
+
+    @Override
+    public Void visitNewEdge(KGCLParser.NewEdgeContext ctx) {
+        EdgeCreation change = new EdgeCreation();
+
+        Node subject = new Node();
+        ctx.subject_id.accept(this);
+        subject.setId(currentId);
+        change.setSubject(subject);
+
+        Node predicate = new Node();
+        ctx.predicate_id.accept(this);
+        predicate.setId(currentId);
+        change.setPredicate(predicate);
+
+        Node object = new Node();
+        ctx.object_id.accept(this);
+        object.setId(currentId);
+        change.setObject(object);
 
         changes.add(change);
 

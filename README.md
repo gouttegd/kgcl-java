@@ -69,7 +69,7 @@ the library can apply the change to an ontology):
 | shallow             | no     | no      |
 | change relationship | no     | no      |
 | change annotation   | no     | no      |
-| create edge         | no     | no      |
+| create edge         | yes    | yes     |
 | delete edge         | no     | no      |
 | create synonym      | yes    | yes     |
 | remove synonym      | yes    | yes     |
