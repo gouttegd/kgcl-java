@@ -111,7 +111,24 @@ public class KGCLHelper {
      *                       all can be applied.
      */
     public static void apply(List<Change> changeset, OWLOntology ontology, boolean noPartialApply) {
+        apply(changeset, ontology, noPartialApply, null);
+    }
+
+    /**
+     * Apply a KGCL changeset to an ontology.
+     * 
+     * @param changeset      The changeset to apply.
+     * @param ontology       The ontology to apply it to.
+     * @param noPartialApply If {@code true}, changes will only be applied if they
+     *                       can all be applied.
+     * @param rejects        A list that will collect the changes that cannot be
+     *                       applied. May be {@code null}.
+     */
+    public static void apply(List<Change> changeset, OWLOntology ontology, boolean noPartialApply,
+            List<RejectedChange> rejects) {
         OntologyPatcher patcher = new OntologyPatcher(ontology);
-        patcher.apply(changeset, noPartialApply);
+        if ( !patcher.apply(changeset, noPartialApply) && rejects != null ) {
+            rejects.addAll(patcher.getRejectedChanges());
+        }
     }
 }

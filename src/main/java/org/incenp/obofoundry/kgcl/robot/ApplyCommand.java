@@ -26,6 +26,8 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.incenp.obofoundry.kgcl.KGCLHelper;
 import org.incenp.obofoundry.kgcl.KGCLSyntaxError;
+import org.incenp.obofoundry.kgcl.KGCLWriter;
+import org.incenp.obofoundry.kgcl.RejectedChange;
 import org.incenp.obofoundry.kgcl.model.Change;
 import org.obolibrary.robot.Command;
 import org.obolibrary.robot.CommandLineHelper;
@@ -50,6 +52,7 @@ public class ApplyCommand implements Command {
         options.addOption("k", "kgcl", true, "apply a single change");
         options.addOption("K", "kgcl-file", true, "apply all changes in specified file");
         options.addOption(null, "no-partial-apply", false, "apply all changes or none at all");
+        options.addOption("R", "reject-file", true, "write rejected changes in specified file");
     }
 
     @Override
@@ -111,7 +114,23 @@ public class ApplyCommand implements Command {
         }
 
         if ( changeset != null && changeset.size() > 0 ) {
-            KGCLHelper.apply(changeset, state.getOntology(), line.hasOption("no-partial-apply"));
+            List<RejectedChange> rejects = new ArrayList<RejectedChange>();
+            KGCLHelper.apply(changeset, state.getOntology(), line.hasOption("no-partial-apply"), rejects);
+            KGCLWriter writer = null;
+            if ( line.hasOption("reject-file") ) {
+                writer = new KGCLWriter(line.getOptionValue("reject-file"));
+                writer.setPrefixManager(state.getOntology());
+            }
+            for ( RejectedChange rc : rejects ) {
+                logger.error(String.format("KGCL apply error: %s", rc.getReason()));
+                if ( writer != null ) {
+                    writer.writeComment(rc.getReason());
+                    writer.write(rc.getChange());
+                }
+            }
+            if ( writer != null ) {
+                writer.close();
+            }
         }
 
         CommandLineHelper.maybeSaveOutput(line, state.getOntology());
