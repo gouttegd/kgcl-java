@@ -52,7 +52,6 @@ public class ApplyCommand implements Command {
         options.addOption("k", "kgcl", true, "apply a single change");
         options.addOption("K", "kgcl-file", true, "apply all changes in specified file");
         options.addOption(null, "no-partial-apply", false, "apply all changes or none at all");
-        options.addOption("R", "reject-file", true, "write rejected changes in specified file");
     }
 
     @Override
@@ -117,8 +116,9 @@ public class ApplyCommand implements Command {
             List<RejectedChange> rejects = new ArrayList<RejectedChange>();
             KGCLHelper.apply(changeset, state.getOntology(), line.hasOption("no-partial-apply"), rejects);
             KGCLWriter writer = null;
-            if ( line.hasOption("reject-file") ) {
-                writer = new KGCLWriter(line.getOptionValue("reject-file"));
+            if ( line.hasOption('K') ) {
+                // Write rejected changes to a file, if a file was originally provided
+                writer = new KGCLWriter(line.getOptionValue('K') + ".rej");
                 writer.setPrefixManager(state.getOntology());
             }
             for ( RejectedChange rc : rejects ) {
