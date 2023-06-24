@@ -25,6 +25,7 @@ import org.incenp.obofoundry.kgcl.model.Change;
 import org.incenp.obofoundry.kgcl.model.NewSynonym;
 import org.incenp.obofoundry.kgcl.model.NewTextDefinition;
 import org.incenp.obofoundry.kgcl.model.Node;
+import org.incenp.obofoundry.kgcl.model.NodeChange;
 import org.incenp.obofoundry.kgcl.model.NodeObsoletion;
 import org.incenp.obofoundry.kgcl.model.NodeObsoletionWithDirectReplacement;
 import org.incenp.obofoundry.kgcl.model.NodeObsoletionWithNoDirectReplacement;
@@ -103,6 +104,16 @@ public class Change2OwlVisitor extends ChangeVisitorBase<List<OWLOntologyChange>
         return valueLang.equals(changeLang);
     }
 
+    private boolean isAboutNodeInSignature(NodeChange v) {
+        String nodeId = v.getAboutNode().getId();
+        if ( !ontology.containsClassInSignature(IRI.create(nodeId)) ) {
+            onReject(v, "Node <%s> not found in signature", nodeId);
+            return false;
+        }
+
+        return true;
+    }
+
     private List<OWLOntologyChange> makeList(OWLOntologyChange... args) {
         ArrayList<OWLOntologyChange> list = new ArrayList<OWLOntologyChange>();
         for ( OWLOntologyChange c : args ) {
@@ -113,6 +124,10 @@ public class Change2OwlVisitor extends ChangeVisitorBase<List<OWLOntologyChange>
 
     @Override
     public List<OWLOntologyChange> visit(NodeRename v) {
+        if ( !isAboutNodeInSignature(v) ) {
+            return doDefault(v);
+        }
+
         OWLAnnotationAssertionAxiom oldLabelAxiom = null;
         for ( OWLAnnotationAssertionAxiom ax : ontology
                 .getAnnotationAssertionAxioms(IRI.create(v.getAboutNode().getId())) ) {
@@ -124,8 +139,7 @@ public class Change2OwlVisitor extends ChangeVisitorBase<List<OWLOntologyChange>
         }
 
         if ( oldLabelAxiom == null ) {
-            onReject(v, "No node with IRI '%s' and label '%s'%s", v.getAboutNode().getId(), v.getOldValue(),
-                    v.getOldLanguage());
+            onReject(v, "Label \"%s\" not found on <%s>", v.getOldValue(), v.getAboutNode().getId());
             return doDefault(v);
         }
 
@@ -139,6 +153,10 @@ public class Change2OwlVisitor extends ChangeVisitorBase<List<OWLOntologyChange>
 
     @Override
     public List<OWLOntologyChange> visit(NewSynonym v) {
+        if ( !isAboutNodeInSignature(v) ) {
+            return doDefault(v);
+        }
+
         IRI aboutNodeIri = IRI.create(v.getAboutNode().getId());
 
         // The KGCL spec says the qualifier is optional, but if we use oboInOwl
@@ -170,6 +188,11 @@ public class Change2OwlVisitor extends ChangeVisitorBase<List<OWLOntologyChange>
 
     @Override
     public List<OWLOntologyChange> visit(RemoveSynonym v) {
+        if ( !isAboutNodeInSignature(v) ) {
+            return doDefault(v);
+        }
+
+        ArrayList<OWLOntologyChange> changes = new ArrayList<OWLOntologyChange>();
         for ( OWLAnnotationAssertionAxiom ax : ontology
                 .getAnnotationAssertionAxioms(IRI.create(v.getAboutNode().getId())) ) {
             // The KGCL 'remove synonym' instruction is qualifier-agnostic, so we remove ANY
@@ -180,21 +203,30 @@ public class Change2OwlVisitor extends ChangeVisitorBase<List<OWLOntologyChange>
                     || propertyIRI.equals(Obo2OWLConstants.Obo2OWLVocabulary.IRI_OIO_hasNarrowSynonym.getIRI())
                     || propertyIRI.equals(Obo2OWLConstants.Obo2OWLVocabulary.IRI_OIO_hasRelatedSynonym.getIRI()) ) {
                 if ( compareValue(ax.getValue(), v.getOldValue(), v.getOldLanguage()) ) {
-                    return makeList(new RemoveAxiom(ontology, ax));
+                    changes.add(new RemoveAxiom(ontology, ax));
                 }
             }
         }
 
-        return doDefault(v);
+        if ( changes.isEmpty() ) {
+            onReject(v, "Synonym \"%s\" not found on <%s>", v.getOldValue(), v.getAboutNode().getId());
+        }
+
+        return changes;
     }
 
     @Override
     public List<OWLOntologyChange> visit(SynonymReplacement v) {
+        if ( !isAboutNodeInSignature(v)) {
+            return doDefault(v);
+        }
+        
         // I’d like to implement this as a RemoveSynonym followed by a AddSynonym to
         // avoid code duplication, but the catch is that we need to find out the type of
         // the synonym to remove (exact, narrow, broad, related?) so that we can create
         // a new synonym of the same type.
         IRI aboutNodeIri = IRI.create(v.getAboutNode().getId());
+        ArrayList<OWLOntologyChange> changes = new ArrayList<OWLOntologyChange>();
         for ( OWLAnnotationAssertionAxiom ax : ontology.getAnnotationAssertionAxioms(aboutNodeIri) ) {
             IRI propertyIri = ax.getProperty().getIRI();
             if ( propertyIri.equals(Obo2OWLConstants.Obo2OWLVocabulary.IRI_OIO_hasExactSynonym.getIRI())
@@ -202,20 +234,27 @@ public class Change2OwlVisitor extends ChangeVisitorBase<List<OWLOntologyChange>
                     || propertyIri.equals(Obo2OWLConstants.Obo2OWLVocabulary.IRI_OIO_hasNarrowSynonym.getIRI())
                     || propertyIri.equals(Obo2OWLConstants.Obo2OWLVocabulary.IRI_OIO_hasRelatedSynonym.getIRI()) ) {
                 if ( compareValue(ax.getValue(), v.getOldValue(), v.getOldLanguage()) ) {
-                    return makeList(new RemoveAxiom(ontology, ax),
-                            new AddAxiom(ontology,
-                                    factory.getOWLAnnotationAssertionAxiom(
-                                            factory.getOWLAnnotationProperty(propertyIri), aboutNodeIri,
-                                            factory.getOWLLiteral(v.getNewValue(), v.getNewLanguage()))));
+                    changes.add(new RemoveAxiom(ontology, ax));
+                    changes.add(new AddAxiom(ontology,
+                            factory.getOWLAnnotationAssertionAxiom(factory.getOWLAnnotationProperty(propertyIri),
+                                    aboutNodeIri, factory.getOWLLiteral(v.getNewValue(), v.getNewLanguage()))));
                 }
             }
         }
 
-        return doDefault(v);
+        if ( changes.isEmpty() ) {
+            onReject(v, "Synonym \"%s\" not found on <%s>", v.getOldValue(), v.getAboutNode().getId());
+        }
+
+        return changes;
     }
 
     @Override
     public List<OWLOntologyChange> visit(NewTextDefinition v) {
+        if ( !isAboutNodeInSignature(v) ) {
+            return doDefault(v);
+        }
+
         return makeList(new AddAxiom(ontology, factory.getOWLAnnotationAssertionAxiom(
                 factory.getOWLAnnotationProperty(Obo2OWLConstants.Obo2OWLVocabulary.IRI_IAO_0000115.getIRI()),
                 IRI.create(v.getAboutNode().getId()), factory.getOWLLiteral(v.getNewValue(), v.getNewLanguage()))));
@@ -223,6 +262,10 @@ public class Change2OwlVisitor extends ChangeVisitorBase<List<OWLOntologyChange>
 
     @Override
     public List<OWLOntologyChange> visit(RemoveTextDefinition v) {
+        if ( !isAboutNodeInSignature(v) ) {
+            return doDefault(v);
+        }
+
         for ( OWLAnnotationAssertionAxiom ax : ontology
                 .getAnnotationAssertionAxioms(IRI.create(v.getAboutNode().getId())) ) {
             if ( ax.getProperty().getIRI().equals(Obo2OWLConstants.Obo2OWLVocabulary.IRI_IAO_0000115.getIRI()) ) {
@@ -235,6 +278,7 @@ public class Change2OwlVisitor extends ChangeVisitorBase<List<OWLOntologyChange>
             }
         }
 
+        onReject(v, "Definition not found on <%s>", v.getAboutNode().getId());
         return doDefault(v);
     }
 
@@ -255,7 +299,7 @@ public class Change2OwlVisitor extends ChangeVisitorBase<List<OWLOntologyChange>
         // case we should not proceed with the add part.
 
         List<OWLOntologyChange> changes = removeOldDefinition.accept(this);
-        if ( changes != null ) {
+        if ( !changes.isEmpty() ) {
             changes.addAll(addNewDefinition.accept(this));
         }
         return changes;
@@ -263,6 +307,10 @@ public class Change2OwlVisitor extends ChangeVisitorBase<List<OWLOntologyChange>
 
     @Override
     public List<OWLOntologyChange> visit(NodeObsoletion v) {
+        if ( !isAboutNodeInSignature(v) ) {
+            return doDefault(v);
+        }
+
         IRI obsoleteNodeIri = IRI.create(v.getAboutNode().getId());
         ArrayList<OWLOntologyChange> changes = new ArrayList<OWLOntologyChange>();
 
