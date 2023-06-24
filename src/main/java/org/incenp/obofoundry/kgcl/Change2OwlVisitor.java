@@ -109,10 +109,10 @@ public class Change2OwlVisitor extends ChangeVisitorBase<List<OWLOntologyChange>
         return valueLang.equals(changeLang);
     }
 
-    private boolean isAboutNodeInSignature(NodeChange v) {
+    private boolean aboutNodeExists(NodeChange v) {
         String nodeId = v.getAboutNode().getId();
         IRI nodeIRI = IRI.create(nodeId);
-        if ( !ontology.containsClassInSignature(nodeIRI) && !addedIRIs.contains(nodeIRI) ) {
+        if ( !ontology.containsEntityInSignature(nodeIRI) && !addedIRIs.contains(nodeIRI) ) {
             onReject(v, "Node <%s> not found in signature", nodeId);
             return false;
         }
@@ -130,7 +130,7 @@ public class Change2OwlVisitor extends ChangeVisitorBase<List<OWLOntologyChange>
 
     @Override
     public List<OWLOntologyChange> visit(NodeRename v) {
-        if ( !isAboutNodeInSignature(v) ) {
+        if ( !aboutNodeExists(v) ) {
             return doDefault(v);
         }
 
@@ -159,7 +159,7 @@ public class Change2OwlVisitor extends ChangeVisitorBase<List<OWLOntologyChange>
 
     @Override
     public List<OWLOntologyChange> visit(NewSynonym v) {
-        if ( !isAboutNodeInSignature(v) ) {
+        if ( !aboutNodeExists(v) ) {
             return doDefault(v);
         }
 
@@ -194,7 +194,7 @@ public class Change2OwlVisitor extends ChangeVisitorBase<List<OWLOntologyChange>
 
     @Override
     public List<OWLOntologyChange> visit(RemoveSynonym v) {
-        if ( !isAboutNodeInSignature(v) ) {
+        if ( !aboutNodeExists(v) ) {
             return doDefault(v);
         }
 
@@ -223,7 +223,7 @@ public class Change2OwlVisitor extends ChangeVisitorBase<List<OWLOntologyChange>
 
     @Override
     public List<OWLOntologyChange> visit(SynonymReplacement v) {
-        if ( !isAboutNodeInSignature(v)) {
+        if ( !aboutNodeExists(v)) {
             return doDefault(v);
         }
         
@@ -257,7 +257,7 @@ public class Change2OwlVisitor extends ChangeVisitorBase<List<OWLOntologyChange>
 
     @Override
     public List<OWLOntologyChange> visit(NewTextDefinition v) {
-        if ( !isAboutNodeInSignature(v) ) {
+        if ( !aboutNodeExists(v) ) {
             return doDefault(v);
         }
 
@@ -268,7 +268,7 @@ public class Change2OwlVisitor extends ChangeVisitorBase<List<OWLOntologyChange>
 
     @Override
     public List<OWLOntologyChange> visit(RemoveTextDefinition v) {
-        if ( !isAboutNodeInSignature(v) ) {
+        if ( !aboutNodeExists(v) ) {
             return doDefault(v);
         }
 
@@ -313,7 +313,7 @@ public class Change2OwlVisitor extends ChangeVisitorBase<List<OWLOntologyChange>
 
     @Override
     public List<OWLOntologyChange> visit(NodeObsoletion v) {
-        if ( !isAboutNodeInSignature(v) ) {
+        if ( !aboutNodeExists(v) ) {
             return doDefault(v);
         }
 
