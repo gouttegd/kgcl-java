@@ -60,7 +60,7 @@ the library can apply the change to an ontology):
 | Change type         | Parsed | Applied |
 | ------------------- | -------| ------- |
 | rename              | yes    | yes     |
-| create              | no     | no      |
+| create class        | yes    | yes     |
 | obsolete            | yes    | yes     |
 | delete              | no     | no      |
 | move                | no     | no      |

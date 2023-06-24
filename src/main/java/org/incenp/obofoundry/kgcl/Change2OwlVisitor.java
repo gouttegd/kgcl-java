@@ -19,9 +19,12 @@
 package org.incenp.obofoundry.kgcl;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.incenp.obofoundry.kgcl.model.Change;
+import org.incenp.obofoundry.kgcl.model.ClassCreation;
 import org.incenp.obofoundry.kgcl.model.NewSynonym;
 import org.incenp.obofoundry.kgcl.model.NewTextDefinition;
 import org.incenp.obofoundry.kgcl.model.Node;
@@ -58,6 +61,7 @@ public class Change2OwlVisitor extends ChangeVisitorBase<List<OWLOntologyChange>
     private OWLOntology ontology;
     private OWLDataFactory factory;
     private List<Change2OwlRejectListener> listeners;
+    private Set<IRI> addedIRIs;
 
     /**
      * Creates a new instance for the specified ontology.
@@ -68,6 +72,7 @@ public class Change2OwlVisitor extends ChangeVisitorBase<List<OWLOntologyChange>
         this.ontology = ontology;
         factory = ontology.getOWLOntologyManager().getOWLDataFactory();
         listeners = new ArrayList<Change2OwlRejectListener>();
+        addedIRIs = new HashSet<IRI>();
     }
 
     /**
@@ -106,7 +111,8 @@ public class Change2OwlVisitor extends ChangeVisitorBase<List<OWLOntologyChange>
 
     private boolean isAboutNodeInSignature(NodeChange v) {
         String nodeId = v.getAboutNode().getId();
-        if ( !ontology.containsClassInSignature(IRI.create(nodeId)) ) {
+        IRI nodeIRI = IRI.create(nodeId);
+        if ( !ontology.containsClassInSignature(nodeIRI) && !addedIRIs.contains(nodeIRI) ) {
             onReject(v, "Node <%s> not found in signature", nodeId);
             return false;
         }
@@ -369,5 +375,19 @@ public class Change2OwlVisitor extends ChangeVisitorBase<List<OWLOntologyChange>
     @Override
     public List<OWLOntologyChange> visit(NodeObsoletionWithNoDirectReplacement v) {
         return visit((NodeObsoletion) v);
+    }
+
+    @Override
+    public List<OWLOntologyChange> visit(ClassCreation v) {
+        IRI classIRI = IRI.create(v.getAboutNode().getId());
+
+        OWLAxiom newClassAxiom = factory.getOWLDeclarationAxiom(factory.getOWLClass(classIRI));
+        OWLAxiom newLabelAxiom = factory.getOWLAnnotationAssertionAxiom(
+                factory.getOWLAnnotationProperty(OWLRDFVocabulary.RDFS_LABEL.getIRI()), classIRI,
+                factory.getOWLLiteral(v.getNewValue(), v.getNewLanguage()));
+
+        addedIRIs.add(classIRI);
+
+        return makeList(new AddAxiom(ontology, newClassAxiom), new AddAxiom(ontology, newLabelAxiom));
     }
 }

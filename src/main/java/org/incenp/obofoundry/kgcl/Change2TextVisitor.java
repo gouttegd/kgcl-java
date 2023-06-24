@@ -20,6 +20,7 @@ package org.incenp.obofoundry.kgcl;
 
 import java.util.HashMap;
 
+import org.incenp.obofoundry.kgcl.model.ClassCreation;
 import org.incenp.obofoundry.kgcl.model.NewSynonym;
 import org.incenp.obofoundry.kgcl.model.NewTextDefinition;
 import org.incenp.obofoundry.kgcl.model.Node;
@@ -234,5 +235,10 @@ public class Change2TextVisitor extends ChangeVisitorBase<String> {
     @Override
     public String visit(NodeObsoletionWithNoDirectReplacement v) {
         return visit((NodeObsoletion) v);
+    }
+
+    @Override
+    public String visit(ClassCreation v) {
+        return String.format("create class %s %s", renderNode(v.getAboutNode()), renderNewValue(v));
     }
 }

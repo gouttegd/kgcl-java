@@ -10,6 +10,7 @@ change    : rename
           | newDefinition
           | removeDefinition
           | changeDefinition
+          | newClass
           ;
       
 rename    : 'rename' id 'from' old_label=text 'to' new_label=text;
@@ -30,6 +31,8 @@ newDefinition: 'add' 'definition' new_definition=text 'to' id;
 removeDefinition: 'remove' 'definition' 'for' id;
 
 changeDefinition: 'change' 'definition' 'of' id ('from' old_definition=text)? 'to' new_definition=text;
+
+newClass: 'create' 'class' id label=text;
 
 idlist    : id (',' id)*;
 

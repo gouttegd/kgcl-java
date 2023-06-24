@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.incenp.obofoundry.kgcl.model.Change;
+import org.incenp.obofoundry.kgcl.model.ClassCreation;
 import org.incenp.obofoundry.kgcl.model.NewSynonym;
 import org.incenp.obofoundry.kgcl.model.NewTextDefinition;
 import org.incenp.obofoundry.kgcl.model.Node;
@@ -256,6 +257,24 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
         }
 
         ctx.new_definition.accept(this);
+        change.setNewValue(currentText);
+        change.setNewLanguage(currentLang);
+
+        changes.add(change);
+
+        return null;
+    }
+
+    @Override
+    public Void visitNewClass(KGCLParser.NewClassContext ctx) {
+        ClassCreation change = new ClassCreation();
+
+        Node aboutNode = new Node();
+        ctx.id().accept(this);
+        aboutNode.setId(currentId);
+        change.setAboutNode(aboutNode);
+
+        ctx.label.accept(this);
         change.setNewValue(currentText);
         change.setNewLanguage(currentLang);
 
