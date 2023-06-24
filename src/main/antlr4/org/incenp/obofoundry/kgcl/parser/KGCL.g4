@@ -59,6 +59,7 @@ DQ_STRING : '"' (DQ_ESCAPE|.)*? '"';
 LANGTAG   : '@' [a-zA-Z][a-zA-Z][a-zA-Z]?('-'[a-zA-Z]+)?;
 
 WS        : (' ' | '\t') -> skip;
+COMMENT   : '#' .*? NL -> skip;
 NL        : '\r'? '\n';
 
 fragment SQ_ESCAPE: '\\\'' | '\\\\';

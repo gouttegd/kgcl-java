@@ -123,6 +123,18 @@ public class KGCLWriter {
     }
 
     /**
+     * Write a commented line to the underlying writer.
+     * 
+     * @param comment The comment to write.
+     * @throws IOException If any I/O error occurs when writing.
+     */
+    public void writeComment(String comment) throws IOException {
+        output.write("# ");
+        output.write(comment);
+        output.newLine();
+    }
+
+    /**
      * Close the underlying writer.
      * 
      * @throws IOException If any I/O error occurs.
