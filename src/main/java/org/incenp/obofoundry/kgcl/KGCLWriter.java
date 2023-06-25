@@ -32,7 +32,8 @@ import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.PrefixManager;
 
 /**
- * A writer to serialise KGCL change objects into a KGCL program.
+ * A writer to serialise KGCL change objects into a KGCL program that is written
+ * to a file or file-like sink.
  */
 public class KGCLWriter {
     private BufferedWriter output;
@@ -40,7 +41,7 @@ public class KGCLWriter {
     private Change2TextVisitor visitor;
 
     /**
-     * Create a new instance to write to a stream.
+     * Creates a new instance to write to a stream.
      * 
      * @param kgclOutput The stream to write to.
      */
@@ -49,7 +50,7 @@ public class KGCLWriter {
     }
 
     /**
-     * Create a new instance to write to a file.
+     * Creates a new instance to write to a file.
      * 
      * @param kgclFile The file to write to.
      * @throws IOException If the file cannot be found or written to.
@@ -59,7 +60,7 @@ public class KGCLWriter {
     }
 
     /**
-     * Create a new instance to write to a file.
+     * Creates a new instance to write to a file.
      * 
      * @param kgclFilename The name of the file to write to.
      * @throws IOException If the file cannot be found or written to.
@@ -69,18 +70,31 @@ public class KGCLWriter {
     }
 
     /**
-     * Set the prefix manager to use to compact identifiers.
+     * Sets the prefix manager to use to compact identifiers. The prefix manager in
+     * this class will perform the opposite task to the prefix manager in
+     * {@link KGCLReader#setPrefixManager(PrefixManager)}. Given a full-length
+     * identifier, it will convert it into a short-form (“CURIEfied”) identifier.
+     * <p>
+     * The prefix manager should be set prior to any call to the {@link #write}
+     * methods.
+     * <p>
+     * If no prefix manager is set, no default compaction is performed and all
+     * identifiers will be written as they are.
      * 
-     * @param manager The prefix manager (may be {@code null}).
+     * @param manager The OWL API prefix manager to use (may be {@code null}).
      */
     public void setPrefixManager(PrefixManager manager) {
         prefixManager = manager;
     }
 
     /**
-     * Use the profix manager from the specified ontology.
+     * Sets the pefix manager from the specified ontology. This is a convenience
+     * method that automatically gets the prefix manager from a OWL API
+     * {@code OWLOntology} object and sets it as the prefix manager for the writer.
      * 
-     * @param ontology The ontology whose prefix manager shall be used.
+     * @param ontology The ontology whose prefix manager shall be used. If the
+     *                 ontology has been read from a {@code OWLDocumentFormat} that
+     *                 does not support prefixes, it is ignored.
      */
     public void setPrefixManager(OWLOntology ontology) {
         if ( ontology != null ) {
@@ -92,7 +106,7 @@ public class KGCLWriter {
     }
 
     /**
-     * Write the KGCL changes to the underlying writer.
+     * Serialises and writes a KGCL changeset to the underlying sink.
      * 
      * @param changes The list of KGCL changes to serialise.
      * @throws IOException If any I/O error occurs when writing.
@@ -109,7 +123,7 @@ public class KGCLWriter {
     }
 
     /**
-     * Write a single KGCL change to the underlying writer.
+     * Serialise and writes a single KGCL change to the underlying sink.
      * 
      * @param change The KGCL change to serialise.
      * @throws IOException If any I/O error occurs when writing.
@@ -123,19 +137,25 @@ public class KGCLWriter {
     }
 
     /**
-     * Write a commented line to the underlying writer.
+     * Writes a comment line to the underlying sink. This method writes its argument
+     * preceded by a hash character ({@code #}), so that it would be ignored if the
+     * file is later read by a {@link KGCLReader} object.
+     * <p>
+     * Note that the KGCL specification says nothing about comments in a KGCL file.
+     * A file containing such comments may not be successfully parsed by other KGCL
+     * implementations.
      * 
      * @param comment The comment to write.
      * @throws IOException If any I/O error occurs when writing.
      */
-    public void writeComment(String comment) throws IOException {
+    public void write(String comment) throws IOException {
         output.write("# ");
         output.write(comment);
         output.newLine();
     }
 
     /**
-     * Close the underlying writer.
+     * Closes the underlying writer.
      * 
      * @throws IOException If any I/O error occurs.
      */

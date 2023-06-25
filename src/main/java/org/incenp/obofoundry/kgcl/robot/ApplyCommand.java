@@ -124,7 +124,7 @@ public class ApplyCommand implements Command {
             for ( RejectedChange rc : rejects ) {
                 logger.error(String.format("KGCL apply error: %s", rc.getReason()));
                 if ( writer != null ) {
-                    writer.writeComment(rc.getReason());
+                    writer.write(rc.getReason());
                     writer.write(rc.getChange());
                 }
             }

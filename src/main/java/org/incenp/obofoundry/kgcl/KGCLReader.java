@@ -43,36 +43,56 @@ import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.PrefixManager;
 
 /**
- * A parser to read a KGCL program.
+ * A parser to read a KGCL program from a file or a file-like source.
+ * <p>
+ * This is the main class to deserialise KGCL objects from their textual
+ * representation in the KGCL language. It abstracts most of the details of the
+ * underlying parser.
+ * <p>
+ * Typical usage:
+ * 
+ * <pre>
+ * KGCLReader reader = new KGCLReader("file.kgcl");
+ * if ( reader.read() ) {
+ *     // The file was parsed successfully
+ *     List&lt;Change&gt; changeset = reader.getChangeset();
+ *     // Work with KGCL changes in changeset...
+ * } else {
+ *     // Some syntax errors were found in the source file
+ *     for ( KGCLSyntaxError error : reader.getErrors() ) {
+ *         System.err.printf("KGCL syntax error: %s\n", error.toString());
+ *     }
+ * }
+ * </pre>
  */
 public class KGCLReader {
     private Reader input;
     private PrefixManager prefixManager;
     private ErrorListener errorListener = new ErrorListener();
-    public List<Change> changeSet;
+    private List<Change> changeSet;
 
     /**
-     * Create a new instance to read from a reader object.
+     * Creates a new instance to read from a reader object.
      * 
-     * @param kgclInput The reader to get the KGCL instructions from.
+     * @param kgclInput The reader to parse the KGCL program from.
      */
     public KGCLReader(Reader kgclInput) {
         input = kgclInput;
     }
 
     /**
-     * Create a new instance to read from a stream.
+     * Creates a new instance to read from a stream.
      * 
-     * @param kgclInput The stream to get the KGCL instructions from.
+     * @param kgclInput The stream to parse the KGCL program from.
      */
     public KGCLReader(InputStream kgclInput) {
         input = new BufferedReader(new InputStreamReader(kgclInput));
     }
 
     /**
-     * Create a new instance to read from a file.
+     * Creates a new instance to read from a file.
      * 
-     * @param kgclFile The file to read the KGCL instructions from.
+     * @param kgclFile The file to parse the KGCL program from.
      * @throws FileNotFoundException If the file cannot be found.
      */
     public KGCLReader(File kgclFile) throws FileNotFoundException {
@@ -80,7 +100,7 @@ public class KGCLReader {
     }
 
     /**
-     * Create a new instance to read from a file.
+     * Creates a new instance to read from a file.
      * 
      * @param kgclFilename The name of the file to read from.
      * @throws FileNotFoundException If the file cannot be found.
@@ -90,18 +110,38 @@ public class KGCLReader {
     }
 
     /**
-     * Set the prefix manager to use to expand short identifiers.
+     * Sets the prefix manager to use to expand short identifiers. Most KGCL files
+     * are expected to use short-form identifiers (commonly known as “CURIEs”) for
+     * better readability. The prefix manager will convert such short-form
+     * identifiers into the equivalent canonical, full-length identifier.
+     * <p>
+     * The prefix manager must be set before the {@link #read()} is called,
+     * otherwise it will have no effect.
+     * <p>
+     * If no prefix manager is set, the underlying KGCL parser will treat any CURIE
+     * as if it was a “OBO” CURIE. That is, a short identifier of the form
+     * {@code PREFIX:XXXX} will be expanded into
+     * {@code http://purl.obolibrary.org/obo/PREFIX_XXXX}. Relying on this default
+     * behaviour is not recommended: using an explicit prefix manager should be
+     * preferred.
      * 
-     * @param manager The prefix manager (may be {@code null}).
+     * @param manager The OWL API prefix manager to use (may be {@code null}, in
+     *                which case the parser will fall back to the default OBO
+     *                behaviour).
      */
     public void setPrefixManager(PrefixManager manager) {
         prefixManager = manager;
     }
 
     /**
-     * Use the prefix manager from the specified ontology.
+     * Sets the prefix manager from the specified ontology. This is a convenience
+     * method that automatically gets the prefix manager from a OWL API
+     * {@code OWLOntology} object and sets it as the prefix manager for the
+     * underlying KGCL parser.
      * 
-     * @param ontology The ontology whose prefix manager shall be used.
+     * @param ontology The ontology whose prefix manager shall be used. If the
+     *                 ontology has been read from a {@code OWLDocumentFormat} that
+     *                 does not support prefixes, it is ignored.
      */
     public void setPrefixManager(OWLOntology ontology) {
         if ( ontology != null ) {
@@ -113,11 +153,11 @@ public class KGCLReader {
     }
 
     /**
-     * Parse the KGCL program from the source. After this method returns true, call
-     * the {@link getChangeSet} method to get the result.
+     * Parses the KGCL program from the underlying source. After this method returns
+     * {@code true}, call the {@link #getChangeSet()} method to get the result.
      * 
-     * @return {@code true} if the program was successfully parsed, {@code false} if
-     *         syntax errors were found.
+     * @return {@code true} if the program was successfully parsed, or {@code false}
+     *         if KGCL syntax errors were found.
      * @throws IOException If any non-KGCL I/O error occurs when parsing.
      */
     public boolean read() throws IOException {
@@ -141,15 +181,20 @@ public class KGCLReader {
     }
 
     /**
-     * Get the KGCL changeset read from the source. This method should be called
-     * after calling {@link read} and checking that it returned {@code true}. As a
-     * convenience, if the {@code read} method has not been called, this method will
-     * automatically it; however in that case it will not possible to get the syntax
-     * errors that may have been encountered.
+     * Gets the KGCL changeset that has been parsed from the underlying source. This
+     * method should be called after calling {@link #read()} and checking that it
+     * returned {@code true}, indicating that parsing was successful.
+     * <p>
+     * As a convenience, this method will call {@link #read()} automatically if
+     * needed, but then the caller must take care of checking the returned value,
+     * which may be {@code null} if syntax errors were encountered when parsing.
      * 
      * @return The KGCL changeset. May be {@code null} if syntax errors occurred
-     *         when parsing.
-     * @throws IOException If any non-KGCL I/O error occurs when parsing.
+     *         when parsing. If {@link #read()} returned {@code true}, this method
+     *         is guaranteed not to return {@code null}.
+     * @throws IOException If any non-KGCL I/O error occurs when parsing (can only
+     *                     happen if {link #read()} has not been called prior to
+     *                     calling this method).
      */
     public List<Change> getChangeSet() throws IOException {
         if ( changeSet == null && !hasErrors() ) {
@@ -159,7 +204,9 @@ public class KGCLReader {
     }
 
     /**
-     * Indicate whether parsing errors occurred.
+     * Indicates whether parsing errors occurred. Calling this method after
+     * {@link #read()} is another way of checking whether syntax errors were found
+     * when parsing.
      * 
      * @return {@code true} if at least one parsing error occurred, otherwise
      *         {@code false}.
@@ -169,7 +216,12 @@ public class KGCLReader {
     }
 
     /**
-     * Get all parsing errors that occurred, if any.
+     * Gets all syntax errors that were found when parsing, if any.
+     * <p>
+     * The parser does not throw any exception upon encountering a KGCL syntax error
+     * (it only throws {@link java.io.IOException} upon I/O errors unrelated to
+     * KGCL). Instead, all syntax errors are collected in the form of
+     * {@link KGCLSyntaxError} objects, which may be retrieved with this method.
      * 
      * @return A list of objects representing the syntax errors (empty if no errors
      *         occurred).
