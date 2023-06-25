@@ -170,6 +170,12 @@ the library can apply the change to an ontology):
 | change definition   | yes    | yes     |
 | remove definition   | yes    | yes     |
 
+Homepage and repository
+-----------------------
+The project is located at <https://incenp.org/dvlpt/kgcl-java/>. The
+source code is available in a Git repository at
+<https://github.com/gouttegd/kgcl-java>.
+
 Copying
 -------
 KGCL-Java is distributed under the terms of the GNU General Public

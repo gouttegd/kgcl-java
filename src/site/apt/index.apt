@@ -1,0 +1,58 @@
+  ---------
+  KGCL-Java
+  ---------
+  Damien Goutte-Gattat
+  --------------------
+  2023-06-25
+  ----------
+  
+  <KGCL-Java> is an implementation of the
+  {{{https://github.com/INCATools/kgcl}Knowledge Graph Change Language}}
+  (KGCL) for the Java language.
+  
+  It provides a {{{./library.html}library of Java classes}} to represent
+  and manipulate KGCL changes, read and write them from and to the KGCL
+  language, and apply them to a OWL ontology.
+  
+  It also provides a {{{./robot.html}ROBOT plugin}} to apply
+  KGCL-specified changes to an OWL ontology as part of a pipeline of
+  ROBOT commands.
+  
+Homepage and repository
+
+  The project is located at {{https://incenp.org/dvlpt/kgcl-java/}}. The
+  source code is available in a Git repository at
+  {{https://github.com/gouttegd/kgcl-java}}.
+  
+Copying
+
+  KGCL-Java is distributed under the terms of the GNU General Public
+  License, version 3 of higher.
+  
+  It includes code that is automatically derived from the
+  {{{KGCL schema}https://github.com/INCATools/kgcl}} (all the classes
+  under the <<<org.incenp.obofoundry.kgcl.model>>> namespace). That code
+  is distributed under the same terms as the schema itself:
+  
++-----------------------------------------------------------------------
+Copyright (c) 2022 Mark A. Miller
+
+Permission is hereby granted, free of charge, to any person obtaining a
+copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be included
+in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
++-----------------------------------------------------------------------

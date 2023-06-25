@@ -1,0 +1,84 @@
+The Java library
+
+  The Java library is organized in three distinct packages.
+  
+  The <<<org.incenp.obofoundry.kgcl>>> package is intended to provide a
+  reasonably high-level API to manipulate KGCL.
+  
+  The <<<org.incenp.obofoundry.kgcl.model>>> package provides the
+  classes that make up the object model for KGCL. Those classes are
+  directly derived from the LinkML schema that formally describes KGCL.
+  They may be used by those who want to manipulate KGCL objects
+  directly. When using the high-level API, the only class in this
+  package that client code should need to directly use is <<<Change>>>.
+  
+  The <<<org.incenp.obofoundry.kgcl.parser>>> package contains a
+  {{{https://www.antlr.org}ANTLR}}-generated parser to deserialise a
+  KGCL changeset from the KGCL language. The classes there may be used
+  by those who want to parse KGCL and manipulate the parse tree
+  themselves (knowledge of the ANTLR runtime is required). The
+  high-level API abstracts those classes away completely.
+  
+  See the {{{./apidocs/index.html}API documentation}} for details. This
+  page gives a brief overview of the high-level API.
+  
+* The main high-level API
+
+  The high-level API can itself be divided into two groups of classes
+  (though formally they are all in the same package). The “main” group
+  is the one primarily intended to be used by client code. It centers
+  around three classes:
+  
+  * <<<KGCLReader>>>, to parse instructions in the KGCL language into
+  the KGCL object model;
+  
+  * <<<KGCLWriter>>>, to do the opposite, i.e. serialising KGCL objects
+  into the KGCL language;
+  
+  * <<<OntologyPatcher>>>, to apply KGCL-specified changes to a OWL
+  ontology (represented by the {{{https://github.com/owlcs/owlapi}OWL API}}
+  <<<org.semanticweb.owlapi.model.OWLOntology>>> class).
+  
+  All those classes use either <<<org.obofoundry.kgcl.model.Change>>> to
+  represent a single KGCL-specified change, or a <<<java.util.List>>> of
+  <<<org.obofoundry.kgcl.model.Change>>> to represent a changeset.
+  
+* The secondary high-level API
+
+  The other classes in the high-level API are mostly intended for
+  internal use by the rest of the library. However they can also be used
+  by client code.
+  
+  They consist mostly in classes implementing a <Visitor> pattern over
+  all the classes in <<<org.incenp.obofoundry.kgcl.model>>>, and can be
+  used to implement any kind of custom behaviour on a KGCL change or
+  changeset.
+  
+  The <<<IChangeVisitor>>> is the interface for all KGCL visitors. It
+  specifies one <<<visit>>> method for each type of KGCL change:
+  
++-----------------------------------
+public interface IChangeVisitor<T> {
+  T visit(Change v);
+  T visit(NodeRename v);
+  T visit(NewSynonym v);
+  T visit(NodeObsoletion v);
+  ...
+}
++-----------------------------------
+
+  The <<<ChangeVisitorBase>>> is a helper class to facilitate the
+  creation of a <<<IChangeVisitor>>> implementation, by providing a
+  default implementation of all methods. The recommended way to create
+  a visitor is to derive <<<ChangeVisitorBase>>> and implement only the
+  methods you need.
+  
+  There are currently two visitor implementations:
+  
+  * <<<Change2TextVisitor>>> is used to serialise a KGCL change into the
+  KGCL language (it is used internally by <<<KGCLWriter>>>);
+  
+  * <<<Change2OwlVisitor>>> converts a KGCL change into OWL API
+  <<<OWLOntologyChange>>> objects that can then be applied to a OWL
+  ontology to implement the changes described by KGCL (it is used
+  internally by <<<OntologyPatcher>>>. 
