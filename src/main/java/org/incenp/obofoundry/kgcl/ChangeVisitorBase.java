@@ -82,9 +82,12 @@ import org.incenp.obofoundry.kgcl.model.Transaction;
  */
 public class ChangeVisitorBase<T> implements IChangeVisitor<T> {
 
-    /*
+    /**
      * Override this method in derived classes to change the value returned by
      * unimplemented methods.
+     * 
+     * @param v The change to visit.
+     * @return The default value to return.
      */
     protected T doDefault(Change v) {
         return null;

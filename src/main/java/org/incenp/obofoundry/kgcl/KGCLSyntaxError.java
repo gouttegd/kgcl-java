@@ -27,7 +27,7 @@ public class KGCLSyntaxError {
     private String message;
 
     /**
-     * Create a new instance.
+     * Creates a new instance.
      * 
      * @param line     The line number where the error occurred.
      * @param position The position in the line where the error occurred.
@@ -40,27 +40,27 @@ public class KGCLSyntaxError {
     }
 
     /**
-     * Get the line where the error occurred.
+     * Gets the line where the error occurred.
      * 
-     * @return 1-based index of the offending line, starting from the beginning of
-     *         the input.
+     * @return The 1-based index of the offending line, starting from the beginning
+     *         of the input.
      */
     public int getLine() {
         return line;
     }
 
     /**
-     * Get the position in the line where the error occured.
+     * Gets the position in the line where the error occurred.
      * 
-     * @return 0-based index of the offending character, starting from the beginning
-     *         of the line.
+     * @return The 0-based index of the offending character, starting from the
+     *         beginning of the line.
      */
     public int getPosition() {
         return position;
     }
 
     /**
-     * Get the error message.
+     * Gets the error message.
      * 
      * @return The error message from the ANTLR parser.
      */

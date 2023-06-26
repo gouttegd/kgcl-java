@@ -42,6 +42,8 @@ import org.semanticweb.owlapi.model.PrefixManager;
 /**
  * A visitor to converts the ANTLR parse tree of a KGCL changeset into a list of
  * {@link org.incenp.obofoundry.kgcl.model.Change} objects.
+ * <p>
+ * This class is intended to be used internally by {@link KGCLReader} objects.
  * 
  */
 public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
@@ -53,10 +55,14 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
     private String currentId;
 
     /**
-     * Creates a new visitor with the specified prefix manager..
+     * Creates a new visitor with the specified prefix manager.
      * 
-     * @param prefixManager An OWL prefix manager that will be used to convert
-     *                      CURIEs into IRIs. May be null.
+     * @param prefixManager An OWL API prefix manager that will be used to convert
+     *                      short identifiers (“CURIEs”) into their corresponding
+     *                      full-length, canonical forms. May be {@code null}, in
+     *                      which case short identifiers will all be assumed to be
+     *                      OBO-style CURIEs in the
+     *                      {@code http://purl.obolibrary.org/obo/} namespace.
      */
     public ParseTree2ChangeVisitor(PrefixManager prefixManager) {
         this.prefixManager = prefixManager;
@@ -64,7 +70,8 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
     }
 
     /**
-     * Get the changes obtained from converting the parse tree.
+     * Gets the changes obtained from converting the parse tree. Call this function
+     * after having visited the entire parse tree to get the entire set of changes.
      * 
      * @return The list of change objects.
      */

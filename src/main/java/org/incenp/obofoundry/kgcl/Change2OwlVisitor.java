@@ -53,10 +53,28 @@ import org.semanticweb.owlapi.model.parameters.Imports;
 import org.semanticweb.owlapi.vocab.OWLRDFVocabulary;
 
 /**
- * A visitor to convert a list of KGCL
- * {@link org.incenp.obofoundry.kgcl.model.Change} objects into a list of OWL
- * API {@link org.semanticweb.owlapi.model.OWLOntologyChange} objects that, when
- * applied to an ontology, would implement the requested changes.
+ * A visitor to convert a list of KGCL {@link Change} objects into a list of OWL
+ * API {@link OWLOntologyChange} objects that, when applied to an ontology,
+ * would implement the requested changes.
+ * <p>
+ * This class is primarily intended for internal use by {@link OntologyPatcher}.
+ * It may however be used directly by client code to obtain
+ * {@link OWLOntologyChange} objects without having them immediately applied to
+ * the ontology:
+ * 
+ * <pre>
+ * Change change = ...;
+ * OWLOntology ontology = ...;
+ * Change2OwlVisitor visitor = new Change2OwlVisitor(ontology);
+ * List&lt;OWLOntologyChange&gt; changeAsOwlChanges = change.accept(visitor);
+ * </pre>
+ * 
+ * <p>
+ * This class may also be derived to modify the way some changes are translated
+ * into OWL changes. For example, if you want “definitions” to be represented by
+ * another annotation than {@code http://purl.obolibrary.org/obo/IAO_0000115},
+ * you could derive this class and override the
+ * {@link #visit(NewTextDefinition)} and similar methods.
  */
 public class Change2OwlVisitor extends ChangeVisitorBase<List<OWLOntologyChange>> {
 
@@ -68,7 +86,7 @@ public class Change2OwlVisitor extends ChangeVisitorBase<List<OWLOntologyChange>
     /**
      * Creates a new instance for the specified ontology.
      * 
-     * @param ontology The ontology the changes are intended for.
+     * @param ontology The OWL API ontology the changes are intended for.
      */
     public Change2OwlVisitor(OWLOntology ontology) {
         this.ontology = ontology;
@@ -78,7 +96,13 @@ public class Change2OwlVisitor extends ChangeVisitorBase<List<OWLOntologyChange>
     }
 
     /**
-     * Adds a listener for change rejection events.
+     * Adds a listener for change rejection events. All the {@code visit()} methods
+     * will return an empty list if they cannot translate the change into OWL axioms
+     * for any reason. Use a “reject listener” to get the reason why a change has
+     * been rejected.
+     * <p>
+     * Note that the listener will not be called for changes that are not translated
+     * merely because the type of change is not implemented.
      * 
      * @param listener The listener to add.
      */
@@ -86,12 +110,23 @@ public class Change2OwlVisitor extends ChangeVisitorBase<List<OWLOntologyChange>
         listeners.add(listener);
     }
 
+    /**
+     * Called internally whenever a change is rejected. This method formats the
+     * provided error message then calls any listener that has been set up by
+     * {@link #addRejectListener(Change2OwlRejectListener)}.
+     * 
+     * @param change The change that is rejected.
+     * @param format The reason for rejecting the change, as a format string.
+     * @param args   Arguments referenced by the format specifiers in the format
+     *               string.
+     */
     protected void onReject(Change change, String format, Object... args) {
         for ( Change2OwlRejectListener listener : listeners ) {
             listener.rejected(change, String.format(format, args));
         }
     }
 
+    @Override
     protected List<OWLOntologyChange> doDefault(Change v) {
         return new ArrayList<OWLOntologyChange>();
     }

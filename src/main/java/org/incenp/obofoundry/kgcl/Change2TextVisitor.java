@@ -20,6 +20,7 @@ package org.incenp.obofoundry.kgcl;
 
 import java.util.HashMap;
 
+import org.incenp.obofoundry.kgcl.model.Change;
 import org.incenp.obofoundry.kgcl.model.ClassCreation;
 import org.incenp.obofoundry.kgcl.model.EdgeCreation;
 import org.incenp.obofoundry.kgcl.model.NewSynonym;
@@ -38,9 +39,19 @@ import org.incenp.obofoundry.kgcl.model.TextDefinitionReplacement;
 import org.semanticweb.owlapi.model.PrefixManager;
 
 /**
- * A visitor to convert a list of KGCL
- * {@link org.incenp.obofoundry.kgcl.model.Change} objects into their textual
+ * A visitor to convert a list of KGCL {@link Change} objects into their textual
  * representation in the KGCL language.
+ * <p>
+ * This class is primarily intended for internal use by {@link KGCLWriter}
+ * objects. However it may also be used directly by client code to obtain the
+ * string representation of a KGCL change without writing to a file or file-like
+ * object:
+ * 
+ * <pre>
+ * Change change = ... ;
+ * Change2TextVisitor visitor = new Change2TextVisitor();
+ * String changeAsText = change.accept(visitor);
+ * </pre>
  */
 public class Change2TextVisitor extends ChangeVisitorBase<String> {
 
@@ -48,17 +59,20 @@ public class Change2TextVisitor extends ChangeVisitorBase<String> {
     private PrefixManager prefixManager;
 
     /**
-     * Create a new instance with the specified prefix manager.
+     * Creates a new instance with the specified prefix manager.
      * 
      * @param prefixManager The prefix manager to be used for shortening
-     *                      identifiers.
+     *                      identifiers. May be {@code null}, in which case
+     *                      identifiers will never be shortened.
      */
     public Change2TextVisitor(PrefixManager prefixManager) {
         this.prefixManager = prefixManager;
     }
 
     /**
-     * Create a new instance without a prefix manager.
+     * Creates a new instance without a prefix manager. Identifiers will never be
+     * shortened and will appear in the resulting KGCL text representation in their
+     * full-length form surrounded by angled brackets ({@code <...>}).
      */
     public Change2TextVisitor() {
         this(null);

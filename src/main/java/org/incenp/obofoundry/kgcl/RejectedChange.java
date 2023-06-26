@@ -22,6 +22,20 @@ import org.incenp.obofoundry.kgcl.model.Change;
 
 /**
  * A change that could not be applied to the intended target graph.
+ * <p>
+ * A change that is perfectly valid according to the KGCL model may still fail
+ * to be applied to a knowledge graph, if the contents of the knowledge graph
+ * does not match what the change expects. For example:
+ * <ul>
+ * <li>{@code obsolete EX:0001} will fail if the graph does not contain a node
+ * with ID {@code EX:0001};
+ * <li>{@code rename EX:0001 from "old label" to "new label"} if the current
+ * label of node {@code EX:0001} is not {@code old label}.
+ * </ul>
+ * <p>
+ * This class is merely a container for a tuple associating a KGCL change that
+ * could not be applied and a human-readable message explaining what the
+ * mismatch was.
  */
 public class RejectedChange {
 
@@ -29,7 +43,7 @@ public class RejectedChange {
     private String reason;
 
     /**
-     * Create a new instance.
+     * Creates a new instance.
      * 
      * @param change The change that could not be applied.
      * @param reason The reason for rejecting the change.
@@ -40,7 +54,7 @@ public class RejectedChange {
     }
 
     /**
-     * Get the rejected change.
+     * Gets the rejected change.
      * 
      * @return The change that could not be applied.
      */
@@ -49,7 +63,7 @@ public class RejectedChange {
     }
 
     /**
-     * Get the reason for rejection.
+     * Gets the reason for rejection.
      * 
      * @return A human-readable message explaining why the change could not be
      *         applied.
