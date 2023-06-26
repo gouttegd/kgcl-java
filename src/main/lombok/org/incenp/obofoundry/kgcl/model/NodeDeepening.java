@@ -4,6 +4,9 @@ import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+/**
+ * A node move in which a node where the destination is a proper descendant of the original location. Note that here descendant applied not just to subclass, but edges of any predicate in the relational graph
+ */
 @Data
 @EqualsAndHashCode(callSuper=false)
 public class NodeDeepening extends NodeMove {

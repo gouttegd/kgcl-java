@@ -4,6 +4,9 @@ import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+/**
+ * Places a node inside a subset, by annotating that node
+ */
 @Data
 @EqualsAndHashCode(callSuper=false)
 public class AddNodeToSubset extends NodeChange {

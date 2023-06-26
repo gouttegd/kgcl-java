@@ -4,6 +4,9 @@ import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+/**
+ * A node change where a text definition is deleted
+ */
 @Data
 @EqualsAndHashCode(callSuper=false)
 public class RemoveTextDefinition extends NodeTextDefinitionChange {

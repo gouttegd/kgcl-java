@@ -4,6 +4,10 @@ import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+/**
+ * An edge deletion where the predicate is owl:subClassOf
+  
+ */
 @Data
 @EqualsAndHashCode(callSuper=false)
 public class RemoveUnder extends EdgeDeletion {

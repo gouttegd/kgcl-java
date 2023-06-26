@@ -4,6 +4,9 @@ import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+/**
+ * A change in which the element that is the focus of the change is an edge.
+ */
 @Data
 @EqualsAndHashCode(callSuper=false)
 public class EdgeChange extends SimpleChange {

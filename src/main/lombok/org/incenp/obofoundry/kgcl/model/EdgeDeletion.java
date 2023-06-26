@@ -4,6 +4,9 @@ import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+/**
+ * An edge change in which an edge is removed. All edge annotations/properies are removed in the same action.
+ */
 @Data
 @EqualsAndHashCode(callSuper=false)
 public class EdgeDeletion extends EdgeChange {

@@ -4,6 +4,9 @@ import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+/**
+ * A node mapping change where the predicate of a mapping is changed.
+ */
 @Data
 @EqualsAndHashCode(callSuper=false)
 public class MappingPredicateChange extends NodeMappingChange {

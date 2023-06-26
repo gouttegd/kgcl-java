@@ -4,6 +4,9 @@ import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+/**
+ * An edge change where the predicate (relationship type) is modified.
+ */
 @Data
 @EqualsAndHashCode(callSuper=false)
 public class PredicateChange extends EdgeChange {

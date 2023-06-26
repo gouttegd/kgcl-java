@@ -4,6 +4,9 @@ import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+/**
+ * A change that is is a composition of other changes
+ */
 @Data
 @EqualsAndHashCode(callSuper=false)
 public class ComplexChange extends Change {

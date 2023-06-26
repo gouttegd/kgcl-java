@@ -4,6 +4,9 @@ import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+/**
+ * The meaning of operations can be configured
+ */
 @Data
 @EqualsAndHashCode(callSuper=false)
 public class Configuration extends ChangeLanguageElement {

@@ -4,6 +4,9 @@ import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+/**
+ * A node synonym change where a de-novo synonym is created
+ */
 @Data
 @EqualsAndHashCode(callSuper=false)
 public class NewSynonym extends NodeSynonymChange {

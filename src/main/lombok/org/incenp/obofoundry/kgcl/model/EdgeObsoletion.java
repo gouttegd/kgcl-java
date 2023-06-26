@@ -4,6 +4,9 @@ import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+/**
+ * An edge change in which an edge is obsoleted.
+ */
 @Data
 @EqualsAndHashCode(callSuper=false)
 public class EdgeObsoletion extends EdgeChange {

@@ -4,6 +4,9 @@ import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+/**
+ * A node change where the name (aka rdfs:label) of the node changes
+ */
 @Data
 @EqualsAndHashCode(callSuper=false)
 public class NodeRename extends NodeChange {

@@ -1,5 +1,9 @@
 package org.incenp.obofoundry.kgcl.model;
 
+/**
+ * A visitor interface for {@link Change} objects. Implement that
+ * interface to apply arbitrary processing to all types of KGCL changes.
+ */
 public interface IChangeVisitor<T> {
     T visit(Change v);
     T visit(SimpleChange v);

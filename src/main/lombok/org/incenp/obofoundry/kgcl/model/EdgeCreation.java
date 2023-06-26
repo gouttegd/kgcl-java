@@ -4,6 +4,9 @@ import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+/**
+ * An edge change in which a de-novo edge is created. The edge is potentially annotated in the same action.
+ */
 @Data
 @EqualsAndHashCode(callSuper=false)
 public class EdgeCreation extends EdgeChange {

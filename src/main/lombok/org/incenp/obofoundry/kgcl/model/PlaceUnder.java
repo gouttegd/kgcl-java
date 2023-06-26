@@ -4,6 +4,9 @@ import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+/**
+ * An edge creation where the predicate is owl:subClassOf
+ */
 @Data
 @EqualsAndHashCode(callSuper=false)
 public class PlaceUnder extends EdgeCreation {

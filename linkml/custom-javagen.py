@@ -13,6 +13,9 @@ import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+/**
+ * {{ cls.description|e }}
+ */
 @Data
 @EqualsAndHashCode(callSuper=false)
 public class {{ cls.name }} {% if cls.is_a -%} extends {{ cls.is_a }} {%- endif %} {
@@ -31,6 +34,10 @@ public class {{ cls.name }} {% if cls.is_a -%} extends {{ cls.is_a }} {%- endif 
 visitor_template = """\
 package org.incenp.obofoundry.kgcl.model;
 
+/**
+ * A visitor interface for {@link Change} objects. Implement that
+ * interface to apply arbitrary processing to all types of KGCL changes.
+ */
 public interface IChangeVisitor<T> {
     T visit(Change v);
 {%- for descendant in gen.get_descendants("Change") %}

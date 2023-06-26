@@ -4,6 +4,9 @@ import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+/**
+ * A node change where the text definition is changed
+ */
 @Data
 @EqualsAndHashCode(callSuper=false)
 public class NodeTextDefinitionChange extends NodeChange {

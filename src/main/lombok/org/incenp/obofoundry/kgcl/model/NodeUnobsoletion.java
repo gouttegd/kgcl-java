@@ -4,6 +4,9 @@ import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+/**
+ * unobsoletion of a node deprecates usage of that node. Rarely applied.
+ */
 @Data
 @EqualsAndHashCode(callSuper=false)
 public class NodeUnobsoletion extends NodeChange {

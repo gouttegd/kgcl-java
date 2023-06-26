@@ -4,6 +4,9 @@ import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+/**
+ * An edge change where the subject, object, and predicate are unchanged, but the logical interpretation changes
+ */
 @Data
 @EqualsAndHashCode(callSuper=false)
 public class EdgeLogicalInterpretationChange extends EdgeChange {

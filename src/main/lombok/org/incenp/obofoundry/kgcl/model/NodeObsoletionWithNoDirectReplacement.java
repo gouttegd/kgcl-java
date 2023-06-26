@@ -4,6 +4,9 @@ import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+/**
+ * An obsoletion change in which there is no direct replacement
+ */
 @Data
 @EqualsAndHashCode(callSuper=false)
 public class NodeObsoletionWithNoDirectReplacement extends NodeObsoletion {

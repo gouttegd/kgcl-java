@@ -4,6 +4,9 @@ import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+/**
+ * The opposite of node deepening
+ */
 @Data
 @EqualsAndHashCode(callSuper=false)
 public class NodeShallowing extends NodeMove {

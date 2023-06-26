@@ -4,6 +4,9 @@ import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+/**
+ * A change that is about a single ontology element
+ */
 @Data
 @EqualsAndHashCode(callSuper=false)
 public class SimpleChange extends Change {

@@ -4,6 +4,9 @@ import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+/**
+ * a node change in which a new node is created
+ */
 @Data
 @EqualsAndHashCode(callSuper=false)
 public class NodeCreation extends NodeChange {

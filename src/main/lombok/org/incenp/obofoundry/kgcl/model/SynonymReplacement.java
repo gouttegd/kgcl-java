@@ -4,6 +4,9 @@ import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+/**
+ * A node synonym change where the text of a synonym is changed
+ */
 @Data
 @EqualsAndHashCode(callSuper=false)
 public class SynonymReplacement extends NodeSynonymChange {

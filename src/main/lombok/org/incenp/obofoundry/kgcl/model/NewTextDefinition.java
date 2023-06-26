@@ -4,6 +4,9 @@ import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+/**
+ * A node change where a de-novo text definition is created
+ */
 @Data
 @EqualsAndHashCode(callSuper=false)
 public class NewTextDefinition extends NodeTextDefinitionChange {

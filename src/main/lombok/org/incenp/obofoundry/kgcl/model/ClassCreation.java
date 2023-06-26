@@ -4,6 +4,9 @@ import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+/**
+ * A node creation where the owl type is &#39;owl:Class&#39;
+ */
 @Data
 @EqualsAndHashCode(callSuper=false)
 public class ClassCreation extends NodeCreation {

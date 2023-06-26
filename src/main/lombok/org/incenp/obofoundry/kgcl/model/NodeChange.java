@@ -4,6 +4,9 @@ import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+/**
+ * A simple change where the change is about a node
+ */
 @Data
 @EqualsAndHashCode(callSuper=false)
 public class NodeChange extends SimpleChange {

@@ -4,6 +4,9 @@ import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+/**
+ * A simple change where a logical axiom is changed, where the logical axiom cannot be represented as an edge
+ */
 @Data
 @EqualsAndHashCode(callSuper=false)
 public class LogicalAxiomChange extends SimpleChange {

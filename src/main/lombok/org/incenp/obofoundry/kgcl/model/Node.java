@@ -4,6 +4,9 @@ import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+/**
+ * Any named entity in an ontology. May be a class, individual, property
+ */
 @Data
 @EqualsAndHashCode(callSuper=false)
 public class Node extends OntologyElement {

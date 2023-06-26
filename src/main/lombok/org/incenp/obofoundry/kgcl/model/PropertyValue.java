@@ -4,6 +4,9 @@ import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+/**
+ * a property-value pair
+ */
 @Data
 @EqualsAndHashCode(callSuper=false)
 public class PropertyValue extends OntologyElement {

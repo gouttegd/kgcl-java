@@ -4,6 +4,9 @@ import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+/**
+ * Removes a node from a subset, by removing an annotation
+ */
 @Data
 @EqualsAndHashCode(callSuper=false)
 public class RemoveNodeFromSubset extends NodeChange {

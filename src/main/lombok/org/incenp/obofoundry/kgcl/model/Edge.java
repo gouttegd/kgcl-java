@@ -4,6 +4,9 @@ import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+/**
+ * A relationship between two nodes.
+ */
 @Data
 @EqualsAndHashCode(callSuper=false)
 public class Edge extends OntologyElement {

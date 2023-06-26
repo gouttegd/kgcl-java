@@ -4,6 +4,9 @@ import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+/**
+ * A node change where the change alters node properties/annotations. TODO
+ */
 @Data
 @EqualsAndHashCode(callSuper=false)
 public class NodeAnnotationChange extends NodeChange {

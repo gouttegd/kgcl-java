@@ -4,6 +4,9 @@ import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+/**
+ * placing an element inside a subset
+ */
 @Data
 @EqualsAndHashCode(callSuper=false)
 public class AddToSubset extends SubsetMembershipChange {}

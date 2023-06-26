@@ -4,6 +4,9 @@ import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+/**
+ * a provence-generating activity
+ */
 @Data
 @EqualsAndHashCode(callSuper=false)
 public class Activity extends ProvElement {

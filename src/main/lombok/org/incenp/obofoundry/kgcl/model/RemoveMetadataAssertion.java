@@ -4,6 +4,9 @@ import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+/**
+ * A node metadata assertion change where a metadata assertion is deleted
+ */
 @Data
 @EqualsAndHashCode(callSuper=false)
 public class RemoveMetadataAssertion extends NodeMetadataAssertionChange {

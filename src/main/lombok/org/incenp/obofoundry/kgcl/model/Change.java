@@ -4,6 +4,9 @@ import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+/**
+ * Any change perform on an ontology or knowledge graph
+ */
 @Data
 @EqualsAndHashCode(callSuper=false)
 public class Change extends ChangeLanguageElement {

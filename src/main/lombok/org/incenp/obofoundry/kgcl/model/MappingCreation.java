@@ -4,6 +4,9 @@ import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+/**
+ * A specific kind of edge creation in which the created edge is a mapping.
+ */
 @Data
 @EqualsAndHashCode(callSuper=false)
 public class MappingCreation extends EdgeCreation {
