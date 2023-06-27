@@ -1,6 +1,7 @@
 grammar KGCL;
 
-changeset : change (NL+ change)* NL? EOF;
+changeset : NL* change EOF
+          | NL* (change NL+)* EOF;
 
 change    : rename
           | obsolete
