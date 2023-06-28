@@ -73,6 +73,64 @@ class ParserTest {
         doTestString("# comment\nobsolete EX:0001\n# comment\n", 1);
     }
 
+    @Test
+    void testRenameChange() {
+        doTestString("rename EX:0001 from 'old label' to 'new label'", 1);
+    }
+
+    @Test
+    void testObsoleteChange() {
+        doTestString("obsolete EX:0001", 1);
+        doTestString("obsolete EX:0001 with replacement EX:0002", 1);
+        doTestString("obsolete EX:0001 with alternative EX:0002", 1);
+        doTestString("obsolete EX:0001 with alternative EX:0002,EX:0003", 1);
+    }
+
+    @Test
+    void testNewSynonymChange() {
+        doTestString("create synonym 'new synonym' for EX:0001", 1);
+        doTestString("create exact synonym 'new synonym' for EX:0001", 1);
+        doTestString("create narrow synonym 'new synonym' for EX:0001", 1);
+        doTestString("create broad synonym 'new synonym' for EX:0001", 1);
+        doTestString("create related synonym 'new synonym' for EX:0001", 1);
+    }
+
+    @Test
+    void testRemoveSynonymChange() {
+        doTestString("remove synonym 'old synonym' for EX:0001", 1);
+    }
+
+    @Test
+    void testChangeSynonymChange() {
+        doTestString("change synonym from 'old synonym' to 'new synonym' for EX:0001", 1);
+    }
+
+    @Test
+    void testNewDefinitionChange() {
+        doTestString("add definition 'new definition' to EX:0001", 1);
+    }
+
+    @Test
+    void testRemoveDefinitionChange() {
+        doTestString("remove definition for EX:0001", 1);
+    }
+
+    @Test
+    void testChangeDefinitionChange() {
+        doTestString("change definition of EX:0001 to 'new definition'", 1);
+        doTestString("change definition of EX:0001 from 'old definition' to 'new definition'", 1);
+    }
+
+    @Test
+    void testNewClassChange() {
+        doTestString("create class EX:0001 'new label'", 1);
+    }
+
+    @Test
+    void testNewEdgeCHange() {
+        doTestString("create edge EX:0001 PRED:0002 EX:0003", 1);
+    }
+
     /*
      * Attempts to parse a KGCL string and checks that the parser either returns the
      * expected number of changes. If expectedChanges is negative, the parser is
