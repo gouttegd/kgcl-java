@@ -18,13 +18,9 @@
 
 package org.incenp.obofoundry.kgcl;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
@@ -66,47 +62,67 @@ import org.semanticweb.owlapi.model.PrefixManager;
  * </pre>
  */
 public class KGCLReader {
-    private Reader input;
+    private KGCLLexer lexer;
     private PrefixManager prefixManager;
     private ErrorListener errorListener = new ErrorListener();
     private List<Change> changeSet;
 
     /**
+     * Creates a new instance without an input source. Use this constructor to parse
+     * KGCL from something else than a file or file-like source, coupled with the
+     * {@link #read(String)} method.
+     * 
+     * <pre>
+     * KGCLReader reader = new KGCLReader();
+     * reader.setPrefixManager(...);
+     * reader.read("... kgcl commands ...");
+     * </pre>
+     */
+    public KGCLReader() {
+    }
+
+    /**
      * Creates a new instance to read from a reader object.
      * 
      * @param kgclInput The reader to parse the KGCL program from.
+     * @throws IOException If any non-KGCL I/O error occurs when reading from the
+     *                     reader object.
      */
-    public KGCLReader(Reader kgclInput) {
-        input = kgclInput;
+    public KGCLReader(Reader kgclInput) throws IOException {
+        lexer = new KGCLLexer(CharStreams.fromReader(kgclInput));
     }
 
     /**
      * Creates a new instance to read from a stream.
      * 
      * @param kgclInput The stream to parse the KGCL program from.
+     * @throws IOException If any non-KGCL I/O error occurs when reading from the
+     *                     stream.
      */
-    public KGCLReader(InputStream kgclInput) {
-        input = new BufferedReader(new InputStreamReader(kgclInput));
+    public KGCLReader(InputStream kgclInput) throws IOException {
+        lexer = new KGCLLexer(CharStreams.fromStream(kgclInput));
     }
 
     /**
      * Creates a new instance to read from a file.
      * 
      * @param kgclFile The file to parse the KGCL program from.
-     * @throws FileNotFoundException If the file cannot be found.
+     * @throws IOException If any non-KGCL I/O error occurs when reading from the
+     *                     file.
      */
-    public KGCLReader(File kgclFile) throws FileNotFoundException {
-        input = new BufferedReader(new FileReader(kgclFile));
+    public KGCLReader(File kgclFile) throws IOException {
+        lexer = new KGCLLexer(CharStreams.fromFileName(kgclFile.getPath()));
     }
 
     /**
      * Creates a new instance to read from a file.
      * 
      * @param kgclFilename The name of the file to read from.
-     * @throws FileNotFoundException If the file cannot be found.
+     * @throws IOEXception If any non-KGCL I/O error occurs when reading from the
+     *                     file.
      */
-    public KGCLReader(String kgclFilename) throws FileNotFoundException {
-        this(new File(kgclFilename));
+    public KGCLReader(String kgclFilename) throws IOException {
+        lexer = new KGCLLexer(CharStreams.fromFileName(kgclFilename));
     }
 
     /**
@@ -155,13 +171,47 @@ public class KGCLReader {
     /**
      * Parses the KGCL program from the underlying source. After this method returns
      * {@code true}, call the {@link #getChangeSet()} method to get the result.
+     * <p>
+     * This method may only be used if an input source has been specified to the
+     * constructor.
      * 
      * @return {@code true} if the program was successfully parsed, or {@code false}
      *         if KGCL syntax errors were found.
-     * @throws IOException If any non-KGCL I/O error occurs when parsing.
+     * @throws IllegalArgumentException If the method is called while no input
+     *                                  source has been set.
      */
-    public boolean read() throws IOException {
-        KGCLLexer lexer = new KGCLLexer(CharStreams.fromReader(input));
+    public boolean read() {
+        if ( lexer == null ) {
+            throw new IllegalArgumentException("Missing input");
+        }
+        return doParse(lexer);
+    }
+
+    /**
+     * Parses the KGCL program from the specified string. After this method returns
+     * {@code true}, call the {@link #getChangeSet()} method to get the result.
+     * <p>
+     * This method does not require that an input has been set and may be called
+     * repeatedly on different inputs in the lifetime of the KGCLReader object.
+     * 
+     * @param text The KGCL program to parse.
+     * @return {@code true} if the program was successfully parsed, or {@code false}
+     *         if KGCL syntax errors were found.
+     */
+    public boolean read(String text) {
+        KGCLLexer lexer = new KGCLLexer(CharStreams.fromString(text));
+        return doParse(lexer);
+    }
+
+    /*
+     * Helper method to do the actual parsing from the provided source.
+     */
+    private boolean doParse(KGCLLexer lexer) {
+        changeSet = null;
+        if ( !errorListener.errors.isEmpty() ) {
+            errorListener.errors.clear();
+        }
+
         lexer.removeErrorListeners();
         lexer.addErrorListener(errorListener);
 
@@ -192,11 +242,8 @@ public class KGCLReader {
      * @return The KGCL changeset. May be {@code null} if syntax errors occurred
      *         when parsing. If {@link #read()} returned {@code true}, this method
      *         is guaranteed not to return {@code null}.
-     * @throws IOException If any non-KGCL I/O error occurs when parsing (can only
-     *                     happen if {link #read()} has not been called prior to
-     *                     calling this method).
      */
-    public List<Change> getChangeSet() throws IOException {
+    public List<Change> getChangeSet() {
         if ( changeSet == null && !hasErrors() ) {
             read();
         }

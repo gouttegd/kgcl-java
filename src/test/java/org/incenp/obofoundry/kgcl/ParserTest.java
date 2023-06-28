@@ -26,13 +26,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringReader;
 import java.util.List;
 
 import org.incenp.obofoundry.kgcl.model.Change;
 import org.junit.jupiter.api.Test;
 
 class ParserTest {
+
+    KGCLReader stringReader = new KGCLReader();
 
     @Test
     void testFileParser() throws IOException {
@@ -43,7 +44,7 @@ class ParserTest {
     }
 
     @Test
-    void testEmptyInput() throws IOException {
+    void testEmptyInput() {
         // An "empty" string (really empty or containing only blanks) should be parsed
         // successfully and yield an empty changeset.
         doTestString("", 0);
@@ -53,7 +54,7 @@ class ParserTest {
     }
 
     @Test
-    void testCommentedInputOnly() throws IOException {
+    void testCommentedInputOnly() {
         // Same for a string containing only comments...
         doTestString("# comment\n", 0);
         doTestString("\n# comment\n", 0);
@@ -63,7 +64,7 @@ class ParserTest {
     }
 
     @Test
-    void testSingleChange() throws IOException {
+    void testSingleChange() {
         doTestString("obsolete EX:0001", 1);
         doTestString("obsolete EX:0001\n", 1);
         doTestString("\nobsolete EX:0001", 1);
@@ -77,11 +78,10 @@ class ParserTest {
      * expected number of changes. If expectedChanges is negative, the parser is
      * expected to fail.
      */
-    void doTestString(String kgcl, int expectedChanges) throws IOException {
-        KGCLReader reader = new KGCLReader(new StringReader(kgcl));
-        boolean success = reader.read();
-        List<Change> changes = reader.getChangeSet();
-        List<KGCLSyntaxError> errors = reader.getErrors();
+    void doTestString(String kgcl, int expectedChanges) {
+        boolean success = stringReader.read(kgcl);
+        List<Change> changes = stringReader.getChangeSet();
+        List<KGCLSyntaxError> errors = stringReader.getErrors();
 
         if ( expectedChanges < 0 ) {
             // Expected failure
