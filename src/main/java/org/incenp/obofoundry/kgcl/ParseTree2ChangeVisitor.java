@@ -49,7 +49,7 @@ import org.semanticweb.owlapi.model.PrefixManager;
 public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
 
     private PrefixManager prefixManager;
-    private ArrayList<Change> changes;
+    private List<Change> changes;
     private String currentText;
     private String currentLang;
     private String currentId;
@@ -67,6 +67,20 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
     public ParseTree2ChangeVisitor(PrefixManager prefixManager) {
         this.prefixManager = prefixManager;
         changes = new ArrayList<Change>();
+    }
+
+    /**
+     * Creates a new visitor with the specified prefix manager and list to store the
+     * changes.
+     * 
+     * @param prefixManager An OWL API prefix manager to convert short identifiers
+     *                      into their full-length forms. May be {@code null}.
+     * @param changes       The list where changes built from the parse tree will be
+     *                      accumulated.
+     */
+    public ParseTree2ChangeVisitor(PrefixManager prefixManager, List<Change> changes) {
+        this.prefixManager = prefixManager;
+        this.changes = changes;
     }
 
     /**

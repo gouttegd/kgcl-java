@@ -65,7 +65,8 @@ public class KGCLReader {
     private KGCLLexer lexer;
     private PrefixManager prefixManager;
     private ErrorListener errorListener = new ErrorListener();
-    private List<Change> changeSet;
+    private List<Change> changeSet = new ArrayList<Change>();
+    private boolean hasRead = false;
 
     /**
      * Creates a new instance without an input source. Use this constructor to parse
@@ -207,9 +208,11 @@ public class KGCLReader {
      * Helper method to do the actual parsing from the provided source.
      */
     private boolean doParse(KGCLLexer lexer) {
-        changeSet = null;
         if ( !errorListener.errors.isEmpty() ) {
             errorListener.errors.clear();
+        }
+        if ( !changeSet.isEmpty() ) {
+            changeSet.clear();
         }
 
         lexer.removeErrorListeners();
@@ -222,10 +225,11 @@ public class KGCLReader {
 
         ParseTree tree = parser.changeset();
         if ( !hasErrors() ) {
-            ParseTree2ChangeVisitor visitor = new ParseTree2ChangeVisitor(prefixManager);
+            ParseTree2ChangeVisitor visitor = new ParseTree2ChangeVisitor(prefixManager, changeSet);
             visitor.visit(tree);
-            changeSet = visitor.getChangeSet();
         }
+
+        hasRead = true;
 
         return !hasErrors();
     }
@@ -236,15 +240,14 @@ public class KGCLReader {
      * returned {@code true}, indicating that parsing was successful.
      * <p>
      * As a convenience, this method will call {@link #read()} automatically if
-     * needed, but then the caller must take care of checking the returned value,
-     * which may be {@code null} if syntax errors were encountered when parsing.
+     * needed, if an input has been set. The caller should then use
+     * {@link #hasErrors()} to check whether syntax errors were found.
      * 
-     * @return The KGCL changeset. May be {@code null} if syntax errors occurred
-     *         when parsing. If {@link #read()} returned {@code true}, this method
-     *         is guaranteed not to return {@code null}.
+     * @return The KGCL changeset. May be an empty list if nothing has been parsed
+     *         or if syntax errors were found.
      */
     public List<Change> getChangeSet() {
-        if ( changeSet == null && !hasErrors() ) {
+        if ( !hasRead && lexer != null ) {
             read();
         }
         return changeSet;
