@@ -119,7 +119,7 @@ public class KGCLReader {
      * Creates a new instance to read from a file.
      * 
      * @param kgclFilename The name of the file to read from.
-     * @throws IOEXception If any non-KGCL I/O error occurs when reading from the
+     * @throws IOException If any non-KGCL I/O error occurs when reading from the
      *                     file.
      */
     public KGCLReader(String kgclFilename) throws IOException {
