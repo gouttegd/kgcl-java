@@ -19,6 +19,7 @@
 package org.incenp.obofoundry.kgcl.robot;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,6 +53,8 @@ public class ApplyCommand implements Command {
         options.addOption("k", "kgcl", true, "apply a single change");
         options.addOption("K", "kgcl-file", true, "apply all changes in specified file");
         options.addOption(null, "no-partial-apply", false, "apply all changes or none at all");
+        options.addOption("R", "reject-file", true, "write rejected change in specified file");
+        options.addOption(null, "no-reject-file", false, "do no write rejected change to a file");
     }
 
     @Override
@@ -117,13 +120,11 @@ public class ApplyCommand implements Command {
             throw new Exception("Invalid KGCL input, aborting");
         }
 
-        if ( changeset != null && changeset.size() > 0 ) {
+        if ( changeset.size() > 0 ) {
             List<RejectedChange> rejects = new ArrayList<RejectedChange>();
             KGCLHelper.apply(changeset, state.getOntology(), line.hasOption("no-partial-apply"), rejects);
-            KGCLWriter writer = null;
-            if ( line.hasOption('K') ) {
-                // Write rejected changes to a file, if a file was originally provided
-                writer = new KGCLWriter(line.getOptionValue('K') + ".rej");
+            KGCLWriter writer = getRejectedWriter(line);
+            if ( writer != null ) {
                 writer.setPrefixManager(state.getOntology());
             }
             for ( RejectedChange rc : rejects ) {
@@ -141,6 +142,18 @@ public class ApplyCommand implements Command {
         CommandLineHelper.maybeSaveOutput(line, state.getOntology());
 
         return state;
+    }
+
+    private KGCLWriter getRejectedWriter(CommandLine line) throws IOException {
+        if ( line.hasOption("no-reject-file") ) {
+            return null;
+        } else if ( line.hasOption("reject-file") ) {
+            return new KGCLWriter(line.getOptionValue("reject-file"));
+        } else if ( line.hasOption("kgcl-file") ) {
+            return new KGCLWriter(line.getOptionValues("kgcl-file")[0] + ".rej");
+        } else {
+            return null;
+        }
     }
 
 }
