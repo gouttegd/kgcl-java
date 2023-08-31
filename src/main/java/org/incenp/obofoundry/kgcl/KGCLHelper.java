@@ -96,7 +96,6 @@ public class KGCLHelper {
             if ( errors != null ) {
                 errors.addAll(reader.getErrors());
             }
-            return null;
         }
 
         return reader.getChangeSet();

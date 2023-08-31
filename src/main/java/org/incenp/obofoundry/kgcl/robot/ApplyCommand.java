@@ -96,13 +96,18 @@ public class ApplyCommand implements Command {
         IOHelper ioHelper = CommandLineHelper.getIOHelper(line);
         state = CommandLineHelper.updateInputOntology(ioHelper, state, line);
 
-        List<Change> changeset = null;
+        List<Change> changeset = new ArrayList<Change>();
         List<KGCLSyntaxError> errors = new ArrayList<KGCLSyntaxError>();
         if ( line.hasOption('k') ) {
-            changeset = KGCLHelper.parse(line.getOptionValue('k'), state.getOntology(), errors);
-        } else if ( line.hasOption('K') ) {
-            File f = new File(line.getOptionValue('K'));
-            changeset = KGCLHelper.parse(f, state.getOntology(), errors);
+            for ( String kgcl : line.getOptionValues('k') ) {
+                changeset.addAll(KGCLHelper.parse(kgcl, state.getOntology(), errors));
+            }
+        }
+        if ( line.hasOption('K') ) {
+            for ( String kgclFile : line.getOptionValues('K') ) {
+                File f = new File(kgclFile);
+                changeset.addAll(KGCLHelper.parse(f, state.getOntology(), errors));
+            }
         }
 
         if ( !errors.isEmpty() ) {
