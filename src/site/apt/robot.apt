@@ -31,7 +31,9 @@ ROBOT command
   The <<<apply>>> command takes a single KGCL instruction specified with
   the <<<-k>>> (or <<<--kgcl>>>) option, or a KGCL file (with one
   instruction per line) specified with the <<<-K>>> (or
-  <<<--kgcl-file>>>) option. It applies the change(s) to the current
+  <<<--kgcl-file>>>) option. Both options can be used repeatedly, to
+  specify more than one change (with <<<-k>>>) or changes from more than
+  one file (with <<<-K>>>). It applies the change(s) to the current
   ontology loaded in ROBOT.
   
   For example, the following command will apply the changes described in
@@ -61,8 +63,13 @@ $ robot merge -i input1.ofn -i input2.ofn \
   If some changes cannot be applied because they don’t match the
   contents of the ontology (for example, a change that tries to add a
   label to a class that does not exist), they will be written back to a
-  file with the same name as the original KGCL file, with a <<<.rej>>>
-  extension appended. The other changes (those that <can> be applied)
-  will be applied normally, unless the <<<--no-partial-apply>>> option
-  is used – in which case the command will refuse to apply any changes
-  at all unless they can all be applied.
+  file with the same name as the original KGCL file (the first KGCL
+  file, if more than one has been specified), with a <<<.rej>>>
+  extension appended. Use the <<<--reject-file>>> to specify the name of
+  another file where to write the rejected changes, or
+  <<<-no-reject-file>>> to disable writing back rejected changes. 
+  
+  The other changes (those that <can> be applied) will be applied
+  normally, unless the <<<--no-partial-apply>>> option is used – in
+  which case the command will refuse to apply any changes at all unless
+  they can all be applied.

@@ -1,0 +1,8 @@
+Changes in kgcl-java 0.2.0
+--------------------------
+
+    * Do not fail to parse empty inputs.
+    * Allow to use KGCLReader on strings in addition to files.
+    * KGCLReader returns an empty list rather than null upon errors.
+    * Allow using -k and/or -K options more than once.
+    * Add --(no-)reject-file options.

@@ -127,7 +127,7 @@ addition to all the standard commands).
 The `apply` command takes a single KGCL instruction in its `-k` (or
 `--kgcl`) option, or a KGCL file (with one instruction per line) in its
 `-K` (or `--kgcl-file`) option, and apply the requested changes to the
-current ontology.
+current ontology. Both options can be used repeatedly.
 
 ```sh
 robot apply -i input.ofn -K changes.kgcl -o output.ofn
