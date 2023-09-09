@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.8330487.svg)](https://doi.org/10.5281/zenodo.8330487)
+
 KGCL Java - KGCL library for Java and ROBOT
 ===========================================
 

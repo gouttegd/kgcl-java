@@ -1,0 +1,13 @@
+cff-version: 1.2.0
+message: "Should you wish to cite this software, please do so using the following metadata."
+title: KGCL-Java
+authors:
+  - family-names: "Goutte-Gattat"
+    given-names: "Damien"
+    orcid: "https://orcid.org/0000-0002-6095-8718"
+license: GPL-3.0-or-later
+url: "https://incenp.org/dvlpt/kgcl-java/"
+repository-code: "https://github.com/gouttegd/kgcl-java"
+version: 0.2.0
+date-released: "2023-08-31"
+doi: 10.5281/zenodo.8330487
