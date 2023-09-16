@@ -24,7 +24,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 
 import org.incenp.obofoundry.kgcl.model.Change;
@@ -36,8 +35,7 @@ class ParserTest {
 
     @Test
     void testFileParser() throws IOException {
-        InputStream in = getClass().getClassLoader().getResourceAsStream("sample1.kgcl");
-        KGCLReader reader = new KGCLReader(in);
+        KGCLReader reader = new KGCLReader("src/test/resources/sample1.kgcl");
         assertTrue(reader.read());
         assertEquals(5, reader.getChangeSet().size());
     }
