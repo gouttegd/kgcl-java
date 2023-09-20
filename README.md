@@ -117,14 +117,14 @@ KGCL-Java provides a [ROBOT](http://robot.obolibrary.org/) command
 `apply` that is intended to allow the injection of KGCL instructions as
 part of a ROBOT pipeline.
 
-Ultimately, the goal is to provide that command under the form of a
-plugin that could be loaded dynamically by the standard distribution of
-ROBOT, if/when ROBOT supports the use of such plugins.
+To enable it, install the release artefact `kcgl-robot-plugin-X.Y.Z.jar`
+in a directory where ROBOT (1.9.5 minimum) searches for plugins, and
+rename it to a shorter name such as `kgcl.jar`.
 
-In the meantime, building KGCL with the standard Maven goal `package`
-will result in a Jar file that includes ROBOT and that may be used as a
-standalone version of ROBOT, where the `apply` command is available (in
-addition to all the standard commands).
+Building KGCL with the standard Maven goal `package` will also produce a
+Jar file that includes ROBOT and that may be used as a standalone
+version of ROBOT, where the `apply` command is available as a built-in
+command (in addition to all the standard commands).
 
 The `apply` command takes a single KGCL instruction in its `-k` (or
 `--kgcl`) option, or a KGCL file (with one instruction per line) in its

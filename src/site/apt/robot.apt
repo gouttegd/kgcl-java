@@ -6,25 +6,32 @@ ROBOT command
   
 * Enabling the KGCL command in ROBOT
 
-  Ultimately, the <<<apply>>> command will be provided either under the
-  form of a <plugin> that could be loaded dynamically by the standard
-  distribution of ROBOT (if/when ROBOT supports the use of such
-  plugins), or directly as a built-in command (ROBOT developers have
-  already expressed interest in having the command merged into ROBOT).
+  ROBOT 1.9.5 has built-in support for pluggable commands. To enable the
+  <<<apply>>> command provided by this project in ROBOT, place the
+  <<<kgcl-robot-plugin-X.Y.Z.jar>>> file in a directory where ROBOT
+  searches for plugins:
   
-  In the meantime, building KGCL with the standard Maven goal
-  <<<package>>> will produce, among other artifacts, a Jar file named
-  <<<kgcl-robot-standalone-X.Y.Z.jar>>>. That file contains a full
-  distribution of the latest version of ROBOT (1.9.4) in which the
-  <<<apply>>> command is available as a built-in commands (in addition
-  to all the standard commands).
+  * the <<<~/.robot/plugins>>> directory in your home directory;
   
-  Alternatively, if you have a version of ROBOT that supports plugins
-  (unlikely, unless you happen to be me), you can use the
-  <<<kgcl-robot-plugin-X.Y.Z.jar>>> artifact (also produced by the
-  <<<package>>> goal). Place that file in your ROBOT plugins directory
-  (e.g., <<<~/.robot/plugins/kgcl.jar>>>): the command will then be
-  available under the name <<<kgcl:apply>>>.
+  * the directory specified by the <<<ROBOT_PLUGINS_DIRECTORY>>>
+    environment variable;
+  
+  * the directory specified by the <<<robot.pluginsdir>>> Java system
+    property.
+    
+  []
+  
+  It is recommended to rename the archive file to a simple, mono-word
+  name, such as <<<kgcl.jar>>>. The command provided by the plugins
+  will then be available from the command line under the name
+  <<<kgcl:apply>>>.
+  
+  If for some reasons the use of a plugin is not possible or not wanted,
+  building KGCL-Java with the standard Maven goal <<<package>>> will
+  also produce a Jar file named <<<kgcl-robot-standalone-X.Y.Z.jar>>>.
+  That file will contain a full distribution of the latest version of
+  ROBOT (1.9.5) in which the commands below will be available as
+  built-in comands (in addition to all the standard commands).
 
 * Usage
 
