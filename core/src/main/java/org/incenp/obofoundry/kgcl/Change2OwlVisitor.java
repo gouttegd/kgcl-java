@@ -306,10 +306,10 @@ public class Change2OwlVisitor extends ChangeVisitorBase<List<OWLOntologyChange>
 
     @Override
     public List<OWLOntologyChange> visit(SynonymReplacement v) {
-        if ( !aboutNodeExists(v)) {
+        if ( !aboutNodeExists(v) ) {
             return doDefault(v);
         }
-        
+
         // I’d like to implement this as a RemoveSynonym followed by a AddSynonym to
         // avoid code duplication, but the catch is that we need to find out the type of
         // the synonym to remove (exact, narrow, broad, related?) so that we can create
@@ -409,7 +409,7 @@ public class Change2OwlVisitor extends ChangeVisitorBase<List<OWLOntologyChange>
         }
 
         // Remove annotation properties
-        for (OWLAnnotationAssertionAxiom ax : ontology.getAnnotationAssertionAxioms(obsoleteNodeIri)) {
+        for ( OWLAnnotationAssertionAxiom ax : ontology.getAnnotationAssertionAxioms(obsoleteNodeIri) ) {
             if ( ax.getProperty().getIRI().equals(OWLRDFVocabulary.RDFS_LABEL.getIRI()) ) {
                 // Prepend "obsolete " to the existing label
                 String oldLabel = ax.getValue().asLiteral().get().getLiteral();
@@ -435,8 +435,7 @@ public class Change2OwlVisitor extends ChangeVisitorBase<List<OWLOntologyChange>
                             factory.getOWLAnnotationProperty(
                                     Obo2OWLConstants.Obo2OWLVocabulary.IRI_IAO_0100001.getIRI()),
                             obsoleteNodeIri, replacementNodeIri)));
-        }
-        else if ( v.getHasNondirectReplacement() != null ) {
+        } else if ( v.getHasNondirectReplacement() != null ) {
             // Add "consider"
             for ( Node consider : v.getHasNondirectReplacement() ) {
                 changes.add(new AddAxiom(ontology,
@@ -488,7 +487,7 @@ public class Change2OwlVisitor extends ChangeVisitorBase<List<OWLOntologyChange>
 
         if ( predicateIRI.equals(OWLRDFVocabulary.RDFS_SUBCLASS_OF.getIRI()) ) {
             edgeAxiom = factory.getOWLSubClassOfAxiom(factory.getOWLClass(subjectIRI), factory.getOWLClass(objectIRI));
-        } else if (ontology.containsObjectPropertyInSignature(predicateIRI)) {
+        } else if ( ontology.containsObjectPropertyInSignature(predicateIRI) ) {
             edgeAxiom = factory.getOWLSubClassOfAxiom(factory.getOWLClass(subjectIRI),
                     factory.getOWLObjectSomeValuesFrom(factory.getOWLObjectProperty(predicateIRI),
                             factory.getOWLClass(objectIRI)));
