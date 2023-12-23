@@ -37,6 +37,7 @@ import org.incenp.obofoundry.kgcl.parser.KGCLParser;
 import org.semanticweb.owlapi.model.OWLDocumentFormat;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.PrefixManager;
+import org.semanticweb.owlapi.util.DefaultPrefixManager;
 
 /**
  * A parser to read a KGCL program from a file or a file-like source.
@@ -165,6 +166,8 @@ public class KGCLReader {
             OWLDocumentFormat format = ontology.getOWLOntologyManager().getOntologyFormat(ontology);
             if ( format.isPrefixOWLOntologyFormat() ) {
                 prefixManager = format.asPrefixOWLOntologyFormat();
+            } else {
+                prefixManager = new DefaultPrefixManager();
             }
         }
     }
