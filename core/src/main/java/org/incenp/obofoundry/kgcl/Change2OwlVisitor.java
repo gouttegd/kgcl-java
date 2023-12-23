@@ -26,6 +26,7 @@ import java.util.Set;
 import org.incenp.obofoundry.kgcl.model.Change;
 import org.incenp.obofoundry.kgcl.model.ClassCreation;
 import org.incenp.obofoundry.kgcl.model.EdgeCreation;
+import org.incenp.obofoundry.kgcl.model.EdgeDeletion;
 import org.incenp.obofoundry.kgcl.model.NewSynonym;
 import org.incenp.obofoundry.kgcl.model.NewTextDefinition;
 import org.incenp.obofoundry.kgcl.model.Node;
@@ -37,6 +38,7 @@ import org.incenp.obofoundry.kgcl.model.NodeRename;
 import org.incenp.obofoundry.kgcl.model.PlaceUnder;
 import org.incenp.obofoundry.kgcl.model.RemoveSynonym;
 import org.incenp.obofoundry.kgcl.model.RemoveTextDefinition;
+import org.incenp.obofoundry.kgcl.model.RemoveUnder;
 import org.incenp.obofoundry.kgcl.model.SynonymReplacement;
 import org.incenp.obofoundry.kgcl.model.TextDefinitionReplacement;
 import org.obolibrary.obo2owl.Obo2OWLConstants;
@@ -45,9 +47,13 @@ import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLAnnotationAssertionAxiom;
 import org.semanticweb.owlapi.model.OWLAnnotationValue;
 import org.semanticweb.owlapi.model.OWLAxiom;
+import org.semanticweb.owlapi.model.OWLClass;
+import org.semanticweb.owlapi.model.OWLClassExpression;
 import org.semanticweb.owlapi.model.OWLDataFactory;
+import org.semanticweb.owlapi.model.OWLObjectProperty;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyChange;
+import org.semanticweb.owlapi.model.OWLSubClassOfAxiom;
 import org.semanticweb.owlapi.model.RemoveAxiom;
 import org.semanticweb.owlapi.model.parameters.Imports;
 import org.semanticweb.owlapi.vocab.OWLRDFVocabulary;
@@ -155,6 +161,46 @@ public class Change2OwlVisitor extends ChangeVisitorBase<List<OWLOntologyChange>
         }
 
         return true;
+    }
+
+    private IRI findClass(Change v, String id) {
+        IRI classIRI = IRI.create(id);
+        if ( !ontology.containsClassInSignature(classIRI) && !addedIRIs.contains(classIRI) ) {
+            onReject(v, "Class %s not found in signature", classIRI.toQuotedString());
+            return null;
+        }
+        return classIRI;
+    }
+
+    private Set<OWLAxiom> findEdges(IRI subjectIRI, IRI objectIRI, IRI predicateIRI) {
+        HashSet<OWLAxiom> axioms = new HashSet<OWLAxiom>();
+        OWLClass object = factory.getOWLClass(objectIRI);
+        OWLObjectProperty property = null;
+        if ( predicateIRI != null && !OWLRDFVocabulary.RDFS_SUBCLASS_OF.getIRI().equals(predicateIRI) ) {
+            property = factory.getOWLObjectProperty(predicateIRI);
+        }
+
+        for ( OWLAxiom axiom : ontology.getAxioms(factory.getOWLClass(subjectIRI), Imports.INCLUDED) ) {
+            if ( axiom instanceof OWLSubClassOfAxiom ) {
+                OWLSubClassOfAxiom scoa = (OWLSubClassOfAxiom) axiom;
+                OWLClassExpression objectExpression = scoa.getSuperClass();
+                if ( objectExpression.containsEntityInSignature(object) ) {
+                    if ( predicateIRI == null ) {
+                        // No predicate specified, so any edge between subject and object is a match
+                        axioms.add(scoa);
+                    } else if ( property != null
+                            && objectExpression.getObjectPropertiesInSignature().contains(property) ) {
+                        // Predicate is a property and this expression has it, so it's a match
+                        axioms.add(scoa);
+                    } else if ( property == null && objectExpression.isNamed() ) {
+                        // Predicate is rdfs:subClassOf and this expression is the object, it's a match
+                        axioms.add(scoa);
+                    }
+                }
+            }
+        }
+
+        return axioms;
     }
 
     private List<OWLOntologyChange> makeList(OWLOntologyChange... args) {
@@ -431,9 +477,8 @@ public class Change2OwlVisitor extends ChangeVisitorBase<List<OWLOntologyChange>
     @Override
     public List<OWLOntologyChange> visit(EdgeCreation v) {
         // TODO: Support subject and object being something else than OWL classes
-        IRI subjectIRI = IRI.create(v.getSubject().getId());
-        if ( !ontology.containsClassInSignature(subjectIRI) && !addedIRIs.contains(subjectIRI) ) {
-            onReject(v, "Class <%s> not found in signature", v.getSubject().getId());
+        IRI subjectIRI = findClass(v, v.getSubject().getId());
+        if ( subjectIRI == null ) {
             return doDefault(v);
         }
 
@@ -458,6 +503,27 @@ public class Change2OwlVisitor extends ChangeVisitorBase<List<OWLOntologyChange>
     }
 
     @Override
+    public List<OWLOntologyChange> visit(EdgeDeletion v) {
+        IRI subjectIRI = findClass(v, v.getSubject().getId());
+        IRI objectIRI = findClass(v, v.getObject().getId());
+        IRI predicateIRI = v.getPredicate() != null ? IRI.create(v.getPredicate().getId()) : null;
+
+        if ( subjectIRI == null || objectIRI == null ) {
+            return doDefault(v);
+        }
+
+        Set<OWLAxiom> edges = findEdges(subjectIRI, objectIRI, predicateIRI);
+        if ( edges.isEmpty() ) {
+            onReject(v, "No edge found between %s and %s", subjectIRI.toQuotedString(), objectIRI.toQuotedString());
+        }
+
+        ArrayList<OWLOntologyChange> changes = new ArrayList<OWLOntologyChange>();
+        edges.forEach(axiom -> changes.add(new RemoveAxiom(ontology, axiom)));
+
+        return changes;
+    }
+
+    @Override
     public List<OWLOntologyChange> visit(PlaceUnder v) {
         /*
          * The KGCL documentation says "PlaceUnder" is merely an "EdgeCreation" where
@@ -474,5 +540,23 @@ public class Change2OwlVisitor extends ChangeVisitorBase<List<OWLOntologyChange>
         }
 
         return visit((EdgeCreation) v);
+    }
+
+    @Override
+    public List<OWLOntologyChange> visit(RemoveUnder v) {
+        /*
+         * The KGCL documentation says "RemoveUnder" is merely an "EdgeDeletion" where
+         * the predicate is rdfs:subClassOf. The KGCL language has no separate
+         * instruction to create such a change, but one one create it directly in
+         * memory. In this case it's unclear whether the predicate should be explicitly
+         * set to rdfs:subClassOf, so in case it has not been set we do so here.
+         */
+        if ( v.getPredicate() == null ) {
+            Node predicate = new Node();
+            predicate.setId(OWLRDFVocabulary.RDFS_SUBCLASS_OF.toString());
+            v.setPredicate(predicate);
+        }
+
+        return visit((EdgeDeletion) v);
     }
 }

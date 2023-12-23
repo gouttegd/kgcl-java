@@ -24,6 +24,7 @@ import java.util.List;
 import org.incenp.obofoundry.kgcl.model.Change;
 import org.incenp.obofoundry.kgcl.model.ClassCreation;
 import org.incenp.obofoundry.kgcl.model.EdgeCreation;
+import org.incenp.obofoundry.kgcl.model.EdgeDeletion;
 import org.incenp.obofoundry.kgcl.model.NewSynonym;
 import org.incenp.obofoundry.kgcl.model.NewTextDefinition;
 import org.incenp.obofoundry.kgcl.model.Node;
@@ -273,6 +274,12 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
         return null;
     }
 
+    @Override
+    public Void visitDeleteEdge(KGCLParser.DeleteEdgeContext ctx) {
+        EdgeDeletion change = new EdgeDeletion();
+        change.setSubject(getNode(ctx.subject_id));
+        change.setPredicate(getNode(ctx.predicate_id));
+        change.setObject(getNode(ctx.object_id));
         changes.add(change);
 
         return null;

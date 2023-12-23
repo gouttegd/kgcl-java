@@ -124,8 +124,13 @@ class ParserTest {
     }
 
     @Test
-    void testNewEdgeCHange() {
+    void testNewEdgeChange() {
         doTestString("create edge EX:0001 PRED:0002 EX:0003", 1);
+    }
+
+    @Test
+    void testDeleteEdgeChange() {
+        doTestString("delete edge EX:0001 PRED:0002 EX:0003", 1);
     }
 
     /*

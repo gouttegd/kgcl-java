@@ -162,7 +162,7 @@ the library can apply the change to an ontology):
 | change relationship | no     | no      |
 | change annotation   | no     | no      |
 | create edge         | yes    | yes     |
-| delete edge         | no     | no      |
+| delete edge         | yes    | yes     |
 | create synonym      | yes    | yes     |
 | remove synonym      | yes    | yes     |
 | change synonym      | yes    | yes     |

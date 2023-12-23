@@ -13,6 +13,7 @@ change    : rename
           | changeDefinition
           | newClass
           | newEdge
+          | deleteEdge
           ;
       
 rename    : 'rename' id 'from' old_label=text 'to' new_label=text;
@@ -37,6 +38,8 @@ changeDefinition: 'change' 'definition' 'of' id ('from' old_definition=text)? 't
 newClass  : 'create' 'class' id label=text;
 
 newEdge   : 'create' 'edge' subject_id=id predicate_id=id object_id=id;
+
+deleteEdge: 'delete' 'edge' subject_id=id predicate_id=id object_id=id;
 
 idlist    : id (',' id)*;
 
