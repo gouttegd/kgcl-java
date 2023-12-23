@@ -37,6 +37,7 @@ import org.incenp.obofoundry.kgcl.model.SynonymReplacement;
 import org.incenp.obofoundry.kgcl.model.TextDefinitionReplacement;
 import org.incenp.obofoundry.kgcl.parser.KGCLBaseVisitor;
 import org.incenp.obofoundry.kgcl.parser.KGCLParser;
+import org.incenp.obofoundry.kgcl.parser.KGCLParser.IdContext;
 import org.semanticweb.owlapi.model.PrefixManager;
 
 /**
@@ -97,10 +98,7 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
     public Void visitRename(KGCLParser.RenameContext ctx) {
         NodeRename change = new NodeRename();
 
-        Node aboutNode = new Node();
-        ctx.id().accept(this);
-        aboutNode.setId(currentId);
-        change.setAboutNode(aboutNode);
+        change.setAboutNode(getNode(ctx.id()));
 
         ctx.old_label.accept(this);
         change.setOldValue(currentText);
@@ -118,31 +116,19 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
     @Override
     public Void visitObsoleteNoReplacement(KGCLParser.ObsoleteNoReplacementContext ctx) {
         NodeObsoletion change = new NodeObsoletion();
-
-        Node aboutNode = new Node();
-        ctx.old_id.accept(this);
-        aboutNode.setId(currentId);
-        change.setAboutNode(aboutNode);
-
+        change.setAboutNode(getNode(ctx.old_id));
         changes.add(change);
+
         return null;
     }
 
     @Override
     public Void visitObsoleteWithReplacement(KGCLParser.ObsoleteWithReplacementContext ctx) {
         NodeObsoletionWithDirectReplacement change = new NodeObsoletionWithDirectReplacement();
-
-        Node aboutNode = new Node();
-        ctx.old_id.accept(this);
-        aboutNode.setId(currentId);
-        change.setAboutNode(aboutNode);
-
-        Node replacementNode = new Node();
-        ctx.new_id.accept(this);
-        replacementNode.setId(currentId);
-        change.setHasDirectReplacement(replacementNode);
-
+        change.setAboutNode(getNode(ctx.old_id));
+        change.setHasDirectReplacement(getNode(ctx.new_id));
         changes.add(change);
+
         return null;
     }
 
@@ -150,17 +136,11 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
     public Void visitObsoleteWithAlternative(KGCLParser.ObsoleteWithAlternativeContext ctx) {
         NodeObsoletionWithNoDirectReplacement change = new NodeObsoletionWithNoDirectReplacement();
 
-        Node aboutNode = new Node();
-        ctx.old_id.accept(this);
-        aboutNode.setId(currentId);
-        change.setAboutNode(aboutNode);
+        change.setAboutNode(getNode(ctx.old_id));
 
         ArrayList<Node> alternatives = new ArrayList<Node>();
         for ( KGCLParser.IdContext alt : ctx.alt_id.id() ) {
-            Node altNode = new Node();
-            alt.accept(this);
-            altNode.setId(currentId);
-            alternatives.add(altNode);
+            alternatives.add(getNode(alt));
         }
         change.setHasNondirectReplacement(alternatives);
 
@@ -173,10 +153,7 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
     public Void visitNewSynonym(KGCLParser.NewSynonymContext ctx) {
         NewSynonym change = new NewSynonym();
 
-        Node aboutNode = new Node();
-        ctx.id().accept(this);
-        aboutNode.setId(currentId);
-        change.setAboutNode(aboutNode);
+        change.setAboutNode(getNode(ctx.id()));
 
         ctx.synonym.accept(this);
         change.setNewValue(currentText);
@@ -195,10 +172,7 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
     public Void visitRemoveSynonym(KGCLParser.RemoveSynonymContext ctx) {
         RemoveSynonym change = new RemoveSynonym();
 
-        Node aboutNode = new Node();
-        ctx.id().accept(this);
-        aboutNode.setId(currentId);
-        change.setAboutNode(aboutNode);
+        change.setAboutNode(getNode(ctx.id()));
 
         ctx.synonym.accept(this);
         change.setOldValue(currentText);
@@ -213,10 +187,7 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
     public Void visitChangeSynonym(KGCLParser.ChangeSynonymContext ctx) {
         SynonymReplacement change = new SynonymReplacement();
 
-        Node aboutNode = new Node();
-        ctx.id().accept(this);
-        aboutNode.setId(currentId);
-        change.setAboutNode(aboutNode);
+        change.setAboutNode(getNode(ctx.id()));
 
         ctx.old_synonym.accept(this);
         change.setOldValue(currentText);
@@ -235,10 +206,7 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
     public Void visitNewDefinition(KGCLParser.NewDefinitionContext ctx) {
         NewTextDefinition change = new NewTextDefinition();
 
-        Node aboutNode = new Node();
-        ctx.id().accept(this);
-        aboutNode.setId(currentId);
-        change.setAboutNode(aboutNode);
+        change.setAboutNode(getNode(ctx.id()));
 
         ctx.new_definition.accept(this);
         change.setNewValue(currentText);
@@ -252,12 +220,7 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
     @Override
     public Void visitRemoveDefinition(KGCLParser.RemoveDefinitionContext ctx) {
         RemoveTextDefinition change = new RemoveTextDefinition();
-
-        Node aboutNode = new Node();
-        ctx.id().accept(this);
-        aboutNode.setId(currentId);
-        change.setAboutNode(aboutNode);
-
+        change.setAboutNode(getNode(ctx.id()));
         changes.add(change);
 
         return null;
@@ -267,10 +230,7 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
     public Void visitChangeDefinition(KGCLParser.ChangeDefinitionContext ctx) {
         TextDefinitionReplacement change = new TextDefinitionReplacement();
 
-        Node aboutNode = new Node();
-        ctx.id().accept(this);
-        aboutNode.setId(currentId);
-        change.setAboutNode(aboutNode);
+        change.setAboutNode(getNode(ctx.id()));
 
         if ( ctx.old_definition != null ) {
             ctx.old_definition.accept(this);
@@ -291,10 +251,7 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
     public Void visitNewClass(KGCLParser.NewClassContext ctx) {
         ClassCreation change = new ClassCreation();
 
-        Node aboutNode = new Node();
-        ctx.id().accept(this);
-        aboutNode.setId(currentId);
-        change.setAboutNode(aboutNode);
+        change.setAboutNode(getNode(ctx.id()));
 
         ctx.label.accept(this);
         change.setNewValue(currentText);
@@ -308,21 +265,13 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
     @Override
     public Void visitNewEdge(KGCLParser.NewEdgeContext ctx) {
         EdgeCreation change = new EdgeCreation();
+        change.setSubject(getNode(ctx.subject_id));
+        change.setPredicate(getNode(ctx.predicate_id));
+        change.setObject(getNode(ctx.object_id));
+        changes.add(change);
 
-        Node subject = new Node();
-        ctx.subject_id.accept(this);
-        subject.setId(currentId);
-        change.setSubject(subject);
-
-        Node predicate = new Node();
-        ctx.predicate_id.accept(this);
-        predicate.setId(currentId);
-        change.setPredicate(predicate);
-
-        Node object = new Node();
-        ctx.object_id.accept(this);
-        object.setId(currentId);
-        change.setObject(object);
+        return null;
+    }
 
         changes.add(change);
 
@@ -351,6 +300,13 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
         }
 
         return null;
+    }
+
+    private Node getNode(IdContext ctx) {
+        ctx.accept(this);
+        Node node = new Node();
+        node.setId(currentId);
+        return node;
     }
 
     private String unquote(String s) {
