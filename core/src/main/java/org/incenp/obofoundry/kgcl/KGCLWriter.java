@@ -30,6 +30,7 @@ import org.incenp.obofoundry.kgcl.model.Change;
 import org.semanticweb.owlapi.model.OWLDocumentFormat;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.PrefixManager;
+import org.semanticweb.owlapi.util.DefaultPrefixManager;
 
 /**
  * A writer to serialise KGCL change objects into a KGCL program that is written
@@ -94,13 +95,16 @@ public class KGCLWriter {
      * 
      * @param ontology The ontology whose prefix manager shall be used. If the
      *                 ontology has been read from a {@code OWLDocumentFormat} that
-     *                 does not support prefixes, it is ignored.
+     *                 does not support prefixes, it is ignored and a default prefix
+     *                 manager is used instead.
      */
     public void setPrefixManager(OWLOntology ontology) {
         if ( ontology != null ) {
             OWLDocumentFormat format = ontology.getOWLOntologyManager().getOntologyFormat(ontology);
             if ( format.isPrefixOWLOntologyFormat() ) {
                 prefixManager = format.asPrefixOWLOntologyFormat();
+            } else {
+                prefixManager = new DefaultPrefixManager();
             }
         }
     }

@@ -159,7 +159,8 @@ public class KGCLReader {
      * 
      * @param ontology The ontology whose prefix manager shall be used. If the
      *                 ontology has been read from a {@code OWLDocumentFormat} that
-     *                 does not support prefixes, it is ignored.
+     *                 does not support prefixes, it is ignored and a default prefix
+     *                 manager is used instead.
      */
     public void setPrefixManager(OWLOntology ontology) {
         if ( ontology != null ) {
