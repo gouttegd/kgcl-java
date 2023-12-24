@@ -14,6 +14,7 @@ change    : rename
           | newClass
           | newEdge
           | deleteEdge
+          | move
           ;
       
 rename    : 'rename' id 'from' old_label=text 'to' new_label=text;
@@ -40,6 +41,11 @@ newClass  : 'create' 'class' id label=text;
 newEdge   : 'create' 'edge' subject_id=id predicate_id=id object_id=id;
 
 deleteEdge: 'delete' 'edge' subject_id=id predicate_id=id object_id=id;
+
+move      : 'move' subject_id=id 'from' old_parent=id 'to' new_parent=id
+          | 'deepen' subject_id=id 'from' old_parent=id 'to' new_parent=id
+          | 'shallow' subject_id=id 'from' old_parent=id 'to' new_parent=id
+          ;
 
 idlist    : id (',' id)*;
 

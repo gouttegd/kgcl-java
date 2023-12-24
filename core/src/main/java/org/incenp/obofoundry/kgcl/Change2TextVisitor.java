@@ -23,16 +23,21 @@ import java.util.HashMap;
 import org.incenp.obofoundry.kgcl.model.Change;
 import org.incenp.obofoundry.kgcl.model.ClassCreation;
 import org.incenp.obofoundry.kgcl.model.EdgeCreation;
+import org.incenp.obofoundry.kgcl.model.EdgeDeletion;
 import org.incenp.obofoundry.kgcl.model.NewSynonym;
 import org.incenp.obofoundry.kgcl.model.NewTextDefinition;
 import org.incenp.obofoundry.kgcl.model.Node;
+import org.incenp.obofoundry.kgcl.model.NodeDeepening;
+import org.incenp.obofoundry.kgcl.model.NodeMove;
 import org.incenp.obofoundry.kgcl.model.NodeObsoletion;
 import org.incenp.obofoundry.kgcl.model.NodeObsoletionWithDirectReplacement;
 import org.incenp.obofoundry.kgcl.model.NodeObsoletionWithNoDirectReplacement;
 import org.incenp.obofoundry.kgcl.model.NodeRename;
+import org.incenp.obofoundry.kgcl.model.NodeShallowing;
 import org.incenp.obofoundry.kgcl.model.PlaceUnder;
 import org.incenp.obofoundry.kgcl.model.RemoveSynonym;
 import org.incenp.obofoundry.kgcl.model.RemoveTextDefinition;
+import org.incenp.obofoundry.kgcl.model.RemoveUnder;
 import org.incenp.obofoundry.kgcl.model.SimpleChange;
 import org.incenp.obofoundry.kgcl.model.SynonymReplacement;
 import org.incenp.obofoundry.kgcl.model.TextDefinitionReplacement;
@@ -126,6 +131,15 @@ public class Change2TextVisitor extends ChangeVisitorBase<String> {
             return shortIdentifier;
         }
         
+        return String.format("<%s>", identifier);
+    }
+
+    private String renderId(String identifier) {
+        String shortIdentifier = getShortIdentifier(identifier);
+        if ( shortIdentifier != null ) {
+            return shortIdentifier;
+        }
+
         return String.format("<%s>", identifier);
     }
 
@@ -265,8 +279,38 @@ public class Change2TextVisitor extends ChangeVisitorBase<String> {
     }
 
     @Override
+    public String visit(EdgeDeletion v) {
+        return String.format("delete edge %s %s %s", renderNode(v.getSubject()), renderNode(v.getPredicate()),
+                renderNode(v.getObject()));
+    }
+
+    @Override
     public String visit(PlaceUnder v) {
         return String.format("create edge %s rdfs:subClassOf %s", renderNode(v.getSubject()),
                 renderNode(v.getObject()));
+    }
+
+    @Override
+    public String visit(RemoveUnder v) {
+        return String.format("delete edge %s rdfs:subClassOf %s", renderNode(v.getSubject()),
+                renderNode(v.getObject()));
+    }
+
+    @Override
+    public String visit(NodeMove v) {
+        return String.format("move %s from %s to %s", renderNode(v.getAboutEdge().getSubject()),
+                renderId(v.getOldValue()), renderId(v.getNewValue()));
+    }
+
+    @Override
+    public String visit(NodeDeepening v) {
+        return String.format("deepen %s from %s to %s", renderNode(v.getAboutEdge().getSubject()),
+                renderId(v.getOldValue()), renderId(v.getNewValue()));
+    }
+
+    @Override
+    public String visit(NodeShallowing v) {
+        return String.format("shallow %s from %s to %s", renderNode(v.getAboutEdge().getSubject()),
+                renderId(v.getOldValue()), renderId(v.getNewValue()));
     }
 }

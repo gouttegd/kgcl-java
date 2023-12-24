@@ -23,15 +23,19 @@ import java.util.List;
 
 import org.incenp.obofoundry.kgcl.model.Change;
 import org.incenp.obofoundry.kgcl.model.ClassCreation;
+import org.incenp.obofoundry.kgcl.model.Edge;
 import org.incenp.obofoundry.kgcl.model.EdgeCreation;
 import org.incenp.obofoundry.kgcl.model.EdgeDeletion;
 import org.incenp.obofoundry.kgcl.model.NewSynonym;
 import org.incenp.obofoundry.kgcl.model.NewTextDefinition;
 import org.incenp.obofoundry.kgcl.model.Node;
+import org.incenp.obofoundry.kgcl.model.NodeDeepening;
+import org.incenp.obofoundry.kgcl.model.NodeMove;
 import org.incenp.obofoundry.kgcl.model.NodeObsoletion;
 import org.incenp.obofoundry.kgcl.model.NodeObsoletionWithDirectReplacement;
 import org.incenp.obofoundry.kgcl.model.NodeObsoletionWithNoDirectReplacement;
 import org.incenp.obofoundry.kgcl.model.NodeRename;
+import org.incenp.obofoundry.kgcl.model.NodeShallowing;
 import org.incenp.obofoundry.kgcl.model.RemoveSynonym;
 import org.incenp.obofoundry.kgcl.model.RemoveTextDefinition;
 import org.incenp.obofoundry.kgcl.model.SynonymReplacement;
@@ -280,6 +284,39 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
         change.setSubject(getNode(ctx.subject_id));
         change.setPredicate(getNode(ctx.predicate_id));
         change.setObject(getNode(ctx.object_id));
+        changes.add(change);
+
+        return null;
+    }
+
+    @Override
+    public Void visitMove(KGCLParser.MoveContext ctx) {
+        NodeMove change;
+        switch ( ctx.getStart().getText() ) {
+        case "move":
+            change = new NodeMove();
+            break;
+        case "deepen":
+            change = new NodeDeepening();
+            break;
+        case "shallow":
+            change = new NodeShallowing();
+            break;
+        default: // Should never happen
+            change = new NodeMove();
+            break;
+        }
+
+        Edge edge = new Edge();
+        edge.setSubject(getNode(ctx.subject_id));
+        change.setAboutEdge(edge);
+
+        ctx.old_parent.accept(this);
+        change.setOldValue(currentId);
+
+        ctx.new_parent.accept(this);
+        change.setNewValue(currentId);
+
         changes.add(change);
 
         return null;

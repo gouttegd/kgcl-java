@@ -133,6 +133,13 @@ class ParserTest {
         doTestString("delete edge EX:0001 PRED:0002 EX:0003", 1);
     }
 
+    @Test
+    void testMoveChange() {
+        doTestString("move EX:0001 from EX:0002 to EX:0003", 1);
+        doTestString("deepen EX:0001 from EX:0002 to EX:0003", 1);
+        doTestString("shallow EX:0001 from EX:0002 to EX:0003", 1);
+    }
+
     /*
      * Attempts to parse a KGCL string and checks that the parser either returns the
      * expected number of changes. If expectedChanges is negative, the parser is

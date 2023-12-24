@@ -155,10 +155,10 @@ the library can apply the change to an ontology):
 | create class        | yes    | yes     |
 | obsolete            | yes    | yes     |
 | delete              | no     | no      |
-| move                | no     | no      |
+| move                | yes    | yes     |
 | unobsolete          | no     | no      |
-| deepen              | no     | no      |
-| shallow             | no     | no      |
+| deepen              | yes    | yes¹    |
+| shallow             | yes    | yes¹    |
 | change relationship | no     | no      |
 | change annotation   | no     | no      |
 | create edge         | yes    | yes     |
@@ -171,6 +171,11 @@ the library can apply the change to an ontology):
 | add definition      | yes    | yes     |
 | change definition   | yes    | yes     |
 | remove definition   | yes    | yes     |
+
+¹The `deepen` and `shallow` instructions are treated exactly as the
+`move` instruction: No check is performed to ensure the new parent is a
+proper descendant (`deepen`) or ascendant (`shallow`) of the existing
+parent.
 
 Homepage and repository
 -----------------------
