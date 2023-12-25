@@ -59,6 +59,9 @@ import org.semanticweb.owlapi.model.OWLOntologyChange;
 import org.semanticweb.owlapi.model.OWLSubClassOfAxiom;
 import org.semanticweb.owlapi.model.RemoveAxiom;
 import org.semanticweb.owlapi.model.parameters.Imports;
+import org.semanticweb.owlapi.reasoner.NodeSet;
+import org.semanticweb.owlapi.reasoner.OWLReasoner;
+import org.semanticweb.owlapi.reasoner.OWLReasonerRuntimeException;
 import org.semanticweb.owlapi.vocab.OWLRDFVocabulary;
 
 /**
@@ -89,6 +92,7 @@ public class Change2OwlVisitor extends ChangeVisitorBase<List<OWLOntologyChange>
 
     private OWLOntology ontology;
     private OWLDataFactory factory;
+    private OWLReasoner reasoner;
     private List<Change2OwlRejectListener> listeners;
     private Set<IRI> addedIRIs;
 
@@ -96,9 +100,12 @@ public class Change2OwlVisitor extends ChangeVisitorBase<List<OWLOntologyChange>
      * Creates a new instance for the specified ontology.
      * 
      * @param ontology The OWL API ontology the changes are intended for.
+     * @param reasoner The reasoner to use for checking the {@code NodeDeepening}
+     *                 and {@code NodeShallowing} operations.
      */
-    public Change2OwlVisitor(OWLOntology ontology) {
+    public Change2OwlVisitor(OWLOntology ontology, OWLReasoner reasoner) {
         this.ontology = ontology;
+        this.reasoner = reasoner;
         factory = ontology.getOWLOntologyManager().getOWLDataFactory();
         listeners = new ArrayList<Change2OwlRejectListener>();
         addedIRIs = new HashSet<IRI>();
@@ -204,6 +211,27 @@ public class Change2OwlVisitor extends ChangeVisitorBase<List<OWLOntologyChange>
         }
 
         return axioms;
+    }
+
+    private boolean isAncestor(NodeMove v, IRI base, IRI ancestor) {
+        if ( reasoner == null ) {
+            // No reasoner, skip the check
+            return true;
+        }
+
+        try {
+            NodeSet<OWLClass> ancestors = reasoner.getSuperClasses(factory.getOWLClass(base), false);
+            if ( !ancestors.containsEntity(factory.getOWLClass(ancestor)) ) {
+                onReject(v, "%s is not an ancestor of %s", ancestor.toQuotedString(), base.toQuotedString());
+                return false;
+            } else {
+                return true;
+            }
+        } catch ( OWLReasonerRuntimeException e ) {
+            onReject(v, "Cannot check whether %s is an ancestor of %s: %s", ancestor.toQuotedString(),
+                    base.toQuotedString(), e.getMessage());
+            return false;
+        }
     }
 
     private List<OWLOntologyChange> makeList(OWLOntologyChange... args) {
@@ -577,6 +605,12 @@ public class Change2OwlVisitor extends ChangeVisitorBase<List<OWLOntologyChange>
             onReject(v, "No edge found between %s and %s", subjectIRI.toQuotedString(), oldObjectIRI.toQuotedString());
         }
 
+        if ( v instanceof NodeDeepening && !isAncestor(v, newObjectIRI, oldObjectIRI) ) {
+            return doDefault(v);
+        } else if ( v instanceof NodeShallowing && !isAncestor(v, oldObjectIRI, newObjectIRI) ) {
+            return doDefault(v);
+        }
+
         HashSet<OWLAxiom> newAxioms = new HashSet<OWLAxiom>();
         ClassRewritingVisitor visitor = new ClassRewritingVisitor(factory, oldObjectIRI, newObjectIRI);
         for ( OWLSubClassOfAxiom scoa : edges ) {
@@ -593,13 +627,11 @@ public class Change2OwlVisitor extends ChangeVisitorBase<List<OWLOntologyChange>
 
     @Override
     public List<OWLOntologyChange> visit(NodeDeepening v) {
-        // TODO: Check the new parent is a descendant of the existing parent
         return visit((NodeMove) v);
     }
 
     @Override
     public List<OWLOntologyChange> visit(NodeShallowing v) {
-        // TODO: Check the new parent is an ascendant of the existing parent
         return visit((NodeMove) v);
     }
 

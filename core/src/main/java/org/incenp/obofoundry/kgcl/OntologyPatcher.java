@@ -24,6 +24,7 @@ import java.util.List;
 import org.incenp.obofoundry.kgcl.model.Change;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyChange;
+import org.semanticweb.owlapi.reasoner.OWLReasoner;
 
 /**
  * A class to apply KGCL-described changes to a OWL API ontology. This class is
@@ -58,10 +59,12 @@ public class OntologyPatcher implements Change2OwlRejectListener {
      * Creates a new instance to update the specified ontology.
      * 
      * @param ontology The ontology that changes should be applied to.
+     * @param reasoner The reasoner to use (needed for operations such as
+     *                 {@code NodeDeepening} and {@code NodeShallowing}).
      */
-    public OntologyPatcher(OWLOntology ontology) {
+    public OntologyPatcher(OWLOntology ontology, OWLReasoner reasoner) {
         this.ontology = ontology;
-        visitor = new Change2OwlVisitor(ontology);
+        visitor = new Change2OwlVisitor(ontology, reasoner);
         visitor.addRejectListener(this);
         rejectedChanges = new ArrayList<RejectedChange>();
     }

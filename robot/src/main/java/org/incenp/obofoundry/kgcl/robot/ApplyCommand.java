@@ -34,6 +34,8 @@ import org.obolibrary.robot.Command;
 import org.obolibrary.robot.CommandLineHelper;
 import org.obolibrary.robot.CommandState;
 import org.obolibrary.robot.IOHelper;
+import org.semanticweb.owlapi.model.OWLOntology;
+import org.semanticweb.owlapi.reasoner.OWLReasoner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,6 +57,7 @@ public class ApplyCommand implements Command {
         options.addOption(null, "no-partial-apply", false, "apply all changes or none at all");
         options.addOption("R", "reject-file", true, "write rejected change in specified file");
         options.addOption(null, "no-reject-file", false, "do no write rejected change to a file");
+        options.addOption("r", "reasoner", true, "reasoner to use");
     }
 
     @Override
@@ -120,9 +123,12 @@ public class ApplyCommand implements Command {
             throw new Exception("Invalid KGCL input, aborting");
         }
 
+        OWLOntology ontology = state.getOntology();
+        OWLReasoner reasoner = CommandLineHelper.getReasonerFactory(line).createReasoner(ontology);
+
         if ( changeset.size() > 0 ) {
             List<RejectedChange> rejects = new ArrayList<RejectedChange>();
-            KGCLHelper.apply(changeset, state.getOntology(), line.hasOption("no-partial-apply"), rejects);
+            KGCLHelper.apply(changeset, ontology, reasoner, line.hasOption("no-partial-apply"), rejects);
             KGCLWriter writer = getRejectedWriter(line);
             if ( writer != null ) {
                 writer.setPrefixManager(state.getOntology());

@@ -25,6 +25,7 @@ import java.util.List;
 
 import org.incenp.obofoundry.kgcl.model.Change;
 import org.semanticweb.owlapi.model.OWLOntology;
+import org.semanticweb.owlapi.reasoner.OWLReasoner;
 
 /**
  * A class providing static helper methods to work with KGCL.
@@ -106,11 +107,13 @@ public class KGCLHelper {
      * 
      * @param changeset      The changeset to apply.
      * @param ontology       The ontology to apply it to.
+     * @param reasoner       The reasoner to use.
      * @param noPartialApply If {@code true}, changes will only be applied if they
      *                       all can be applied.
      */
-    public static void apply(List<Change> changeset, OWLOntology ontology, boolean noPartialApply) {
-        apply(changeset, ontology, noPartialApply, null);
+    public static void apply(List<Change> changeset, OWLOntology ontology, OWLReasoner reasoner,
+            boolean noPartialApply) {
+        apply(changeset, ontology, reasoner, noPartialApply, null);
     }
 
     /**
@@ -118,14 +121,15 @@ public class KGCLHelper {
      * 
      * @param changeset      The changeset to apply.
      * @param ontology       The ontology to apply it to.
+     * @param reasoner       The reasoner to use.
      * @param noPartialApply If {@code true}, changes will only be applied if they
      *                       can all be applied.
      * @param rejects        A list that will collect the changes that cannot be
      *                       applied. May be {@code null}.
      */
-    public static void apply(List<Change> changeset, OWLOntology ontology, boolean noPartialApply,
+    public static void apply(List<Change> changeset, OWLOntology ontology, OWLReasoner reasoner, boolean noPartialApply,
             List<RejectedChange> rejects) {
-        OntologyPatcher patcher = new OntologyPatcher(ontology);
+        OntologyPatcher patcher = new OntologyPatcher(ontology, reasoner);
         if ( !patcher.apply(changeset, noPartialApply) && rejects != null ) {
             rejects.addAll(patcher.getRejectedChanges());
         }
