@@ -35,6 +35,7 @@ import org.incenp.obofoundry.kgcl.model.NodeObsoletionWithNoDirectReplacement;
 import org.incenp.obofoundry.kgcl.model.NodeRename;
 import org.incenp.obofoundry.kgcl.model.NodeShallowing;
 import org.incenp.obofoundry.kgcl.model.PlaceUnder;
+import org.incenp.obofoundry.kgcl.model.PredicateChange;
 import org.incenp.obofoundry.kgcl.model.RemoveSynonym;
 import org.incenp.obofoundry.kgcl.model.RemoveTextDefinition;
 import org.incenp.obofoundry.kgcl.model.RemoveUnder;
@@ -311,6 +312,13 @@ public class Change2TextVisitor extends ChangeVisitorBase<String> {
     @Override
     public String visit(NodeShallowing v) {
         return String.format("shallow %s from %s to %s", renderNode(v.getAboutEdge().getSubject()),
+                renderId(v.getOldValue()), renderId(v.getNewValue()));
+    }
+
+    @Override
+    public String visit(PredicateChange v) {
+        return String.format("change relationship between %s and %s from %s to %s",
+                renderNode(v.getAboutEdge().getSubject()), renderNode(v.getAboutEdge().getObject()),
                 renderId(v.getOldValue()), renderId(v.getNewValue()));
     }
 }

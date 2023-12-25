@@ -140,6 +140,11 @@ class ParserTest {
         doTestString("shallow EX:0001 from EX:0002 to EX:0003", 1);
     }
 
+    @Test
+    void testPredicateChange() {
+        doTestString("change relationship between EX:0001 and EX:0002 from EX:0003 to EX:0004", 1);
+    }
+
     /*
      * Attempts to parse a KGCL string and checks that the parser either returns the
      * expected number of changes. If expectedChanges is negative, the parser is

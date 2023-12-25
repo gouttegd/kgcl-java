@@ -14,6 +14,7 @@ change    : rename
           | newClass
           | newEdge
           | deleteEdge
+          | changePredicate
           | move
           ;
       
@@ -41,6 +42,8 @@ newClass  : 'create' 'class' id label=text;
 newEdge   : 'create' 'edge' subject_id=id predicate_id=id object_id=id;
 
 deleteEdge: 'delete' 'edge' subject_id=id predicate_id=id object_id=id;
+
+changePredicate: 'change' 'relationship' 'between' subject_id=id 'and' object_id=id 'from' old_predicate_id=id 'to' new_predicate_id=id;
 
 move      : 'move' subject_id=id 'from' old_parent=id 'to' new_parent=id
           | 'deepen' subject_id=id 'from' old_parent=id 'to' new_parent=id

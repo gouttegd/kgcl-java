@@ -39,6 +39,7 @@ import org.incenp.obofoundry.kgcl.model.NodeObsoletionWithNoDirectReplacement;
 import org.incenp.obofoundry.kgcl.model.NodeRename;
 import org.incenp.obofoundry.kgcl.model.NodeShallowing;
 import org.incenp.obofoundry.kgcl.model.PlaceUnder;
+import org.incenp.obofoundry.kgcl.model.PredicateChange;
 import org.incenp.obofoundry.kgcl.model.RemoveSynonym;
 import org.incenp.obofoundry.kgcl.model.RemoveTextDefinition;
 import org.incenp.obofoundry.kgcl.model.RemoveUnder;
@@ -54,6 +55,7 @@ import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLClassExpression;
 import org.semanticweb.owlapi.model.OWLDataFactory;
 import org.semanticweb.owlapi.model.OWLObjectProperty;
+import org.semanticweb.owlapi.model.OWLObjectPropertyExpression;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyChange;
 import org.semanticweb.owlapi.model.OWLSubClassOfAxiom;
@@ -635,6 +637,49 @@ public class Change2OwlVisitor extends ChangeVisitorBase<List<OWLOntologyChange>
         return visit((NodeMove) v);
     }
 
+    @Override
+    public List<OWLOntologyChange> visit(PredicateChange v) {
+        IRI subjectIRI = findClass(v, v.getAboutEdge().getSubject().getId());
+        IRI objectIRI = findClass(v, v.getAboutEdge().getObject().getId());
+        IRI oldPredicateIRI = IRI.create(v.getOldValue());
+        IRI newPredicateIRI = IRI.create(v.getNewValue());
+
+        if (subjectIRI == null || objectIRI == null) {
+            return doDefault(v);
+        }
+
+        Set<OWLSubClassOfAxiom> edges = findEdges(subjectIRI, objectIRI, oldPredicateIRI);
+        if ( edges.isEmpty() ) {
+            onReject(v, "No %s edge found between %s and %s", oldPredicateIRI.toQuotedString(),
+                    subjectIRI.toQuotedString(), objectIRI.toQuotedString());
+            return doDefault(v);
+        }
+
+        ArrayList<OWLOntologyChange> changes = new ArrayList<OWLOntologyChange>();
+
+        for ( OWLSubClassOfAxiom axiom : edges ) {
+            OWLAxiom newAxiom;
+            if ( oldPredicateIRI.equals(OWLRDFVocabulary.RDFS_SUBCLASS_OF.getIRI()) ) {
+                // Change from rdfs:subClassOf to a property restriction
+                newAxiom = factory.getOWLSubClassOfAxiom(axiom.getSubClass(), factory.getOWLObjectSomeValuesFrom(
+                        factory.getOWLObjectProperty(newPredicateIRI), axiom.getSuperClass()));
+            } else if ( newPredicateIRI.equals(OWLRDFVocabulary.RDFS_SUBCLASS_OF.getIRI()) ) {
+                // Change from a property restriction to a direct classification
+                newAxiom = factory.getOWLSubClassOfAxiom(axiom.getSubClass(), factory.getOWLClass(objectIRI));
+            } else {
+                // Change from a property restriction to another property restriction
+                PropertyRewritingVisitor visitor = new PropertyRewritingVisitor(factory, oldPredicateIRI,
+                        newPredicateIRI);
+                newAxiom = factory.getOWLSubClassOfAxiom(axiom.getSubClass(), axiom.getSuperClass().accept(visitor));
+            }
+
+            changes.add(new RemoveAxiom(ontology, axiom));
+            changes.add(new AddAxiom(ontology, newAxiom.getAnnotatedAxiom(axiom.getAnnotations())));
+        }
+
+        return changes;
+    }
+
     /*
      * Rewrite a class expression to change any reference to a given class to
      * reference to another class.
@@ -650,12 +695,38 @@ public class Change2OwlVisitor extends ChangeVisitorBase<List<OWLOntologyChange>
             this.newObject = newObject;
         }
 
+        @Override
         public OWLClassExpression visit(OWLClass ce) {
             if ( ce.getIRI().equals(oldObject) ) {
                 return factory.getOWLClass(newObject);
             } else {
                 return factory.getOWLClass(ce.getIRI());
             }
+        }
+    }
+
+    /*
+     * Rewrite a class expression to change any reference to a given object property
+     * to reference to another property.
+     */
+    private class PropertyRewritingVisitor extends RecursiveClassExpressionVisitorBase {
+        private IRI oldProperty;
+        private IRI newProperty;
+
+        protected PropertyRewritingVisitor(OWLDataFactory factory, IRI oldProperty, IRI newProperty) {
+            super(factory);
+            this.oldProperty = oldProperty;
+            this.newProperty = newProperty;
+        }
+
+        @Override
+        public OWLObjectPropertyExpression visit(OWLObjectPropertyExpression pe) {
+            if ( pe.isNamed() ) {
+                if ( pe.asOWLObjectProperty().getIRI().equals(oldProperty) ) {
+                    return factory.getOWLObjectProperty(newProperty);
+                }
+            }
+            return pe;
         }
     }
 }

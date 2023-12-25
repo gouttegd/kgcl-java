@@ -159,7 +159,7 @@ the library can apply the change to an ontology):
 | unobsolete          | no     | no      |
 | deepen              | yes    | yes     |
 | shallow             | yes    | yes     |
-| change relationship | no     | no      |
+| change relationship | yes    | yes     |
 | change annotation   | no     | no      |
 | create edge         | yes    | yes     |
 | delete edge         | yes    | yes     |

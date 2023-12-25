@@ -36,6 +36,7 @@ import org.incenp.obofoundry.kgcl.model.NodeObsoletionWithDirectReplacement;
 import org.incenp.obofoundry.kgcl.model.NodeObsoletionWithNoDirectReplacement;
 import org.incenp.obofoundry.kgcl.model.NodeRename;
 import org.incenp.obofoundry.kgcl.model.NodeShallowing;
+import org.incenp.obofoundry.kgcl.model.PredicateChange;
 import org.incenp.obofoundry.kgcl.model.RemoveSynonym;
 import org.incenp.obofoundry.kgcl.model.RemoveTextDefinition;
 import org.incenp.obofoundry.kgcl.model.SynonymReplacement;
@@ -315,6 +316,26 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
         change.setOldValue(currentId);
 
         ctx.new_parent.accept(this);
+        change.setNewValue(currentId);
+
+        changes.add(change);
+
+        return null;
+    }
+
+    @Override
+    public Void visitChangePredicate(KGCLParser.ChangePredicateContext ctx) {
+        PredicateChange change = new PredicateChange();
+
+        Edge edge = new Edge();
+        edge.setSubject(getNode(ctx.subject_id));
+        edge.setObject(getNode(ctx.object_id));
+        change.setAboutEdge(edge);
+
+        ctx.old_predicate_id.accept(this);
+        change.setOldValue(currentId);
+
+        ctx.new_predicate_id.accept(this);
         change.setNewValue(currentId);
 
         changes.add(change);

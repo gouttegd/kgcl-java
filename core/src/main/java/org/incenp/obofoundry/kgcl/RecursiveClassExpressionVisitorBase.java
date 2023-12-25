@@ -39,6 +39,7 @@ import org.semanticweb.owlapi.model.OWLObjectIntersectionOf;
 import org.semanticweb.owlapi.model.OWLObjectMaxCardinality;
 import org.semanticweb.owlapi.model.OWLObjectMinCardinality;
 import org.semanticweb.owlapi.model.OWLObjectOneOf;
+import org.semanticweb.owlapi.model.OWLObjectPropertyExpression;
 import org.semanticweb.owlapi.model.OWLObjectSomeValuesFrom;
 import org.semanticweb.owlapi.model.OWLObjectUnionOf;
 
@@ -55,6 +56,10 @@ public class RecursiveClassExpressionVisitorBase implements OWLClassExpressionVi
 
     protected RecursiveClassExpressionVisitorBase(OWLDataFactory factory) {
         this.factory = factory;
+    }
+
+    protected OWLObjectPropertyExpression visit(OWLObjectPropertyExpression pe) {
+        return pe;
     }
 
     @Override
@@ -87,37 +92,40 @@ public class RecursiveClassExpressionVisitorBase implements OWLClassExpressionVi
 
     @Override
     public OWLClassExpression visit(OWLObjectSomeValuesFrom ce) {
-        return factory.getOWLObjectSomeValuesFrom(ce.getProperty(), ce.getFiller().accept(this));
+        return factory.getOWLObjectSomeValuesFrom(visit(ce.getProperty()), ce.getFiller().accept(this));
     }
 
     @Override
     public OWLClassExpression visit(OWLObjectAllValuesFrom ce) {
-        return factory.getOWLObjectAllValuesFrom(ce.getProperty(), ce.getFiller().accept(this));
+        return factory.getOWLObjectAllValuesFrom(visit(ce.getProperty()), ce.getFiller().accept(this));
     }
 
     @Override
     public OWLClassExpression visit(OWLObjectHasValue ce) {
-        return factory.getOWLObjectHasValue(ce.getProperty(), ce.getFiller());
+        return factory.getOWLObjectHasValue(visit(ce.getProperty()), ce.getFiller());
     }
 
     @Override
     public OWLClassExpression visit(OWLObjectMinCardinality ce) {
-        return factory.getOWLObjectMinCardinality(ce.getCardinality(), ce.getProperty(), ce.getFiller().accept(this));
+        return factory.getOWLObjectMinCardinality(ce.getCardinality(), visit(ce.getProperty()),
+                ce.getFiller().accept(this));
     }
 
     @Override
     public OWLClassExpression visit(OWLObjectExactCardinality ce) {
-        return factory.getOWLObjectExactCardinality(ce.getCardinality(), ce.getProperty(), ce.getFiller().accept(this));
+        return factory.getOWLObjectExactCardinality(ce.getCardinality(), visit(ce.getProperty()),
+                ce.getFiller().accept(this));
     }
 
     @Override
     public OWLClassExpression visit(OWLObjectMaxCardinality ce) {
-        return factory.getOWLObjectMaxCardinality(ce.getCardinality(), ce.getProperty(), ce.getFiller().accept(this));
+        return factory.getOWLObjectMaxCardinality(ce.getCardinality(), visit(ce.getProperty()),
+                ce.getFiller().accept(this));
     }
 
     @Override
     public OWLClassExpression visit(OWLObjectHasSelf ce) {
-        return factory.getOWLObjectHasSelf(ce.getProperty());
+        return factory.getOWLObjectHasSelf(visit(ce.getProperty()));
     }
 
     @Override
