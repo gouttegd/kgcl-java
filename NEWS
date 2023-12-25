@@ -1,3 +1,11 @@
+Changes in kgcl-java 0.3.0
+--------------------------
+
+    * Support for edge deletion (`delete edge` command).
+    * Support for node move (`move`, `deepen`, and `shallow` commands).
+    * Support for predicate change (`change relationship` command).
+
+
 Changes in kgcl-java 0.2.0
 --------------------------
 

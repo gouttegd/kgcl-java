@@ -80,3 +80,8 @@ $ robot merge -i input1.ofn -i input2.ofn \
   normally, unless the <<<--no-partial-apply>>> option is used – in
   which case the command will refuse to apply any changes at all unless
   they can all be applied.
+  
+  Some changes require the use of a reasoner to check if they can be
+  applied. As for other ROBOT commands that need a reasoner, the
+  reasoner to use can be specified with the <<<--reasoner>>> (or
+  <<<-r>>>) option. The default reasoner is <ELK>.

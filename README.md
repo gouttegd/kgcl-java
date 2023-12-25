@@ -99,7 +99,8 @@ import java.util.List;
 
 OWLOntology o = ...;
 List<Change> changes = ...;
-OntologyPatcher patcher = new OntologyPatcher(o);
+OWLReasoner reasoner = ...;
+OntologyPatcher patcher = new OntologyPatcher(o, reasoner);
 if ( patcher.apply(changes, false) ) {
     // All changes were applied
     o.saveOntology(...);
