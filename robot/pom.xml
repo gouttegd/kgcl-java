@@ -73,7 +73,7 @@
               <finalName>kgcl-robot-plugin-${project.version}</finalName>
               <artifactSet>
                 <includes>
-                  <include>org.incenp:sssom-core</include>
+                  <include>org.incenp:kgcl-core</include>
                   <include>org.projectlombok:lombok</include>
                   <include>org.antlr:antlr4-runtime</include>
                 </includes>
