@@ -30,6 +30,7 @@ import org.incenp.obofoundry.kgcl.model.EdgeDeletion;
 import org.incenp.obofoundry.kgcl.model.NewSynonym;
 import org.incenp.obofoundry.kgcl.model.NewTextDefinition;
 import org.incenp.obofoundry.kgcl.model.Node;
+import org.incenp.obofoundry.kgcl.model.NodeAnnotationChange;
 import org.incenp.obofoundry.kgcl.model.NodeChange;
 import org.incenp.obofoundry.kgcl.model.NodeDeepening;
 import org.incenp.obofoundry.kgcl.model.NodeDeletion;
@@ -726,6 +727,43 @@ public class Change2OwlVisitor extends ChangeVisitorBase<List<OWLOntologyChange>
 
             changes.add(new RemoveAxiom(ontology, axiom));
             changes.add(new AddAxiom(ontology, newAxiom.getAnnotatedAxiom(axiom.getAnnotations())));
+        }
+
+        return changes;
+    }
+
+    @Override
+    public List<OWLOntologyChange> visit(NodeAnnotationChange v) {
+        ArrayList<OWLOntologyChange> changes = new ArrayList<OWLOntologyChange>();
+
+        IRI nodeId = IRI.create(v.getAboutNode().getId());
+        if ( !ontology.containsClassInSignature(nodeId) ) {
+            onReject(v, "Class %s not found in signature", nodeId.toQuotedString());
+            return changes;
+        }
+
+        IRI propertyId = IRI.create(v.getAnnotationProperty());
+        if ( !ontology.containsAnnotationPropertyInSignature(propertyId) ) {
+            onReject(v, "Property %s not found in signature", propertyId.toQuotedString());
+            return changes;
+        }
+
+        int found = 0;
+        for ( OWLAnnotationAssertionAxiom ax : ontology.getAnnotationAssertionAxioms(nodeId) ) {
+            if ( ax.getProperty().getIRI().equals(propertyId) ) {
+                found += 1;
+                if ( compareValue(ax.getValue(), v.getOldValue(), v.getOldLanguage()) ) {
+                    changes.add(new RemoveAxiom(ontology, ax));
+                    changes.add(new AddAxiom(ontology,
+                            factory.getOWLAnnotationAssertionAxiom(factory.getOWLAnnotationProperty(propertyId), nodeId,
+                                    factory.getOWLLiteral(v.getNewValue(), v.getNewLanguage()))));
+                }
+            }
+        }
+
+        if ( found > 0 && changes.isEmpty() ) {
+            onReject(v, "Expected annotation value not found for property %s on node %s", propertyId.toQuotedString(),
+                    nodeId.toQuotedString());
         }
 
         return changes;

@@ -155,6 +155,11 @@ class ParserTest {
         doTestString("change relationship between EX:0001 and EX:0002 from EX:0003 to EX:0004", 1);
     }
 
+    @Test
+    void testAnnotationChange() {
+        doTestString("change annotation of EX:0001 with PROP:0002 from 'old value' to 'new value'", 1);
+    }
+
     /*
      * Attempts to parse a KGCL string and checks that the parser either returns the
      * expected number of changes. If expectedChanges is negative, the parser is

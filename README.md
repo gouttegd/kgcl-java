@@ -161,7 +161,7 @@ the library can apply the change to an ontology):
 | deepen              | yes    | yes     |
 | shallow             | yes    | yes     |
 | change relationship | yes    | yes     |
-| change annotation   | no     | no      |
+| change annotation   | yes    | yes     |
 | create edge         | yes    | yes     |
 | delete edge         | yes    | yes     |
 | create synonym      | yes    | yes     |

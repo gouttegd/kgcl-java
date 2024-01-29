@@ -29,6 +29,7 @@ import org.incenp.obofoundry.kgcl.model.EdgeDeletion;
 import org.incenp.obofoundry.kgcl.model.NewSynonym;
 import org.incenp.obofoundry.kgcl.model.NewTextDefinition;
 import org.incenp.obofoundry.kgcl.model.Node;
+import org.incenp.obofoundry.kgcl.model.NodeAnnotationChange;
 import org.incenp.obofoundry.kgcl.model.NodeDeepening;
 import org.incenp.obofoundry.kgcl.model.NodeDeletion;
 import org.incenp.obofoundry.kgcl.model.NodeMove;
@@ -357,6 +358,28 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
 
         ctx.new_predicate_id.accept(this);
         change.setNewValue(currentId);
+
+        changes.add(change);
+
+        return null;
+    }
+
+    @Override
+    public Void visitChangeAnnotation(KGCLParser.ChangeAnnotationContext ctx) {
+        NodeAnnotationChange change = new NodeAnnotationChange();
+
+        change.setAboutNode(getNode(ctx.subject_id));
+
+        ctx.predicate_id.accept(this);
+        change.setAnnotationProperty(currentId);
+
+        ctx.old_annotation.accept(this);
+        change.setOldValue(currentText);
+        change.setOldLanguage(currentLang);
+
+        ctx.new_annotation.accept(this);
+        change.setNewValue(currentText);
+        change.setNewLanguage(currentLang);
 
         changes.add(change);
 

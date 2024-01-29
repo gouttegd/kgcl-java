@@ -17,6 +17,7 @@ change    : rename
           | newEdge
           | deleteEdge
           | changePredicate
+          | changeAnnotation
           | move
           ;
       
@@ -50,6 +51,8 @@ newEdge   : 'create' 'edge' subject_id=id predicate_id=id object_id=id;
 deleteEdge: 'delete' 'edge' subject_id=id predicate_id=id object_id=id;
 
 changePredicate: 'change' 'relationship' 'between' subject_id=id 'and' object_id=id 'from' old_predicate_id=id 'to' new_predicate_id=id;
+
+changeAnnotation: 'change' 'annotation' 'of' subject_id=id 'with' predicate_id=id 'from' old_annotation=text 'to' new_annotation=text;
 
 move      : 'move' subject_id=id 'from' old_parent=id 'to' new_parent=id
           | 'deepen' subject_id=id 'from' old_parent=id 'to' new_parent=id

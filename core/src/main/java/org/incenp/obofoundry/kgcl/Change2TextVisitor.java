@@ -27,6 +27,7 @@ import org.incenp.obofoundry.kgcl.model.EdgeDeletion;
 import org.incenp.obofoundry.kgcl.model.NewSynonym;
 import org.incenp.obofoundry.kgcl.model.NewTextDefinition;
 import org.incenp.obofoundry.kgcl.model.Node;
+import org.incenp.obofoundry.kgcl.model.NodeAnnotationChange;
 import org.incenp.obofoundry.kgcl.model.NodeDeepening;
 import org.incenp.obofoundry.kgcl.model.NodeDeletion;
 import org.incenp.obofoundry.kgcl.model.NodeMove;
@@ -332,5 +333,11 @@ public class Change2TextVisitor extends ChangeVisitorBase<String> {
         return String.format("change relationship between %s and %s from %s to %s",
                 renderNode(v.getAboutEdge().getSubject()), renderNode(v.getAboutEdge().getObject()),
                 renderId(v.getOldValue()), renderId(v.getNewValue()));
+    }
+
+    @Override
+    public String visit(NodeAnnotationChange v) {
+        return String.format("change annotation of %s with %s from %s to %s", renderNode(v.getAboutNode()),
+                renderId(v.getAnnotationProperty()), renderOldValue(v), renderNewValue(v));
     }
 }
