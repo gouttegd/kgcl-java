@@ -153,6 +153,10 @@ public class Change2OwlVisitor extends ChangeVisitorBase<List<OWLOntologyChange>
     }
 
     private boolean compareValue(OWLAnnotationValue value, String changeText, String changeLang) {
+        if ( !value.isLiteral() ) {
+            return false;
+        }
+
         String valueText = value.asLiteral().get().getLiteral();
         String valueLang = value.asLiteral().get().getLang();
 
