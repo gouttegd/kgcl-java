@@ -38,6 +38,7 @@ import org.incenp.obofoundry.kgcl.model.NodeObsoletionWithDirectReplacement;
 import org.incenp.obofoundry.kgcl.model.NodeObsoletionWithNoDirectReplacement;
 import org.incenp.obofoundry.kgcl.model.NodeRename;
 import org.incenp.obofoundry.kgcl.model.NodeShallowing;
+import org.incenp.obofoundry.kgcl.model.NodeUnobsoletion;
 import org.incenp.obofoundry.kgcl.model.PlaceUnder;
 import org.incenp.obofoundry.kgcl.model.PredicateChange;
 import org.incenp.obofoundry.kgcl.model.RemoveSynonym;
@@ -490,6 +491,32 @@ public class Change2OwlVisitor extends ChangeVisitorBase<List<OWLOntologyChange>
     @Override
     public List<OWLOntologyChange> visit(NodeObsoletionWithNoDirectReplacement v) {
         return visit((NodeObsoletion) v);
+    }
+
+    @Override
+    public List<OWLOntologyChange> visit(NodeUnobsoletion v) {
+        IRI nodeId = IRI.create(v.getAboutNode().getId());
+        if ( !ontology.containsClassInSignature(nodeId) ) {
+            return doDefault(v);
+        }
+
+        ArrayList<OWLOntologyChange> changes = new ArrayList<OWLOntologyChange>();
+        for ( OWLAnnotationAssertionAxiom ax : ontology.getAnnotationAssertionAxioms(nodeId) ) {
+            if ( ax.isDeprecatedIRIAssertion() ) {
+                changes.add(new RemoveAxiom(ontology, ax));
+            } else if ( ax.getProperty().isLabel() && ax.getValue().isLiteral() ) {
+                String label = ax.getValue().asLiteral().get().getLiteral();
+                if ( label.startsWith("obsolete ") ) {
+                    changes.add(new RemoveAxiom(ontology, ax));
+                    changes.add(new AddAxiom(ontology,
+                            factory.getOWLAnnotationAssertionAxiom(
+                                    factory.getOWLAnnotationProperty(OWLRDFVocabulary.RDFS_LABEL.getIRI()), nodeId,
+                                    factory.getOWLLiteral(label.substring(9)))));
+                }
+            }
+        }
+
+        return changes;
     }
 
     @Override

@@ -34,6 +34,7 @@ import org.incenp.obofoundry.kgcl.model.NodeObsoletionWithDirectReplacement;
 import org.incenp.obofoundry.kgcl.model.NodeObsoletionWithNoDirectReplacement;
 import org.incenp.obofoundry.kgcl.model.NodeRename;
 import org.incenp.obofoundry.kgcl.model.NodeShallowing;
+import org.incenp.obofoundry.kgcl.model.NodeUnobsoletion;
 import org.incenp.obofoundry.kgcl.model.PlaceUnder;
 import org.incenp.obofoundry.kgcl.model.PredicateChange;
 import org.incenp.obofoundry.kgcl.model.RemoveSynonym;
@@ -266,6 +267,11 @@ public class Change2TextVisitor extends ChangeVisitorBase<String> {
     @Override
     public String visit(NodeObsoletionWithNoDirectReplacement v) {
         return visit((NodeObsoletion) v);
+    }
+
+    @Override
+    public String visit(NodeUnobsoletion v) {
+        return String.format("unobsolete %s", renderNode(v.getAboutNode()));
     }
 
     @Override

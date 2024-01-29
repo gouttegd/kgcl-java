@@ -157,7 +157,7 @@ the library can apply the change to an ontology):
 | obsolete            | yes    | yes     |
 | delete              | no     | no      |
 | move                | yes    | yes     |
-| unobsolete          | no     | no      |
+| unobsolete          | yes    | yes     |
 | deepen              | yes    | yes     |
 | shallow             | yes    | yes     |
 | change relationship | yes    | yes     |

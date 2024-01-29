@@ -84,6 +84,11 @@ class ParserTest {
     }
 
     @Test
+    void testUnobsoleteChange() {
+        doTestString("unobsolete EX:0001", 1);
+    }
+
+    @Test
     void testNewSynonymChange() {
         doTestString("create synonym 'new synonym' for EX:0001", 1);
         doTestString("create exact synonym 'new synonym' for EX:0001", 1);

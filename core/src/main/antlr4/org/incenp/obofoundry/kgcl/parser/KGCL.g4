@@ -5,6 +5,7 @@ changeset : NL* change EOF
 
 change    : rename
           | obsolete
+          | unobsolete
           | newSynonym
           | removeSynonym
           | changeSynonym
@@ -24,6 +25,8 @@ obsolete  : 'obsolete' old_id=id                                   #ObsoleteNoRe
           | 'obsolete' old_id=id 'with replacement' new_id=id      #ObsoleteWithReplacement
           | 'obsolete' old_id=id 'with alternative' alt_id=idlist  #ObsoleteWithAlternative
           ;
+
+unobsolete: 'unobsolete' id;
 
 newSynonym: 'create' qualifier? 'synonym' synonym=text 'for' id;
 
