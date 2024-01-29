@@ -30,6 +30,7 @@ import org.incenp.obofoundry.kgcl.model.NewSynonym;
 import org.incenp.obofoundry.kgcl.model.NewTextDefinition;
 import org.incenp.obofoundry.kgcl.model.Node;
 import org.incenp.obofoundry.kgcl.model.NodeDeepening;
+import org.incenp.obofoundry.kgcl.model.NodeDeletion;
 import org.incenp.obofoundry.kgcl.model.NodeMove;
 import org.incenp.obofoundry.kgcl.model.NodeObsoletion;
 import org.incenp.obofoundry.kgcl.model.NodeObsoletionWithDirectReplacement;
@@ -159,6 +160,15 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
     @Override
     public Void visitUnobsolete(KGCLParser.UnobsoleteContext ctx) {
         NodeUnobsoletion change = new NodeUnobsoletion();
+        change.setAboutNode(getNode(ctx.id()));
+        changes.add(change);
+
+        return null;
+    }
+
+    @Override
+    public Void visitDelete(KGCLParser.DeleteContext ctx) {
+        NodeDeletion change = new NodeDeletion();
         change.setAboutNode(getNode(ctx.id()));
         changes.add(change);
 

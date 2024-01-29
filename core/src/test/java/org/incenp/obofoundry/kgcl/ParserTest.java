@@ -89,6 +89,11 @@ class ParserTest {
     }
 
     @Test
+    void testDeleteChange() {
+        doTestString("delete EX:0001", 1);
+    }
+
+    @Test
     void testNewSynonymChange() {
         doTestString("create synonym 'new synonym' for EX:0001", 1);
         doTestString("create exact synonym 'new synonym' for EX:0001", 1);

@@ -155,7 +155,7 @@ the library can apply the change to an ontology):
 | rename              | yes    | yes     |
 | create class        | yes    | yes     |
 | obsolete            | yes    | yes     |
-| delete              | no     | no      |
+| delete              | yes    | yes     |
 | move                | yes    | yes     |
 | unobsolete          | yes    | yes     |
 | deepen              | yes    | yes     |

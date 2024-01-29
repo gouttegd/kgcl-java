@@ -32,6 +32,7 @@ import org.incenp.obofoundry.kgcl.model.NewTextDefinition;
 import org.incenp.obofoundry.kgcl.model.Node;
 import org.incenp.obofoundry.kgcl.model.NodeChange;
 import org.incenp.obofoundry.kgcl.model.NodeDeepening;
+import org.incenp.obofoundry.kgcl.model.NodeDeletion;
 import org.incenp.obofoundry.kgcl.model.NodeMove;
 import org.incenp.obofoundry.kgcl.model.NodeObsoletion;
 import org.incenp.obofoundry.kgcl.model.NodeObsoletionWithDirectReplacement;
@@ -514,6 +515,29 @@ public class Change2OwlVisitor extends ChangeVisitorBase<List<OWLOntologyChange>
                                     factory.getOWLLiteral(label.substring(9)))));
                 }
             }
+        }
+
+        return changes;
+    }
+
+    @Override
+    public List<OWLOntologyChange> visit(NodeDeletion v) {
+        IRI nodeId = IRI.create(v.getAboutNode().getId());
+        if ( !ontology.containsClassInSignature(nodeId) ) {
+            return doDefault(v);
+        }
+
+        OWLClass klass = factory.getOWLClass(nodeId);
+        HashSet<OWLAxiom> remove = new HashSet<OWLAxiom>();
+        for ( OWLAxiom ax : ontology.getAxioms(Imports.INCLUDED) ) {
+            if ( ax.getClassesInSignature().contains(klass) ) {
+                remove.add(ax);
+            }
+        }
+
+        ArrayList<OWLOntologyChange> changes = new ArrayList<OWLOntologyChange>();
+        for ( OWLAxiom ax : remove ) {
+            changes.add(new RemoveAxiom(ontology, ax));
         }
 
         return changes;
