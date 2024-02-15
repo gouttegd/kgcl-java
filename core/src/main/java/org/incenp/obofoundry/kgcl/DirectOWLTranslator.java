@@ -93,13 +93,9 @@ import org.semanticweb.owlapi.vocab.OWLRDFVocabulary;
  * you could derive this class and override the
  * {@link #visit(NewTextDefinition)} and similar methods.
  */
-public class Change2OwlVisitor extends ChangeVisitorBase<List<OWLOntologyChange>> {
+public class DirectOWLTranslator extends OWLTranslator {
 
-    private OWLOntology ontology;
-    private OWLDataFactory factory;
-    private OWLReasoner reasoner;
-    private List<Change2OwlRejectListener> listeners;
-    private Set<IRI> addedIRIs;
+    private Set<IRI> addedIRIs = new HashSet<IRI>();
 
     /**
      * Creates a new instance for the specified ontology.
@@ -108,48 +104,8 @@ public class Change2OwlVisitor extends ChangeVisitorBase<List<OWLOntologyChange>
      * @param reasoner The reasoner to use for checking the {@code NodeDeepening}
      *                 and {@code NodeShallowing} operations.
      */
-    public Change2OwlVisitor(OWLOntology ontology, OWLReasoner reasoner) {
-        this.ontology = ontology;
-        this.reasoner = reasoner;
-        factory = ontology.getOWLOntologyManager().getOWLDataFactory();
-        listeners = new ArrayList<Change2OwlRejectListener>();
-        addedIRIs = new HashSet<IRI>();
-    }
-
-    /**
-     * Adds a listener for change rejection events. All the {@code visit()} methods
-     * will return an empty list if they cannot translate the change into OWL axioms
-     * for any reason. Use a “reject listener” to get the reason why a change has
-     * been rejected.
-     * <p>
-     * Note that the listener will not be called for changes that are not translated
-     * merely because the type of change is not implemented.
-     * 
-     * @param listener The listener to add.
-     */
-    public void addRejectListener(Change2OwlRejectListener listener) {
-        listeners.add(listener);
-    }
-
-    /**
-     * Called internally whenever a change is rejected. This method formats the
-     * provided error message then calls any listener that has been set up by
-     * {@link #addRejectListener(Change2OwlRejectListener)}.
-     * 
-     * @param change The change that is rejected.
-     * @param format The reason for rejecting the change, as a format string.
-     * @param args   Arguments referenced by the format specifiers in the format
-     *               string.
-     */
-    protected void onReject(Change change, String format, Object... args) {
-        for ( Change2OwlRejectListener listener : listeners ) {
-            listener.rejected(change, String.format(format, args));
-        }
-    }
-
-    @Override
-    protected List<OWLOntologyChange> doDefault(Change v) {
-        return new ArrayList<OWLOntologyChange>();
+    public DirectOWLTranslator(OWLOntology ontology, OWLReasoner reasoner) {
+        super(ontology, reasoner);
     }
 
     private boolean compareValue(OWLAnnotationValue value, String changeText, String changeLang) {
@@ -254,7 +210,7 @@ public class Change2OwlVisitor extends ChangeVisitorBase<List<OWLOntologyChange>
     @Override
     public List<OWLOntologyChange> visit(NodeRename v) {
         if ( !aboutNodeExists(v) ) {
-            return doDefault(v);
+            return empty;
         }
 
         OWLAnnotationAssertionAxiom oldLabelAxiom = null;
@@ -269,7 +225,7 @@ public class Change2OwlVisitor extends ChangeVisitorBase<List<OWLOntologyChange>
 
         if ( oldLabelAxiom == null ) {
             onReject(v, "Label \"%s\" not found on <%s>", v.getOldValue(), v.getAboutNode().getId());
-            return doDefault(v);
+            return empty;
         }
 
         RemoveAxiom removeOldLabel = new RemoveAxiom(ontology, oldLabelAxiom);
@@ -283,7 +239,7 @@ public class Change2OwlVisitor extends ChangeVisitorBase<List<OWLOntologyChange>
     @Override
     public List<OWLOntologyChange> visit(NewSynonym v) {
         if ( !aboutNodeExists(v) ) {
-            return doDefault(v);
+            return empty;
         }
 
         IRI aboutNodeIri = IRI.create(v.getAboutNode().getId());
@@ -318,7 +274,7 @@ public class Change2OwlVisitor extends ChangeVisitorBase<List<OWLOntologyChange>
     @Override
     public List<OWLOntologyChange> visit(RemoveSynonym v) {
         if ( !aboutNodeExists(v) ) {
-            return doDefault(v);
+            return empty;
         }
 
         ArrayList<OWLOntologyChange> changes = new ArrayList<OWLOntologyChange>();
@@ -347,7 +303,7 @@ public class Change2OwlVisitor extends ChangeVisitorBase<List<OWLOntologyChange>
     @Override
     public List<OWLOntologyChange> visit(SynonymReplacement v) {
         if ( !aboutNodeExists(v) ) {
-            return doDefault(v);
+            return empty;
         }
 
         // I’d like to implement this as a RemoveSynonym followed by a AddSynonym to
@@ -381,7 +337,7 @@ public class Change2OwlVisitor extends ChangeVisitorBase<List<OWLOntologyChange>
     @Override
     public List<OWLOntologyChange> visit(NewTextDefinition v) {
         if ( !aboutNodeExists(v) ) {
-            return doDefault(v);
+            return empty;
         }
 
         return makeList(new AddAxiom(ontology, factory.getOWLAnnotationAssertionAxiom(
@@ -392,7 +348,7 @@ public class Change2OwlVisitor extends ChangeVisitorBase<List<OWLOntologyChange>
     @Override
     public List<OWLOntologyChange> visit(RemoveTextDefinition v) {
         if ( !aboutNodeExists(v) ) {
-            return doDefault(v);
+            return empty;
         }
 
         for ( OWLAnnotationAssertionAxiom ax : ontology
@@ -408,7 +364,7 @@ public class Change2OwlVisitor extends ChangeVisitorBase<List<OWLOntologyChange>
         }
 
         onReject(v, "Definition not found on <%s>", v.getAboutNode().getId());
-        return doDefault(v);
+        return empty;
     }
 
     @Override
@@ -437,7 +393,7 @@ public class Change2OwlVisitor extends ChangeVisitorBase<List<OWLOntologyChange>
     @Override
     public List<OWLOntologyChange> visit(NodeObsoletion v) {
         if ( !aboutNodeExists(v) ) {
-            return doDefault(v);
+            return empty;
         }
 
         IRI obsoleteNodeIri = IRI.create(v.getAboutNode().getId());
@@ -503,7 +459,7 @@ public class Change2OwlVisitor extends ChangeVisitorBase<List<OWLOntologyChange>
     public List<OWLOntologyChange> visit(NodeUnobsoletion v) {
         IRI nodeId = IRI.create(v.getAboutNode().getId());
         if ( !ontology.containsClassInSignature(nodeId) ) {
-            return doDefault(v);
+            return empty;
         }
 
         ArrayList<OWLOntologyChange> changes = new ArrayList<OWLOntologyChange>();
@@ -529,7 +485,7 @@ public class Change2OwlVisitor extends ChangeVisitorBase<List<OWLOntologyChange>
     public List<OWLOntologyChange> visit(NodeDeletion v) {
         IRI nodeId = IRI.create(v.getAboutNode().getId());
         if ( !ontology.containsClassInSignature(nodeId) ) {
-            return doDefault(v);
+            return empty;
         }
 
         OWLClass klass = factory.getOWLClass(nodeId);
@@ -567,7 +523,7 @@ public class Change2OwlVisitor extends ChangeVisitorBase<List<OWLOntologyChange>
         // TODO: Support subject and object being something else than OWL classes
         IRI subjectIRI = findClass(v, v.getSubject().getId());
         if ( subjectIRI == null ) {
-            return doDefault(v);
+            return empty;
         }
 
         IRI predicateIRI = IRI.create(v.getPredicate().getId());
@@ -584,7 +540,7 @@ public class Change2OwlVisitor extends ChangeVisitorBase<List<OWLOntologyChange>
 
         if ( edgeAxiom == null ) {
             onReject(v, "Edge predicate <%s> not found", v.getPredicate().getId());
-            return doDefault(v);
+            return empty;
         }
 
         return makeList(new AddAxiom(ontology, edgeAxiom));
@@ -597,7 +553,7 @@ public class Change2OwlVisitor extends ChangeVisitorBase<List<OWLOntologyChange>
         IRI predicateIRI = v.getPredicate() != null ? IRI.create(v.getPredicate().getId()) : null;
 
         if ( subjectIRI == null || objectIRI == null ) {
-            return doDefault(v);
+            return empty;
         }
 
         Set<OWLSubClassOfAxiom> edges = findEdges(subjectIRI, objectIRI, predicateIRI);
@@ -655,7 +611,7 @@ public class Change2OwlVisitor extends ChangeVisitorBase<List<OWLOntologyChange>
         IRI newObjectIRI = findClass(v, v.getNewValue());
 
         if ( subjectIRI == null || oldObjectIRI == null || newObjectIRI == null ) {
-            return doDefault(v);
+            return empty;
         }
 
         Set<OWLSubClassOfAxiom> edges = findEdges(subjectIRI, oldObjectIRI, null);
@@ -664,9 +620,9 @@ public class Change2OwlVisitor extends ChangeVisitorBase<List<OWLOntologyChange>
         }
 
         if ( v instanceof NodeDeepening && !isAncestor(v, newObjectIRI, oldObjectIRI) ) {
-            return doDefault(v);
+            return empty;
         } else if ( v instanceof NodeShallowing && !isAncestor(v, oldObjectIRI, newObjectIRI) ) {
-            return doDefault(v);
+            return empty;
         }
 
         HashSet<OWLAxiom> newAxioms = new HashSet<OWLAxiom>();
@@ -701,14 +657,14 @@ public class Change2OwlVisitor extends ChangeVisitorBase<List<OWLOntologyChange>
         IRI newPredicateIRI = IRI.create(v.getNewValue());
 
         if (subjectIRI == null || objectIRI == null) {
-            return doDefault(v);
+            return empty;
         }
 
         Set<OWLSubClassOfAxiom> edges = findEdges(subjectIRI, objectIRI, oldPredicateIRI);
         if ( edges.isEmpty() ) {
             onReject(v, "No %s edge found between %s and %s", oldPredicateIRI.toQuotedString(),
                     subjectIRI.toQuotedString(), objectIRI.toQuotedString());
-            return doDefault(v);
+            return empty;
         }
 
         ArrayList<OWLOntologyChange> changes = new ArrayList<OWLOntologyChange>();

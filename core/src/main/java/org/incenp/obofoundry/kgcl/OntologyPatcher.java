@@ -28,7 +28,7 @@ import org.semanticweb.owlapi.reasoner.OWLReasoner;
 
 /**
  * A class to apply KGCL-described changes to a OWL API ontology. This class is
- * intended to be at a slightly higher level than {@link Change2OwlVisitor} and
+ * intended to be at a slightly higher level than {@link DirectOWLTranslator} and
  * as such is the preferred way of modifying an ontology with KGCL.
  * <p>
  * Typical usage:
@@ -49,10 +49,11 @@ import org.semanticweb.owlapi.reasoner.OWLReasoner;
  * }
  * </pre>
  */
-public class OntologyPatcher implements Change2OwlRejectListener {
+public class OntologyPatcher implements RejectedChangeListener {
 
     private OWLOntology ontology;
-    private Change2OwlVisitor visitor;
+    private OWLReasoner reasoner;
+    private OWLTranslator translator;
     private ArrayList<RejectedChange> rejectedChanges;
 
     /**
@@ -64,8 +65,7 @@ public class OntologyPatcher implements Change2OwlRejectListener {
      */
     public OntologyPatcher(OWLOntology ontology, OWLReasoner reasoner) {
         this.ontology = ontology;
-        visitor = new Change2OwlVisitor(ontology, reasoner);
-        visitor.addRejectListener(this);
+        this.reasoner = reasoner;
         rejectedChanges = new ArrayList<RejectedChange>();
     }
 
@@ -77,7 +77,7 @@ public class OntologyPatcher implements Change2OwlRejectListener {
      *         {@code false} if the change has been rejected.
      */
     public boolean apply(Change change) {
-        List<OWLOntologyChange> owlChanges = change.accept(visitor);
+        List<OWLOntologyChange> owlChanges = change.accept(getTranslator());
         if ( owlChanges.size() > 0 ) {
             ontology.getOWLOntologyManager().applyChanges(owlChanges);
             return true;
@@ -118,7 +118,7 @@ public class OntologyPatcher implements Change2OwlRejectListener {
         ArrayList<OWLOntologyChange> owlChanges = new ArrayList<OWLOntologyChange>();
         int nRejected = rejectedChanges.size();
         for ( Change change : changes ) {
-            owlChanges.addAll(change.accept(visitor));
+            owlChanges.addAll(change.accept(getTranslator()));
         }
 
         if ( owlChanges.size() > 0 ) {
@@ -161,5 +161,13 @@ public class OntologyPatcher implements Change2OwlRejectListener {
     @Override
     public void rejected(Change change, String reason) {
         rejectedChanges.add(new RejectedChange(change, reason));
+    }
+
+    private OWLTranslator getTranslator() {
+        if ( translator == null ) {
+            translator = new DirectOWLTranslator(ontology, reasoner);
+            translator.addRejectListener(this);
+        }
+        return translator;
     }
 }

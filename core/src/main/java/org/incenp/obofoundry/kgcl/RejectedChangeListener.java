@@ -21,11 +21,10 @@ package org.incenp.obofoundry.kgcl;
 import org.incenp.obofoundry.kgcl.model.Change;
 
 /**
- * Listener for “rejected change” events – when {@link Change2OwlVisitor} cannot
- * translate a change into OWL axioms because of a mismatch between what the
- * target ontology contains and what the change expects.
+ * Listener for “rejected change” events – when {@link OWLTranslator} cannot
+ * translate a change for any reason.
  */
-public interface Change2OwlRejectListener {
+public interface RejectedChangeListener {
 
     /**
      * This method is called when a change cannot be applied to an ontology.
