@@ -57,6 +57,10 @@ import org.semanticweb.owlapi.model.OWLAxiom;
 import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLClassExpression;
 import org.semanticweb.owlapi.model.OWLDataFactory;
+import org.semanticweb.owlapi.model.OWLDeclarationAxiom;
+import org.semanticweb.owlapi.model.OWLDisjointClassesAxiom;
+import org.semanticweb.owlapi.model.OWLDisjointUnionAxiom;
+import org.semanticweb.owlapi.model.OWLEquivalentClassesAxiom;
 import org.semanticweb.owlapi.model.OWLObjectProperty;
 import org.semanticweb.owlapi.model.OWLObjectPropertyExpression;
 import org.semanticweb.owlapi.model.OWLOntology;
@@ -67,6 +71,7 @@ import org.semanticweb.owlapi.model.parameters.Imports;
 import org.semanticweb.owlapi.reasoner.NodeSet;
 import org.semanticweb.owlapi.reasoner.OWLReasoner;
 import org.semanticweb.owlapi.reasoner.OWLReasonerRuntimeException;
+import org.semanticweb.owlapi.util.OWLAxiomVisitorExAdapter;
 import org.semanticweb.owlapi.vocab.OWLRDFVocabulary;
 
 /**
@@ -397,11 +402,12 @@ public class DirectOWLTranslator extends OWLTranslator {
         }
 
         IRI obsoleteNodeIri = IRI.create(v.getAboutNode().getId());
-        ArrayList<OWLOntologyChange> changes = new ArrayList<OWLOntologyChange>();
+        HashSet<OWLAxiom> removeAxioms = new HashSet<OWLAxiom>();
+        HashSet<OWLAxiom> addAxioms = new HashSet<OWLAxiom>();
 
         // Remove the axioms that make up the class definition
         for ( OWLAxiom ax : ontology.getAxioms(factory.getOWLClass(obsoleteNodeIri), Imports.INCLUDED) ) {
-            changes.add(new RemoveAxiom(ontology, ax));
+            removeAxioms.add(ax);
         }
 
         // Remove annotation properties
@@ -409,38 +415,73 @@ public class DirectOWLTranslator extends OWLTranslator {
             if ( ax.getProperty().getIRI().equals(OWLRDFVocabulary.RDFS_LABEL.getIRI()) ) {
                 // Prepend "obsolete " to the existing label
                 String oldLabel = ax.getValue().asLiteral().get().getLiteral();
-                changes.add(new AddAxiom(ontology,
-                        factory.getOWLAnnotationAssertionAxiom(
-                                factory.getOWLAnnotationProperty(OWLRDFVocabulary.RDFS_LABEL.getIRI()), obsoleteNodeIri,
-                                factory.getOWLLiteral("obsolete " + oldLabel))));
+                addAxioms.add(factory.getOWLAnnotationAssertionAxiom(
+                        factory.getOWLAnnotationProperty(OWLRDFVocabulary.RDFS_LABEL.getIRI()), obsoleteNodeIri,
+                        factory.getOWLLiteral("obsolete " + oldLabel)));
             }
-            changes.add(new RemoveAxiom(ontology, ax));
+            removeAxioms.add(ax);
         }
 
         // Add deprecation annotation property
-        changes.add(new AddAxiom(ontology,
-                factory.getOWLAnnotationAssertionAxiom(
-                        factory.getOWLAnnotationProperty(OWLRDFVocabulary.OWL_DEPRECATED.getIRI()), obsoleteNodeIri,
-                        factory.getOWLLiteral(true))));
+        addAxioms.add(factory.getOWLAnnotationAssertionAxiom(
+                factory.getOWLAnnotationProperty(OWLRDFVocabulary.OWL_DEPRECATED.getIRI()), obsoleteNodeIri,
+                factory.getOWLLiteral(true)));
 
         // Add "term replaced by"
         if ( v.getHasDirectReplacement() != null ) {
             IRI replacementNodeIri = IRI.create(v.getHasDirectReplacement().getId());
-            changes.add(new AddAxiom(ontology,
-                    factory.getOWLAnnotationAssertionAxiom(
-                            factory.getOWLAnnotationProperty(
-                                    Obo2OWLConstants.Obo2OWLVocabulary.IRI_IAO_0100001.getIRI()),
-                            obsoleteNodeIri, replacementNodeIri)));
+            addAxioms.add(factory.getOWLAnnotationAssertionAxiom(
+                    factory.getOWLAnnotationProperty(Obo2OWLConstants.Obo2OWLVocabulary.IRI_IAO_0100001.getIRI()),
+                    obsoleteNodeIri, replacementNodeIri));
+
+            // Since the class has a direct replacement, we can rewrite all axioms referring
+            // to it to make them refer to the replacement class
+            AxiomRewritingVisitor rewriter = new AxiomRewritingVisitor(factory, obsoleteNodeIri, replacementNodeIri);
+            for ( OWLAxiom axiom : ontology.getReferencingAxioms(obsoleteNodeIri, Imports.INCLUDED) ) {
+                // Do not rewrite axioms that are already slated for removal
+                if ( removeAxioms.contains(axiom) ) {
+                    continue;
+                }
+
+                OWLAxiom rewrittenAxiom = axiom.accept(rewriter);
+                if ( rewrittenAxiom != null ) {
+                    addAxioms.add(rewrittenAxiom);
+                    removeAxioms.add(axiom);
+                }
+            }
         } else if ( v.getHasNondirectReplacement() != null ) {
             // Add "consider"
             for ( Node consider : v.getHasNondirectReplacement() ) {
-                changes.add(new AddAxiom(ontology,
-                        factory.getOWLAnnotationAssertionAxiom(
-                                factory.getOWLAnnotationProperty(
-                                        Obo2OWLConstants.Obo2OWLVocabulary.IRI_OIO_consider.getIRI()),
-                                obsoleteNodeIri, IRI.create(consider.getId()))));
+                addAxioms.add(factory.getOWLAnnotationAssertionAxiom(
+                        factory.getOWLAnnotationProperty(Obo2OWLConstants.Obo2OWLVocabulary.IRI_OIO_consider.getIRI()),
+                        obsoleteNodeIri, IRI.create(consider.getId())));
+            }
+
+            /*
+             * FIXME: It’s unclear to me what should be done with referencing axioms in this
+             * case. Obviously we cannot rewrite them, but should we remove them or leave
+             * them alone? Since they are expected to be removed when there is no
+             * replacement at all (see below), it would be consistent to also remove them
+             * when there are only non-direct replacements. But this creates the risk that
+             * the axioms forcefully removed in that manner are never later manually
+             * rewritten by editors, since they might not even realise those axioms were
+             * there and had been removed.
+             * 
+             * https://github.com/INCATools/kgcl/issues/52
+             */
+        } else {
+            // No replacement or alternative, the expectation from the KGCL folks is that
+            // all referencing axioms should be removed
+            for (OWLAxiom axiom : ontology.getReferencingAxioms(obsoleteNodeIri, Imports.INCLUDED)) {
+                if ( !(axiom instanceof OWLDeclarationAxiom) ) {
+                    removeAxioms.add(axiom);
+                }
             }
         }
+
+        ArrayList<OWLOntologyChange> changes = new ArrayList<OWLOntologyChange>();
+        removeAxioms.forEach(ax -> changes.add(new RemoveAxiom(ontology, ax)));
+        addAxioms.forEach(ax -> changes.add(new AddAxiom(ontology, ax)));
 
         return changes;
     }
@@ -776,6 +817,61 @@ public class DirectOWLTranslator extends OWLTranslator {
                 }
             }
             return pe;
+        }
+    }
+
+    /*
+     * Rewrite all logical axioms to change any reference to a given class to a
+     * reference to another class.
+     */
+    private class AxiomRewritingVisitor extends OWLAxiomVisitorExAdapter<OWLAxiom> {
+
+        private ClassRewritingVisitor rewriter;
+        private OWLDataFactory factory;
+
+        public AxiomRewritingVisitor(OWLDataFactory factory, IRI oldClass, IRI newClass) {
+            super(null);
+            rewriter = new ClassRewritingVisitor(factory, oldClass, newClass);
+            this.factory = factory;
+        }
+
+        @Override
+        public OWLAxiom doDefault(OWLAxiom axiom) {
+            return null;
+        }
+
+        @Override
+        public OWLAxiom visit(OWLSubClassOfAxiom axiom) {
+            return factory.getOWLSubClassOfAxiom(axiom.getSubClass().accept(rewriter),
+                    axiom.getSuperClass().accept(rewriter), axiom.getAnnotations());
+        }
+
+        @Override
+        public OWLAxiom visit(OWLEquivalentClassesAxiom axiom) {
+            HashSet<OWLClassExpression> equivs = new HashSet<OWLClassExpression>();
+            for ( OWLClassExpression ce : axiom.getClassExpressions() ) {
+                equivs.add(ce.accept(rewriter));
+            }
+            return factory.getOWLEquivalentClassesAxiom(equivs, axiom.getAnnotations());
+        }
+
+        @Override
+        public OWLAxiom visit(OWLDisjointClassesAxiom axiom) {
+            HashSet<OWLClassExpression> disjoints = new HashSet<OWLClassExpression>();
+            for ( OWLClassExpression ce : axiom.getClassExpressions() ) {
+                disjoints.add(ce.accept(rewriter));
+            }
+            return factory.getOWLDisjointClassesAxiom(disjoints, axiom.getAnnotations());
+        }
+
+        @Override
+        public OWLAxiom visit(OWLDisjointUnionAxiom axiom) {
+            HashSet<OWLClassExpression> union = new HashSet<OWLClassExpression>();
+            for ( OWLClassExpression ce : axiom.getClassExpressions() ) {
+                union.add(ce.accept(rewriter));
+            }
+            return factory.getOWLDisjointUnionAxiom(axiom.getOWLClass().accept(rewriter).asOWLClass(), union,
+                    axiom.getAnnotations());
         }
     }
 }
