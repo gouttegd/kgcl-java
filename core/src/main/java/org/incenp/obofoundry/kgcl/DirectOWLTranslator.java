@@ -101,6 +101,7 @@ import org.semanticweb.owlapi.vocab.OWLRDFVocabulary;
 public class DirectOWLTranslator extends OWLTranslator {
 
     private Set<IRI> addedIRIs = new HashSet<IRI>();
+    private Set<OWLAxiom> removedAxioms = new HashSet<OWLAxiom>();
 
     /**
      * Creates a new instance for the specified ontology.
@@ -212,6 +213,11 @@ public class DirectOWLTranslator extends OWLTranslator {
         return list;
     }
 
+    private RemoveAxiom removeAxiom(OWLAxiom axiom) {
+        removedAxioms.add(axiom);
+        return new RemoveAxiom(ontology, axiom);
+    }
+
     @Override
     public List<OWLOntologyChange> visit(NodeRename v) {
         if ( !aboutNodeExists(v) ) {
@@ -233,12 +239,11 @@ public class DirectOWLTranslator extends OWLTranslator {
             return empty;
         }
 
-        RemoveAxiom removeOldLabel = new RemoveAxiom(ontology, oldLabelAxiom);
         AddAxiom addNewLabel = new AddAxiom(ontology, factory.getOWLAnnotationAssertionAxiom(
                 factory.getOWLAnnotationProperty(OWLRDFVocabulary.RDFS_LABEL.getIRI()),
                 IRI.create(v.getAboutNode().getId()), factory.getOWLLiteral(v.getNewValue(), v.getNewLanguage())));
 
-        return makeList(removeOldLabel, addNewLabel);
+        return makeList(removeAxiom(oldLabelAxiom), addNewLabel);
     }
 
     @Override
@@ -293,7 +298,7 @@ public class DirectOWLTranslator extends OWLTranslator {
                     || propertyIRI.equals(Obo2OWLConstants.Obo2OWLVocabulary.IRI_OIO_hasNarrowSynonym.getIRI())
                     || propertyIRI.equals(Obo2OWLConstants.Obo2OWLVocabulary.IRI_OIO_hasRelatedSynonym.getIRI()) ) {
                 if ( compareValue(ax.getValue(), v.getOldValue(), v.getOldLanguage()) ) {
-                    changes.add(new RemoveAxiom(ontology, ax));
+                    changes.add(removeAxiom(ax));
                 }
             }
         }
@@ -324,7 +329,7 @@ public class DirectOWLTranslator extends OWLTranslator {
                     || propertyIri.equals(Obo2OWLConstants.Obo2OWLVocabulary.IRI_OIO_hasNarrowSynonym.getIRI())
                     || propertyIri.equals(Obo2OWLConstants.Obo2OWLVocabulary.IRI_OIO_hasRelatedSynonym.getIRI()) ) {
                 if ( compareValue(ax.getValue(), v.getOldValue(), v.getOldLanguage()) ) {
-                    changes.add(new RemoveAxiom(ontology, ax));
+                    changes.add(removeAxiom(ax));
                     changes.add(new AddAxiom(ontology,
                             factory.getOWLAnnotationAssertionAxiom(factory.getOWLAnnotationProperty(propertyIri),
                                     aboutNodeIri, factory.getOWLLiteral(v.getNewValue(), v.getNewLanguage()))));
@@ -363,7 +368,7 @@ public class DirectOWLTranslator extends OWLTranslator {
                 // definition we found. The KGCL command syntax does not allow specifying the
                 // text of the definition to remove, but the KGCL model does.
                 if ( v.getOldValue() == null || compareValue(ax.getValue(), v.getOldValue(), v.getOldLanguage()) ) {
-                    return makeList(new RemoveAxiom(ontology, ax));
+                    return makeList(removeAxiom(ax));
                 }
             }
         }
@@ -402,12 +407,11 @@ public class DirectOWLTranslator extends OWLTranslator {
         }
 
         IRI obsoleteNodeIri = IRI.create(v.getAboutNode().getId());
-        HashSet<OWLAxiom> removeAxioms = new HashSet<OWLAxiom>();
-        HashSet<OWLAxiom> addAxioms = new HashSet<OWLAxiom>();
+        ArrayList<OWLOntologyChange> changes = new ArrayList<OWLOntologyChange>();
 
         // Remove the axioms that make up the class definition
         for ( OWLAxiom ax : ontology.getAxioms(factory.getOWLClass(obsoleteNodeIri), Imports.INCLUDED) ) {
-            removeAxioms.add(ax);
+            changes.add(removeAxiom(ax));
         }
 
         // Remove annotation properties
@@ -415,46 +419,52 @@ public class DirectOWLTranslator extends OWLTranslator {
             if ( ax.getProperty().getIRI().equals(OWLRDFVocabulary.RDFS_LABEL.getIRI()) ) {
                 // Prepend "obsolete " to the existing label
                 String oldLabel = ax.getValue().asLiteral().get().getLiteral();
-                addAxioms.add(factory.getOWLAnnotationAssertionAxiom(
-                        factory.getOWLAnnotationProperty(OWLRDFVocabulary.RDFS_LABEL.getIRI()), obsoleteNodeIri,
-                        factory.getOWLLiteral("obsolete " + oldLabel)));
+                changes.add(new AddAxiom(ontology,
+                        factory.getOWLAnnotationAssertionAxiom(
+                                factory.getOWLAnnotationProperty(OWLRDFVocabulary.RDFS_LABEL.getIRI()), obsoleteNodeIri,
+                                factory.getOWLLiteral("obsolete " + oldLabel))));
             }
-            removeAxioms.add(ax);
+            changes.add(removeAxiom(ax));
         }
 
         // Add deprecation annotation property
-        addAxioms.add(factory.getOWLAnnotationAssertionAxiom(
-                factory.getOWLAnnotationProperty(OWLRDFVocabulary.OWL_DEPRECATED.getIRI()), obsoleteNodeIri,
-                factory.getOWLLiteral(true)));
+        changes.add(new AddAxiom(ontology,
+                factory.getOWLAnnotationAssertionAxiom(
+                        factory.getOWLAnnotationProperty(OWLRDFVocabulary.OWL_DEPRECATED.getIRI()), obsoleteNodeIri,
+                        factory.getOWLLiteral(true))));
 
         // Add "term replaced by"
         if ( v.getHasDirectReplacement() != null ) {
             IRI replacementNodeIri = IRI.create(v.getHasDirectReplacement().getId());
-            addAxioms.add(factory.getOWLAnnotationAssertionAxiom(
-                    factory.getOWLAnnotationProperty(Obo2OWLConstants.Obo2OWLVocabulary.IRI_IAO_0100001.getIRI()),
-                    obsoleteNodeIri, replacementNodeIri));
+            changes.add(new AddAxiom(ontology,
+                    factory.getOWLAnnotationAssertionAxiom(
+                            factory.getOWLAnnotationProperty(
+                                    Obo2OWLConstants.Obo2OWLVocabulary.IRI_IAO_0100001.getIRI()),
+                            obsoleteNodeIri, replacementNodeIri)));
 
             // Since the class has a direct replacement, we can rewrite all axioms referring
             // to it to make them refer to the replacement class
             AxiomRewritingVisitor rewriter = new AxiomRewritingVisitor(factory, obsoleteNodeIri, replacementNodeIri);
             for ( OWLAxiom axiom : ontology.getReferencingAxioms(obsoleteNodeIri, Imports.INCLUDED) ) {
                 // Do not rewrite axioms that are already slated for removal
-                if ( removeAxioms.contains(axiom) ) {
+                if ( removedAxioms.contains(axiom) ) {
                     continue;
                 }
 
                 OWLAxiom rewrittenAxiom = axiom.accept(rewriter);
                 if ( rewrittenAxiom != null ) {
-                    addAxioms.add(rewrittenAxiom);
-                    removeAxioms.add(axiom);
+                    changes.add(removeAxiom(axiom));
+                    changes.add(new AddAxiom(ontology, rewrittenAxiom));
                 }
             }
         } else if ( v.getHasNondirectReplacement() != null ) {
             // Add "consider"
             for ( Node consider : v.getHasNondirectReplacement() ) {
-                addAxioms.add(factory.getOWLAnnotationAssertionAxiom(
-                        factory.getOWLAnnotationProperty(Obo2OWLConstants.Obo2OWLVocabulary.IRI_OIO_consider.getIRI()),
-                        obsoleteNodeIri, IRI.create(consider.getId())));
+                changes.add(new AddAxiom(ontology,
+                        factory.getOWLAnnotationAssertionAxiom(
+                                factory.getOWLAnnotationProperty(
+                                        Obo2OWLConstants.Obo2OWLVocabulary.IRI_OIO_consider.getIRI()),
+                                obsoleteNodeIri, IRI.create(consider.getId()))));
             }
 
             /*
@@ -474,14 +484,10 @@ public class DirectOWLTranslator extends OWLTranslator {
             // all referencing axioms should be removed
             for (OWLAxiom axiom : ontology.getReferencingAxioms(obsoleteNodeIri, Imports.INCLUDED)) {
                 if ( !(axiom instanceof OWLDeclarationAxiom) ) {
-                    removeAxioms.add(axiom);
+                    changes.add(removeAxiom(axiom));
                 }
             }
         }
-
-        ArrayList<OWLOntologyChange> changes = new ArrayList<OWLOntologyChange>();
-        removeAxioms.forEach(ax -> changes.add(new RemoveAxiom(ontology, ax)));
-        addAxioms.forEach(ax -> changes.add(new AddAxiom(ontology, ax)));
 
         return changes;
     }
@@ -506,11 +512,11 @@ public class DirectOWLTranslator extends OWLTranslator {
         ArrayList<OWLOntologyChange> changes = new ArrayList<OWLOntologyChange>();
         for ( OWLAnnotationAssertionAxiom ax : ontology.getAnnotationAssertionAxioms(nodeId) ) {
             if ( ax.isDeprecatedIRIAssertion() ) {
-                changes.add(new RemoveAxiom(ontology, ax));
+                changes.add(removeAxiom(ax));
             } else if ( ax.getProperty().isLabel() && ax.getValue().isLiteral() ) {
                 String label = ax.getValue().asLiteral().get().getLiteral();
                 if ( label.startsWith("obsolete ") ) {
-                    changes.add(new RemoveAxiom(ontology, ax));
+                    changes.add(removeAxiom(ax));
                     changes.add(new AddAxiom(ontology,
                             factory.getOWLAnnotationAssertionAxiom(
                                     factory.getOWLAnnotationProperty(OWLRDFVocabulary.RDFS_LABEL.getIRI()), nodeId,
@@ -530,8 +536,7 @@ public class DirectOWLTranslator extends OWLTranslator {
         }
 
         ArrayList<OWLOntologyChange> changes = new ArrayList<OWLOntologyChange>();
-        ontology.getReferencingAxioms(nodeId, Imports.INCLUDED)
-                .forEach(ax -> changes.add(new RemoveAxiom(ontology, ax)));
+        ontology.getReferencingAxioms(nodeId, Imports.INCLUDED).forEach(ax -> changes.add(removeAxiom(ax)));
 
         return changes;
     }
@@ -594,7 +599,7 @@ public class DirectOWLTranslator extends OWLTranslator {
         }
 
         ArrayList<OWLOntologyChange> changes = new ArrayList<OWLOntologyChange>();
-        edges.forEach(axiom -> changes.add(new RemoveAxiom(ontology, axiom)));
+        edges.forEach(axiom -> changes.add(removeAxiom(axiom)));
 
         return changes;
     }
@@ -665,7 +670,7 @@ public class DirectOWLTranslator extends OWLTranslator {
         }
 
         ArrayList<OWLOntologyChange> changes = new ArrayList<OWLOntologyChange>();
-        edges.forEach(axiom -> changes.add(new RemoveAxiom(ontology, axiom)));
+        edges.forEach(axiom -> changes.add(removeAxiom(axiom)));
         newAxioms.forEach(axiom -> changes.add(new AddAxiom(ontology, axiom)));
 
         return changes;
@@ -717,7 +722,7 @@ public class DirectOWLTranslator extends OWLTranslator {
                 newAxiom = factory.getOWLSubClassOfAxiom(axiom.getSubClass(), axiom.getSuperClass().accept(visitor));
             }
 
-            changes.add(new RemoveAxiom(ontology, axiom));
+            changes.add(removeAxiom(axiom));
             changes.add(new AddAxiom(ontology, newAxiom.getAnnotatedAxiom(axiom.getAnnotations())));
         }
 
@@ -745,7 +750,7 @@ public class DirectOWLTranslator extends OWLTranslator {
             if ( ax.getProperty().getIRI().equals(propertyId) ) {
                 found += 1;
                 if ( compareValue(ax.getValue(), v.getOldValue(), v.getOldLanguage()) ) {
-                    changes.add(new RemoveAxiom(ontology, ax));
+                    changes.add(removeAxiom(ax));
                     changes.add(new AddAxiom(ontology,
                             factory.getOWLAnnotationAssertionAxiom(factory.getOWLAnnotationProperty(propertyId), nodeId,
                                     factory.getOWLLiteral(v.getNewValue(), v.getNewLanguage()))));
