@@ -529,18 +529,9 @@ public class DirectOWLTranslator extends OWLTranslator {
             return empty;
         }
 
-        OWLClass klass = factory.getOWLClass(nodeId);
-        HashSet<OWLAxiom> remove = new HashSet<OWLAxiom>();
-        for ( OWLAxiom ax : ontology.getAxioms(Imports.INCLUDED) ) {
-            if ( ax.getClassesInSignature().contains(klass) ) {
-                remove.add(ax);
-            }
-        }
-
         ArrayList<OWLOntologyChange> changes = new ArrayList<OWLOntologyChange>();
-        for ( OWLAxiom ax : remove ) {
-            changes.add(new RemoveAxiom(ontology, ax));
-        }
+        ontology.getReferencingAxioms(nodeId, Imports.INCLUDED)
+                .forEach(ax -> changes.add(new RemoveAxiom(ontology, ax)));
 
         return changes;
     }
