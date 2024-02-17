@@ -276,6 +276,14 @@ public class DirectOWLTranslator extends OWLTranslator {
             }
         }
 
+        // Check for existing synonym
+        for ( OWLAnnotationAssertionAxiom axiom : ontology.getAnnotationAssertionAxioms(aboutNodeIri) ) {
+            if ( axiom.getProperty().getIRI().equals(propertyIri)
+                    && compareValue(axiom.getValue(), v.getNewValue(), v.getNewLanguage()) ) {
+                return empty;
+            }
+        }
+
         return makeList(new AddAxiom(ontology,
                 factory.getOWLAnnotationAssertionAxiom(factory.getOWLAnnotationProperty(propertyIri), aboutNodeIri,
                         factory.getOWLLiteral(v.getNewValue(), v.getNewLanguage()))));
@@ -350,9 +358,20 @@ public class DirectOWLTranslator extends OWLTranslator {
             return empty;
         }
 
-        return makeList(new AddAxiom(ontology, factory.getOWLAnnotationAssertionAxiom(
-                factory.getOWLAnnotationProperty(Obo2OWLConstants.Obo2OWLVocabulary.IRI_IAO_0000115.getIRI()),
-                IRI.create(v.getAboutNode().getId()), factory.getOWLLiteral(v.getNewValue(), v.getNewLanguage()))));
+        IRI aboutNodeIRI = IRI.create(v.getAboutNode().getId());
+        IRI definitionIRI = Obo2OWLConstants.Obo2OWLVocabulary.IRI_IAO_0000115.getIRI();
+
+        // Check for existing definition
+        for ( OWLAnnotationAssertionAxiom axiom : ontology.getAnnotationAssertionAxioms(aboutNodeIRI) ) {
+            if ( axiom.getProperty().getIRI().equals(definitionIRI)
+                    && compareValue(axiom.getValue(), v.getNewValue(), v.getNewLanguage()) ) {
+                return empty;
+            }
+        }
+
+        return makeList(new AddAxiom(ontology,
+                factory.getOWLAnnotationAssertionAxiom(factory.getOWLAnnotationProperty(definitionIRI), aboutNodeIRI,
+                        factory.getOWLLiteral(v.getNewValue(), v.getNewLanguage()))));
     }
 
     @Override
@@ -544,6 +563,10 @@ public class DirectOWLTranslator extends OWLTranslator {
     @Override
     public List<OWLOntologyChange> visit(ClassCreation v) {
         IRI classIRI = IRI.create(v.getAboutNode().getId());
+        if ( ontology.containsClassInSignature(classIRI) ) {
+            onReject(v, "Class <%s> already exists", classIRI.toString());
+            return empty;
+        }
 
         OWLAxiom newClassAxiom = factory.getOWLDeclarationAxiom(factory.getOWLClass(classIRI));
         OWLAxiom newLabelAxiom = factory.getOWLAnnotationAssertionAxiom(
