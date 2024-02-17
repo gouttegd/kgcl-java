@@ -434,16 +434,33 @@ public class DirectOWLTranslator extends OWLTranslator {
         }
 
         // Remove annotation properties
+        Set<OWLAxiom> foreignLabels = new HashSet<OWLAxiom>();
+        boolean keepForeignLabels = true;
         for ( OWLAnnotationAssertionAxiom ax : ontology.getAnnotationAssertionAxioms(obsoleteNodeIri) ) {
-            if ( ax.getProperty().getIRI().equals(OWLRDFVocabulary.RDFS_LABEL.getIRI()) ) {
-                // Prepend "obsolete " to the existing label
+            if ( ax.getProperty().getIRI().equals(OWLRDFVocabulary.RDFS_LABEL.getIRI()) && ax.getValue().isLiteral() ) {
+                // Prepend "obsolete " to the existing label. We only do that if the label has
+                // no language tag or is explicitly an English label, because "obsolete" may not
+                // mean anything (or may mean something different) in another language.
                 String oldLabel = ax.getValue().asLiteral().get().getLiteral();
-                changes.add(new AddAxiom(ontology,
-                        factory.getOWLAnnotationAssertionAxiom(
-                                factory.getOWLAnnotationProperty(OWLRDFVocabulary.RDFS_LABEL.getIRI()), obsoleteNodeIri,
-                                factory.getOWLLiteral("obsolete " + oldLabel))));
+                String oldLang = ax.getValue().asLiteral().get().getLang();
+                if ( oldLang.isEmpty() || oldLang.equalsIgnoreCase("en") || oldLang.startsWith("en-") ) {
+                    changes.add(removeAxiom(ax));
+                    changes.add(new AddAxiom(ontology,
+                            factory.getOWLAnnotationAssertionAxiom(
+                                    factory.getOWLAnnotationProperty(OWLRDFVocabulary.RDFS_LABEL.getIRI()),
+                                    obsoleteNodeIri, factory.getOWLLiteral("obsolete " + oldLabel, oldLang))));
+                    keepForeignLabels = false;
+                } else {
+                    // Set foreign (non-English) labels aside for now
+                    foreignLabels.add(ax);
+                }
+            } else {
+                changes.add(removeAxiom(ax));
             }
-            changes.add(removeAxiom(ax));
+        }
+        if ( !keepForeignLabels ) {
+            // There was a neutral or English label, so we can remove the foreign ones
+            foreignLabels.forEach(ax -> changes.add(removeAxiom(ax)));
         }
 
         // Add deprecation annotation property
@@ -467,6 +484,11 @@ public class DirectOWLTranslator extends OWLTranslator {
             for ( OWLAxiom axiom : ontology.getReferencingAxioms(obsoleteNodeIri, Imports.INCLUDED) ) {
                 // Do not rewrite axioms that are already slated for removal
                 if ( removedAxioms.contains(axiom) ) {
+                    continue;
+                }
+
+                // Do not rewrite foreign label axioms
+                if ( keepForeignLabels && foreignLabels.contains(axiom) ) {
                     continue;
                 }
 
@@ -502,7 +524,8 @@ public class DirectOWLTranslator extends OWLTranslator {
             // No replacement or alternative, the expectation from the KGCL folks is that
             // all referencing axioms should be removed
             for (OWLAxiom axiom : ontology.getReferencingAxioms(obsoleteNodeIri, Imports.INCLUDED)) {
-                if ( !(axiom instanceof OWLDeclarationAxiom) ) {
+                if ( (!(axiom instanceof OWLDeclarationAxiom))
+                        && (keepForeignLabels && !foreignLabels.contains(axiom)) ) {
                     changes.add(removeAxiom(axiom));
                 }
             }
