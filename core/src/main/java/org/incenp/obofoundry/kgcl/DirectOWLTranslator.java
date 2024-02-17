@@ -524,10 +524,17 @@ public class DirectOWLTranslator extends OWLTranslator {
             // No replacement or alternative, the expectation from the KGCL folks is that
             // all referencing axioms should be removed
             for (OWLAxiom axiom : ontology.getReferencingAxioms(obsoleteNodeIri, Imports.INCLUDED)) {
-                if ( (!(axiom instanceof OWLDeclarationAxiom))
-                        && (keepForeignLabels && !foreignLabels.contains(axiom)) ) {
-                    changes.add(removeAxiom(axiom));
+                if ( removedAxioms.contains(axiom) ) {
+                    continue; // Avoid redundant changes
                 }
+                if ( axiom instanceof OWLDeclarationAxiom ) {
+                    continue; // Always keep declaration
+                }
+                if ( keepForeignLabels && foreignLabels.contains(axiom) ) {
+                    continue; // Foreign labels to be preserved
+                }
+                changes.add(removeAxiom(axiom));
+
             }
         }
 
