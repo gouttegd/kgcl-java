@@ -564,12 +564,13 @@ public class DirectOWLTranslator extends OWLTranslator {
                 changes.add(removeAxiom(ax));
             } else if ( ax.getProperty().isLabel() && ax.getValue().isLiteral() ) {
                 String label = ax.getValue().asLiteral().get().getLiteral();
+                String lang = ax.getValue().asLiteral().get().getLang();
                 if ( label.startsWith("obsolete ") ) {
                     changes.add(removeAxiom(ax));
                     changes.add(new AddAxiom(ontology,
                             factory.getOWLAnnotationAssertionAxiom(
                                     factory.getOWLAnnotationProperty(OWLRDFVocabulary.RDFS_LABEL.getIRI()), nodeId,
-                                    factory.getOWLLiteral(label.substring(9)))));
+                                    factory.getOWLLiteral(label.substring(9), lang))));
                 }
             }
         }
