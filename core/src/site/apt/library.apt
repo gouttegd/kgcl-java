@@ -75,7 +75,7 @@ public interface IChangeVisitor<T> {
   
   There are currently two visitor implementations:
   
-  * <<<Change2TextVisitor>>> is used to serialise a KGCL change into the
+  * <<<KGCLTextTranslator>>> is used to serialise a KGCL change into the
   KGCL language (it is used internally by <<<KGCLWriter>>>);
   
   * <<<DirectOWLTranslator>>> converts a KGCL change into OWL API

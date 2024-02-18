@@ -62,7 +62,7 @@ import org.semanticweb.owlapi.model.PrefixManager;
  * String changeAsText = change.accept(visitor);
  * </pre>
  */
-public class Change2TextVisitor extends ChangeVisitorBase<String> {
+public class KGCLTextTranslator extends ChangeVisitorBase<String> {
 
     private HashMap<String, String> shortIdentifierCache = new HashMap<String, String>();
     private PrefixManager prefixManager;
@@ -74,7 +74,7 @@ public class Change2TextVisitor extends ChangeVisitorBase<String> {
      *                      identifiers. May be {@code null}, in which case
      *                      identifiers will never be shortened.
      */
-    public Change2TextVisitor(PrefixManager prefixManager) {
+    public KGCLTextTranslator(PrefixManager prefixManager) {
         this.prefixManager = prefixManager;
     }
 
@@ -83,7 +83,7 @@ public class Change2TextVisitor extends ChangeVisitorBase<String> {
      * shortened and will appear in the resulting KGCL text representation in their
      * full-length form surrounded by angled brackets ({@code <...>}).
      */
-    public Change2TextVisitor() {
+    public KGCLTextTranslator() {
         this(null);
     }
 

@@ -39,7 +39,7 @@ import org.semanticweb.owlapi.util.DefaultPrefixManager;
 public class KGCLWriter {
     private BufferedWriter output;
     private PrefixManager prefixManager;
-    private Change2TextVisitor visitor;
+    private KGCLTextTranslator visitor;
 
     /**
      * Creates a new instance to write to a stream.
@@ -116,7 +116,7 @@ public class KGCLWriter {
      * @throws IOException If any I/O error occurs when writing.
      */
     public void write(List<Change> changes) throws IOException {
-        Change2TextVisitor visitor = getVisitor();
+        KGCLTextTranslator visitor = getVisitor();
         for ( Change change : changes ) {
             String kgcl = change.accept(visitor);
             if ( kgcl != null ) {
@@ -167,9 +167,9 @@ public class KGCLWriter {
         output.close();
     }
 
-    private Change2TextVisitor getVisitor() {
+    private KGCLTextTranslator getVisitor() {
         if ( visitor == null ) {
-            visitor = new Change2TextVisitor(prefixManager);
+            visitor = new KGCLTextTranslator(prefixManager);
         }
         return visitor;
     }
