@@ -32,6 +32,12 @@
       <artifactId>owlapi-apibinding</artifactId>
       <version>4.5.26</version>
     </dependency>
+    <dependency>
+      <groupId>au.csiro</groupId>
+      <artifactId>elk-owlapi4</artifactId>
+      <version>0.5.0</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <properties>
