@@ -17,7 +17,7 @@ import lombok.EqualsAndHashCode;
  * {{ cls.description|e }}
  */
 @Data
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper={% if gen.parent_has_slots(cls) %}true{% else %}false{% endif %})
 public class {{ cls.name }} {% if cls.is_a -%} extends {{ cls.is_a }} {%- endif %} {
 {%- for f in cls.fields %}
     private {{ f.range }} {{ f.name }};
@@ -94,6 +94,19 @@ class CustomJavaGenerator(JavaGenerator):
             return True
         else:
             return self.has_ancestor(self.schemaview.get_class(cls.is_a), name)
+
+    def parent_has_slots(self, cls):
+        """Check if the parent of the class has slots of its own.
+
+        :param cls: a class object
+        :return: True if cls has a parent with its own slots
+        """
+
+        if cls.is_a is None:
+            return False
+        else:
+            parent_slots = self.schemaview.class_slots(cls.is_a)
+            return len(parent_slots) > 0
 
     def get_descendants(self, name, _descendants=[]):
         """Get all the descendants of a class.

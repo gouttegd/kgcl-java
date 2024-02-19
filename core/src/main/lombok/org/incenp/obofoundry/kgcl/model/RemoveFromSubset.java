@@ -8,5 +8,5 @@ import lombok.EqualsAndHashCode;
  * removing an element from a subset
  */
 @Data
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper=true)
 public class RemoveFromSubset extends SubsetMembershipChange {}

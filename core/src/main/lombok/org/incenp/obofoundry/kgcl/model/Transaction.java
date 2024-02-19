@@ -8,7 +8,7 @@ import lombok.EqualsAndHashCode;
  * A change that is a composition of a set of changes, where those changes are treated as a single unit. Could be a single change, or the results of an ontology diff
  */
 @Data
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper=true)
 public class Transaction extends Change {
     private List<Change> changeSet;
     public <T> T accept(IChangeVisitor<T> v) {

@@ -8,7 +8,7 @@ import lombok.EqualsAndHashCode;
  * The opposite of node deepening
  */
 @Data
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper=true)
 public class NodeShallowing extends NodeMove {
     public <T> T accept(IChangeVisitor<T> v) {
         return v.visit(this);

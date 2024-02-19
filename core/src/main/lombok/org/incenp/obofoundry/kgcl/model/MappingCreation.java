@@ -8,7 +8,7 @@ import lombok.EqualsAndHashCode;
  * A specific kind of edge creation in which the created edge is a mapping.
  */
 @Data
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper=true)
 public class MappingCreation extends EdgeCreation {
     public <T> T accept(IChangeVisitor<T> v) {
         return v.visit(this);

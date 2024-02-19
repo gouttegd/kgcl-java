@@ -8,7 +8,7 @@ import lombok.EqualsAndHashCode;
  * A node synonym change where a de-novo synonym is created
  */
 @Data
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper=true)
 public class NewSynonym extends NodeSynonymChange {
     private String qualifier;
     public <T> T accept(IChangeVisitor<T> v) {

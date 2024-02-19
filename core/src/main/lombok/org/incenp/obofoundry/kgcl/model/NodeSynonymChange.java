@@ -8,7 +8,7 @@ import lombok.EqualsAndHashCode;
  * None
  */
 @Data
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper=true)
 public class NodeSynonymChange extends NodeChange {
     public <T> T accept(IChangeVisitor<T> v) {
         return v.visit(this);

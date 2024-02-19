@@ -8,7 +8,7 @@ import lombok.EqualsAndHashCode;
  * Obsoletion of a node deprecates usage of that node, but does not delete it.
  */
 @Data
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper=true)
 public class NodeObsoletion extends NodeChange {
     private Node hasDirectReplacement;
     private List<Node> hasNondirectReplacement;

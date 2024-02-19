@@ -9,7 +9,7 @@ import lombok.EqualsAndHashCode;
   
  */
 @Data
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper=true)
 public class RemoveUnder extends EdgeDeletion {
     public <T> T accept(IChangeVisitor<T> v) {
         return v.visit(this);

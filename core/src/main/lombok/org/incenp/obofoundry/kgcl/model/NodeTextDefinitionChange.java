@@ -8,7 +8,7 @@ import lombok.EqualsAndHashCode;
  * A node change where the text definition is changed
  */
 @Data
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper=true)
 public class NodeTextDefinitionChange extends NodeChange {
     public <T> T accept(IChangeVisitor<T> v) {
         return v.visit(this);

@@ -8,7 +8,7 @@ import lombok.EqualsAndHashCode;
  * A node metadata assertion change where a metadata assertion is added to a node
  */
 @Data
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper=true)
 public class NewMetadataAssertion extends NodeMetadataAssertionChange {
     private Node object;
     private Node predicate;

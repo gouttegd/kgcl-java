@@ -8,7 +8,7 @@ import lombok.EqualsAndHashCode;
  * A node mapping change where a mapping is deleted
  */
 @Data
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper=true)
 public class RemoveMapping extends NodeMappingChange {
     private Node object;
     private Node predicate;

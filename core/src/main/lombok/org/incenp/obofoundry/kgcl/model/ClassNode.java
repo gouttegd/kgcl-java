@@ -8,5 +8,5 @@ import lombok.EqualsAndHashCode;
  * A node that is a class
  */
 @Data
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper=true)
 public class ClassNode extends Node {}

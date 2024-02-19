@@ -8,7 +8,7 @@ import lombok.EqualsAndHashCode;
  * An edge change where the subject, object, and predicate are unchanged, but the logical interpretation changes
  */
 @Data
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper=true)
 public class EdgeLogicalInterpretationChange extends EdgeChange {
     public <T> T accept(IChangeVisitor<T> v) {
         return v.visit(this);

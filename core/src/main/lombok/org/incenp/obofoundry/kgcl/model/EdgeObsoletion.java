@@ -8,7 +8,7 @@ import lombok.EqualsAndHashCode;
  * An edge change in which an edge is obsoleted.
  */
 @Data
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper=true)
 public class EdgeObsoletion extends EdgeChange {
     private Node subject;
     private Node predicate;

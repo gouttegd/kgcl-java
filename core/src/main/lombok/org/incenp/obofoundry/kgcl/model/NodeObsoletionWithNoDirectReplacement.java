@@ -8,7 +8,7 @@ import lombok.EqualsAndHashCode;
  * An obsoletion change in which there is no direct replacement
  */
 @Data
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper=true)
 public class NodeObsoletionWithNoDirectReplacement extends NodeObsoletion {
     public <T> T accept(IChangeVisitor<T> v) {
         return v.visit(this);

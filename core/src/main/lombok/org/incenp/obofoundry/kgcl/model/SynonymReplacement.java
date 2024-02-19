@@ -8,7 +8,7 @@ import lombok.EqualsAndHashCode;
  * A node synonym change where the text of a synonym is changed
  */
 @Data
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper=true)
 public class SynonymReplacement extends NodeSynonymChange {
     private TextualDiff hasTextualDiff;
     public <T> T accept(IChangeVisitor<T> v) {

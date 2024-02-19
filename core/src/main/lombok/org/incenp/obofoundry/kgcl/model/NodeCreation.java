@@ -8,7 +8,7 @@ import lombok.EqualsAndHashCode;
  * a node change in which a new node is created
  */
 @Data
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper=true)
 public class NodeCreation extends NodeChange {
     private Node nodeId;
     private String name;

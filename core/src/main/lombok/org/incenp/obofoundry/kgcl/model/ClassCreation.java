@@ -8,7 +8,7 @@ import lombok.EqualsAndHashCode;
  * A node creation where the owl type is &#39;owl:Class&#39;
  */
 @Data
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper=true)
 public class ClassCreation extends NodeCreation {
     private Node superclass;
     public <T> T accept(IChangeVisitor<T> v) {

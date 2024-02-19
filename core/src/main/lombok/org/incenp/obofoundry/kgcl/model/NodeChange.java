@@ -8,7 +8,7 @@ import lombok.EqualsAndHashCode;
  * A simple change where the change is about a node
  */
 @Data
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper=true)
 public class NodeChange extends SimpleChange {
     private Node aboutNode;
     private String aboutNodeRepresentation;

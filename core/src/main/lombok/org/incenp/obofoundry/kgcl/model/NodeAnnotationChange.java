@@ -8,7 +8,7 @@ import lombok.EqualsAndHashCode;
  * A node change where the change alters node properties/annotations. TODO
  */
 @Data
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper=true)
 public class NodeAnnotationChange extends NodeChange {
     private String annotationProperty;
     private String annotationPropertyType;

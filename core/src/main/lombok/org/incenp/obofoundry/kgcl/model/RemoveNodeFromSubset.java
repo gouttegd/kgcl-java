@@ -8,7 +8,7 @@ import lombok.EqualsAndHashCode;
  * Removes a node from a subset, by removing an annotation
  */
 @Data
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper=true)
 public class RemoveNodeFromSubset extends NodeChange {
     private OntologySubset inSubset;
     public <T> T accept(IChangeVisitor<T> v) {

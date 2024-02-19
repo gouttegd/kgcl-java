@@ -8,7 +8,7 @@ import lombok.EqualsAndHashCode;
  * A node change where a text definition is deleted
  */
 @Data
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper=true)
 public class RemoveTextDefinition extends NodeTextDefinitionChange {
     public <T> T accept(IChangeVisitor<T> v) {
         return v.visit(this);

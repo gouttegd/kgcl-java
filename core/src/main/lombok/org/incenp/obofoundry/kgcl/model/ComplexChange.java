@@ -8,7 +8,7 @@ import lombok.EqualsAndHashCode;
  * A change that is is a composition of other changes
  */
 @Data
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper=true)
 public class ComplexChange extends Change {
     private List<Change> changeSet;
     public <T> T accept(IChangeVisitor<T> v) {

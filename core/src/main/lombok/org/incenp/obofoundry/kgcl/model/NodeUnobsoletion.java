@@ -8,7 +8,7 @@ import lombok.EqualsAndHashCode;
  * unobsoletion of a node deprecates usage of that node. Rarely applied.
  */
 @Data
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper=true)
 public class NodeUnobsoletion extends NodeChange {
     public <T> T accept(IChangeVisitor<T> v) {
         return v.visit(this);

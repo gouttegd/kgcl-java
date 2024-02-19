@@ -8,5 +8,5 @@ import lombok.EqualsAndHashCode;
  * placing an element inside a subset
  */
 @Data
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper=true)
 public class AddToSubset extends SubsetMembershipChange {}

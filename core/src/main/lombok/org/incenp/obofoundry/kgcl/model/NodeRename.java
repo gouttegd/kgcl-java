@@ -8,7 +8,7 @@ import lombok.EqualsAndHashCode;
  * A node change where the name (aka rdfs:label) of the node changes
  */
 @Data
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper=true)
 public class NodeRename extends NodeChange {
     private TextualDiff hasTextualDiff;
     public <T> T accept(IChangeVisitor<T> v) {

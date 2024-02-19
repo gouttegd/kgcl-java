@@ -8,7 +8,7 @@ import lombok.EqualsAndHashCode;
  * A node mapping change where the predicate of a mapping is changed.
  */
 @Data
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper=true)
 public class MappingPredicateChange extends NodeMappingChange {
     public <T> T accept(IChangeVisitor<T> v) {
         return v.visit(this);

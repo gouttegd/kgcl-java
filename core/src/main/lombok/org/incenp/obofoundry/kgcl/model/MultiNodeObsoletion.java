@@ -8,7 +8,7 @@ import lombok.EqualsAndHashCode;
  * A complex change consisting of multiple obsoletions.
  */
 @Data
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper=true)
 public class MultiNodeObsoletion extends ComplexChange {
     public <T> T accept(IChangeVisitor<T> v) {
         return v.visit(this);

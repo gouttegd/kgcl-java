@@ -8,7 +8,7 @@ import lombok.EqualsAndHashCode;
  * An edge change in which a de-novo edge is created. The edge is potentially annotated in the same action.
  */
 @Data
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper=true)
 public class EdgeCreation extends EdgeChange {
     private Node subject;
     private Node predicate;

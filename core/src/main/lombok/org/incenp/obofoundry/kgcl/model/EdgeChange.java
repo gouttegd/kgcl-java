@@ -8,7 +8,7 @@ import lombok.EqualsAndHashCode;
  * A change in which the element that is the focus of the change is an edge.
  */
 @Data
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper=true)
 public class EdgeChange extends SimpleChange {
     private Edge aboutEdge;
     private String objectType;
