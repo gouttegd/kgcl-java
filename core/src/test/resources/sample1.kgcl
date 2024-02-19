@@ -1,11 +1,11 @@
 # Lines starting with '#' should be ignored.
-rename icp:0001 from "foo" to "FOO"
+rename EX:0001 from "foo" to "FOO"
 
 # So should be blank lines
 
 
 # Each instruction terminates at the end of the line
-create broad synonym "bazz" for icp:0003
-obsolete icp:0002 with alternative icp:0003
-create class icp:0004 "xyz"
-create edge icp:0004 rdfs:subClassOf icp:0003
+create broad synonym "bazz" for EX:0003
+obsolete EX:0002 with alternative EX:0003
+create class EX:0004 "xyz"
+create edge EX:0004 rdfs:subClassOf EX:0003
