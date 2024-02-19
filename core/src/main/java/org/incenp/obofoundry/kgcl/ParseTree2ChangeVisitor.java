@@ -402,7 +402,7 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
     public Void visitText(KGCLParser.TextContext ctx) {
         currentText = unquote(ctx.string().getText());
 
-        currentLang = "";
+        currentLang = null;
         if ( ctx.lang != null ) {
             currentLang = ctx.lang.getText().substring(1);
         }
