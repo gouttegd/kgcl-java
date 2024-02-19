@@ -22,14 +22,12 @@ import java.util.ArrayList;
 
 import org.incenp.obofoundry.kgcl.model.Change;
 import org.incenp.obofoundry.kgcl.model.ClassCreation;
-import org.incenp.obofoundry.kgcl.model.Edge;
 import org.incenp.obofoundry.kgcl.model.EdgeCreation;
 import org.incenp.obofoundry.kgcl.model.EdgeDeletion;
 import org.incenp.obofoundry.kgcl.model.NewSynonym;
 import org.incenp.obofoundry.kgcl.model.NewTextDefinition;
 import org.incenp.obofoundry.kgcl.model.Node;
 import org.incenp.obofoundry.kgcl.model.NodeAnnotationChange;
-import org.incenp.obofoundry.kgcl.model.NodeChange;
 import org.incenp.obofoundry.kgcl.model.NodeDeepening;
 import org.incenp.obofoundry.kgcl.model.NodeDeletion;
 import org.incenp.obofoundry.kgcl.model.NodeMove;
@@ -52,31 +50,31 @@ import org.semanticweb.owlapi.util.DefaultPrefixManager;
 
 public class KGCLTextTranslatorTest {
 
-    private static final String EXAMPLE_BASE = "https://example.org/";
+    private static final TestUtils util = new TestUtils();
+
+    private Node defaultNode = util.getNode("0001");
 
     @Test
     void testRenderNodeRename() {
         NodeRename change = new NodeRename();
-        setAboutNode(change, "0001");
-        setValue(change, "old label", "en", true);
-        setValue(change, "new label", "en");
+        change.setAboutNode(defaultNode);
+        change.setOldValue("old label");
+        change.setNewValue("new label");
 
-        render(change, "rename EX:0001 from \"old label\"@en to \"new label\"@en");
+        render(change, "rename EX:0001 from \"old label\" to \"new label\"");
     }
 
     @Test
     void testRenderNewSynonym() {
         String[] qualifiers = { "exact", "narrow", "broad", "related", null };
-        String[] expected = { "create exact synonym \"new synonym\"@en for EX:0001",
-                "create narrow synonym \"new synonym\"@en for EX:0001",
-                "create broad synonym \"new synonym\"@en for EX:0001",
-                "create related synonym \"new synonym\"@en for EX:0001",
-                "create synonym \"new synonym\"@en for EX:0001" };
+        String[] expected = { "create exact synonym \"new synonym\" for EX:0001",
+                "create narrow synonym \"new synonym\" for EX:0001", "create broad synonym \"new synonym\" for EX:0001",
+                "create related synonym \"new synonym\" for EX:0001", "create synonym \"new synonym\" for EX:0001" };
 
         for ( int i = 0; i < qualifiers.length; i++ ) {
             NewSynonym change = new NewSynonym();
-            setAboutNode(change, "0001");
-            setValue(change, "new synonym", "en");
+            change.setAboutNode(defaultNode);
+            change.setNewValue("new synonym");
             change.setQualifier(qualifiers[i]);
 
             render(change, expected[i]);
@@ -86,35 +84,35 @@ public class KGCLTextTranslatorTest {
     @Test
     void testRenderRemoveSynonym() {
         RemoveSynonym change = new RemoveSynonym();
-        setAboutNode(change, "0001");
-        setValue(change, "old synonym", "en", true);
+        change.setAboutNode(defaultNode);
+        change.setOldValue("old synonym");
 
-        render(change, "remove synonym \"old synonym\"@en for EX:0001");
+        render(change, "remove synonym \"old synonym\" for EX:0001");
     }
 
     @Test
     void testRenderSynonymReplacement() {
         SynonymReplacement change = new SynonymReplacement();
-        setAboutNode(change, "0001");
-        setValue(change, "old synonym", "en", true);
-        setValue(change, "new synonym", "en");
+        change.setAboutNode(defaultNode);
+        change.setOldValue("old synonym");
+        change.setNewValue("new synonym");
 
-        render(change, "change synonym from \"old synonym\"@en to \"new synonym\"@en for EX:0001");
+        render(change, "change synonym from \"old synonym\" to \"new synonym\" for EX:0001");
     }
 
     @Test
     void testRenderNewDefinition() {
         NewTextDefinition change = new NewTextDefinition();
-        setAboutNode(change, "0001");
-        setValue(change, "new definition", "en");
+        change.setAboutNode(defaultNode);
+        change.setNewValue("new definition");
 
-        render(change, "add definition \"new definition\"@en for EX:0001");
+        render(change, "add definition \"new definition\" for EX:0001");
     }
 
     @Test
     void testRenderRemoveDefinition() {
         RemoveTextDefinition change = new RemoveTextDefinition();
-        setAboutNode(change, "0001");
+        change.setAboutNode(defaultNode);
 
         render(change, "remove definition for EX:0001");
     }
@@ -122,20 +120,20 @@ public class KGCLTextTranslatorTest {
     @Test
     void testRenderChangeDefinition() {
         TextDefinitionReplacement change = new TextDefinitionReplacement();
-        setAboutNode(change, "0001");
-        setValue(change, "new definition", "en");
+        change.setAboutNode(defaultNode);
+        change.setNewValue("new definition");
 
-        render(change, "change definition of EX:0001 to \"new definition\"@en");
+        render(change, "change definition of EX:0001 to \"new definition\"");
 
-        setValue(change, "old definition", "en", true);
+        change.setOldValue("old definition");
 
-        render(change, "change definition of EX:0001 from \"old definition\"@en to \"new definition\"@en");
+        render(change, "change definition of EX:0001 from \"old definition\" to \"new definition\"");
     }
 
     @Test
     void testRenderSimpleObsoletion() {
         NodeObsoletion change = new NodeObsoletion();
-        setAboutNode(change, "0001");
+        change.setAboutNode(defaultNode);
 
         render(change, "obsolete EX:0001");
     }
@@ -143,8 +141,8 @@ public class KGCLTextTranslatorTest {
     @Test
     void testRenderObsoletionWithDirectReplacement() {
         NodeObsoletionWithDirectReplacement change = new NodeObsoletionWithDirectReplacement();
-        setAboutNode(change, "0001");
-        change.setHasDirectReplacement(getNode("0002"));
+        change.setAboutNode(defaultNode);
+        change.setHasDirectReplacement(util.getNode("0002"));
 
         render(change, "obsolete EX:0001 with replacement EX:0002");
     }
@@ -152,13 +150,13 @@ public class KGCLTextTranslatorTest {
     @Test
     void testRenderObsoletionWithNoDirectReplacement() {
         NodeObsoletionWithNoDirectReplacement change = new NodeObsoletionWithNoDirectReplacement();
-        setAboutNode(change, "0001");
+        change.setAboutNode(defaultNode);
         change.setHasNondirectReplacement(new ArrayList<Node>());
-        change.getHasNondirectReplacement().add(getNode("0002"));
+        change.getHasNondirectReplacement().add(util.getNode("0002"));
 
         render(change, "obsolete EX:0001 with alternative EX:0002");
 
-        change.getHasNondirectReplacement().add(getNode("0003"));
+        change.getHasNondirectReplacement().add(util.getNode("0003"));
 
         render(change, "obsolete EX:0001 with alternative EX:0002,EX:0003");
     }
@@ -166,7 +164,7 @@ public class KGCLTextTranslatorTest {
     @Test
     void testRenderUnobsoletion() {
         NodeUnobsoletion change = new NodeUnobsoletion();
-        setAboutNode(change, "0001");
+        change.setAboutNode(defaultNode);
 
         render(change, "unobsolete EX:0001");
     }
@@ -174,7 +172,7 @@ public class KGCLTextTranslatorTest {
     @Test
     void testRenderNodeDeletion() {
         NodeDeletion change = new NodeDeletion();
-        setAboutNode(change, "0001");
+        change.setAboutNode(defaultNode);
 
         render(change, "delete EX:0001");
     }
@@ -182,18 +180,18 @@ public class KGCLTextTranslatorTest {
     @Test
     void testRenderClassCreation() {
         ClassCreation change = new ClassCreation();
-        setAboutNode(change, "0001");
-        setValue(change, "new label", "en");
+        change.setAboutNode(defaultNode);
+        change.setNewValue("new label");
 
-        render(change, "create class EX:0001 \"new label\"@en");
+        render(change, "create class EX:0001 \"new label\"");
     }
 
     @Test
     void testRenderEdgeCreation() {
         EdgeCreation change = new EdgeCreation();
-        change.setSubject(getNode("0001"));
-        change.setPredicate(getNode("is_related_to"));
-        change.setObject(getNode("0002"));
+        change.setSubject(util.getNode("0001"));
+        change.setPredicate(util.getNode("is_related_to"));
+        change.setObject(util.getNode("0002"));
 
         render(change, "create edge EX:0001 EX:is_related_to EX:0002");
     }
@@ -201,9 +199,9 @@ public class KGCLTextTranslatorTest {
     @Test
     void testRenderEdgeDeletion() {
         EdgeDeletion change = new EdgeDeletion();
-        change.setSubject(getNode("0001"));
-        change.setPredicate(getNode("is_related_to"));
-        change.setObject(getNode("0002"));
+        change.setSubject(util.getNode("0001"));
+        change.setPredicate(util.getNode("is_related_to"));
+        change.setObject(util.getNode("0002"));
 
         render(change, "delete edge EX:0001 EX:is_related_to EX:0002");
     }
@@ -211,8 +209,8 @@ public class KGCLTextTranslatorTest {
     @Test
     void testRendePlaceUnder() {
         PlaceUnder change = new PlaceUnder();
-        change.setSubject(getNode("0001"));
-        change.setObject(getNode("0002"));
+        change.setSubject(util.getNode("0001"));
+        change.setObject(util.getNode("0002"));
 
         render(change, "create edge EX:0001 rdfs:subClassOf EX:0002");
     }
@@ -220,8 +218,8 @@ public class KGCLTextTranslatorTest {
     @Test
     void testRenderRemoveUnder() {
         RemoveUnder change = new RemoveUnder();
-        change.setSubject(getNode("0001"));
-        change.setObject(getNode("0002"));
+        change.setSubject(util.getNode("0001"));
+        change.setObject(util.getNode("0002"));
 
         render(change, "delete edge EX:0001 rdfs:subClassOf EX:0002");
     }
@@ -229,11 +227,9 @@ public class KGCLTextTranslatorTest {
     @Test
     void testRenderNodeMove() {
         NodeMove change = new NodeMove();
-        Edge edge = new Edge();
-        edge.setSubject(getNode("0001"));
-        change.setAboutEdge(edge);
-        change.setOldValue(getNode("0002").getId());
-        change.setNewValue(getNode("0003").getId());
+        change.setAboutEdge(util.getEdge("0001", null, null));
+        change.setOldValue(util.getId("0002"));
+        change.setNewValue(util.getId("0003"));
 
         render(change, "move EX:0001 from EX:0002 to EX:0003");
     }
@@ -241,11 +237,9 @@ public class KGCLTextTranslatorTest {
     @Test
     void testRenderNodeDeepening() {
         NodeDeepening change = new NodeDeepening();
-        Edge edge = new Edge();
-        edge.setSubject(getNode("0001"));
-        change.setAboutEdge(edge);
-        change.setOldValue(getNode("0002").getId());
-        change.setNewValue(getNode("0003").getId());
+        change.setAboutEdge(util.getEdge("0001", null, null));
+        change.setOldValue(util.getId("0002"));
+        change.setNewValue(util.getId("0003"));
 
         render(change, "deepen EX:0001 from EX:0002 to EX:0003");
     }
@@ -253,11 +247,9 @@ public class KGCLTextTranslatorTest {
     @Test
     void testRenderNodeShallowing() {
         NodeShallowing change = new NodeShallowing();
-        Edge edge = new Edge();
-        edge.setSubject(getNode("0001"));
-        change.setAboutEdge(edge);
-        change.setOldValue(getNode("0002").getId());
-        change.setNewValue(getNode("0003").getId());
+        change.setAboutEdge(util.getEdge("0001", null, null));
+        change.setOldValue(util.getId("0002"));
+        change.setNewValue(util.getId("0003"));
 
         render(change, "shallow EX:0001 from EX:0002 to EX:0003");
     }
@@ -265,12 +257,9 @@ public class KGCLTextTranslatorTest {
     @Test
     void testRenderPredicateChange() {
         PredicateChange change = new PredicateChange();
-        Edge edge = new Edge();
-        edge.setSubject(getNode("0001"));
-        edge.setObject(getNode("0002"));
-        change.setAboutEdge(edge);
-        change.setOldValue(getNode("is_related_to").getId());
-        change.setNewValue(getNode("is_a").getId());
+        change.setAboutEdge(util.getEdge("0001", null, "0002"));
+        change.setOldValue(util.getId("is_related_to"));
+        change.setNewValue(util.getId("is_a"));
 
         render(change, "change relationship between EX:0001 and EX:0002 from EX:is_related_to to EX:is_a");
     }
@@ -278,19 +267,19 @@ public class KGCLTextTranslatorTest {
     @Test
     void testRenderAnnotationChange() {
         NodeAnnotationChange change = new NodeAnnotationChange();
-        setAboutNode(change, "0001");
-        change.setAnnotationProperty(getNode("hasProperty").getId());
-        setValue(change, "old value", "en", true);
-        setValue(change, "new value", "en");
+        change.setAboutNode(defaultNode);
+        change.setAnnotationProperty(util.getId("hasProperty"));
+        change.setOldValue("old value");
+        change.setNewValue("new value");
 
-        render(change, "change annotation of EX:0001 with EX:hasProperty from \"old value\"@en to \"new value\"@en");
+        render(change, "change annotation of EX:0001 with EX:hasProperty from \"old value\" to \"new value\"");
     }
 
     @Test
     void testRenderUnshortenedIds() {
         NodeObsoletionWithDirectReplacement change = new NodeObsoletionWithDirectReplacement();
-        setAboutNode(change, "0001");
-        change.setHasDirectReplacement(getNode("0002"));
+        change.setAboutNode(defaultNode);
+        change.setHasDirectReplacement(util.getNode("0002"));
 
         render(change, "obsolete <https://example.org/0001> with replacement <https://example.org/0002>", false);
     }
@@ -298,19 +287,20 @@ public class KGCLTextTranslatorTest {
     @Test
     void testRenderValueWithQuotes() {
         NewTextDefinition change = new NewTextDefinition();
-        setAboutNode(change, "0001");
-        setValue(change, "new \"definition\"", "en");
+        change.setAboutNode(defaultNode);
+        change.setNewValue("new \"definition\"");
 
-        render(change, "add definition \"new \\\"definition\\\"\"@en for EX:0001");
+        render(change, "add definition \"new \\\"definition\\\"\" for EX:0001");
     }
 
     @Test
-    void testRenderValueWithNoLangTag() {
+    void testRenderValueWithLangTag() {
         NewTextDefinition change = new NewTextDefinition();
-        setAboutNode(change, "0001");
-        setValue(change, "new definition", null);
+        change.setAboutNode(defaultNode);
+        change.setNewValue("new definition");
+        change.setNewLanguage("en");
 
-        render(change, "add definition \"new definition\" for EX:0001");
+        render(change, "add definition \"new definition\"@en for EX:0001");
     }
 
     /*
@@ -338,29 +328,5 @@ public class KGCLTextTranslatorTest {
     /* Same, but IDs are always shortened. */
     private void render(Change change, String expected) {
         render(change, expected, true);
-    }
-
-    private Node getNode(String id) {
-        Node node = new Node();
-        node.setId(EXAMPLE_BASE + id);
-        return node;
-    }
-
-    private void setAboutNode(NodeChange change, String id) {
-        change.setAboutNode(getNode(id));
-    }
-
-    private void setValue(NodeChange change, String value, String language, boolean old) {
-        if ( old ) {
-            change.setOldValue(value);
-            change.setOldLanguage(language);
-        } else {
-            change.setNewValue(value);
-            change.setNewLanguage(language);
-        }
-    }
-
-    private void setValue(NodeChange change, String value, String language) {
-        setValue(change, value, language, false);
     }
 }
