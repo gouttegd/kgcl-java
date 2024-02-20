@@ -18,13 +18,11 @@
 
 package org.incenp.obofoundry.kgcl;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import org.incenp.obofoundry.kgcl.model.Change;
 import org.incenp.obofoundry.kgcl.model.ClassCreation;
@@ -50,6 +48,10 @@ import org.incenp.obofoundry.kgcl.model.SynonymReplacement;
 import org.incenp.obofoundry.kgcl.model.TextDefinitionReplacement;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.semanticweb.owlapi.apibinding.OWLManager;
+import org.semanticweb.owlapi.model.OWLOntology;
+import org.semanticweb.owlapi.model.OWLOntologyCreationException;
+import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.semanticweb.owlapi.vocab.OWLRDFVocabulary;
 
 class KGCLReaderTest {
@@ -60,8 +62,8 @@ class KGCLReaderTest {
     void testFileParser() throws IOException {
         KGCLReader reader = new KGCLReader("src/test/resources/sample1.kgcl");
         reader.setPrefixManager(util.getPrefixManager());
-        assertTrue(reader.read());
-        assertEquals(5, reader.getChangeSet().size());
+        Assertions.assertTrue(reader.read());
+        Assertions.assertEquals(5, reader.getChangeSet().size());
 
         NodeRename c1 = new NodeRename();
         c1.setAboutNode(util.getNode("0001"));
@@ -172,9 +174,24 @@ class KGCLReaderTest {
         testParse("obsolete PFX:0001", change);
 
         // Same with no prefix manager at all
-        KGCLReader reader = new KGCLReader();
-        reader.read("obsolete PFX:0001");
-        Assertions.assertEquals(change, reader.getChangeSet().get(0));
+        testParse(r -> r.read("obsolete PFX:0001"), change);
+    }
+
+    @Test
+    void testUsingOntologyDerivedPrefixManager() {
+        NodeObsoletion change = new NodeObsoletion();
+        change.setAboutNode(util.getForeignNode("http://www.co-ode.org/ontologies/pizza/pizza.owl#LaReine"));
+
+        OWLOntologyManager mgr = OWLManager.createOWLOntologyManager();
+        try {
+            OWLOntology ont = mgr.loadOntologyFromOntologyDocument(new File("src/test/resources/pizza.ofn"));
+            testParse(r -> {
+                r.setPrefixManager(ont);
+                r.read("obsolete pizza:LaReine");
+            }, change);
+        } catch ( OWLOntologyCreationException e ) {
+            Assertions.fail(e);
+        }
     }
 
     @Test
@@ -411,25 +428,34 @@ class KGCLReaderTest {
     }
 
     /*
-     * Try parsing a KGCL string and check that there is no error. If 'expected' is
-     * not null, check that the change effectively parsed matches what was expected;
-     * otherwise, check that no changes at all have been parsed.
+     * Helper method to test the KGCLReader. It initialises a non-file-based reader,
+     * calls the specified callback with the reader, then checks that the change
+     * parsed by the reader matches what was expected.
      */
-    void testParse(String kgcl, Change expected) {
+    void testParse(Consumer<KGCLReader> c, Change expected) {
         KGCLReader reader = new KGCLReader();
-        reader.setPrefixManager(util.getPrefixManager());
+        c.accept(reader);
 
-        assertTrue(reader.read(kgcl));
-        assertTrue(reader.getErrors().isEmpty());
+        Assertions.assertTrue(reader.getErrors().isEmpty());
 
         List<Change> changes = reader.getChangeSet();
         if ( expected == null ) {
-            // The parser should always return an empty list
-            assertTrue(changes.isEmpty());
+            // The parser should always return an empty list.
+            Assertions.assertTrue(changes.isEmpty());
         } else {
-            assertEquals(1, changes.size());
-            assertEquals(expected, changes.get(0));
+            Assertions.assertEquals(1, changes.size());
+            Assertions.assertEquals(expected, changes.get(0));
         }
+    }
+
+    /*
+     * Variant of the previous method to test parsing a single string.
+     */
+    void testParse(String kgcl, Change expected) {
+        testParse(r -> {
+            r.setPrefixManager(util.getPrefixManager());
+            Assertions.assertTrue(r.read(kgcl));
+        }, expected);
     }
 
     /*
@@ -437,7 +463,7 @@ class KGCLReaderTest {
      */
     void testParseFail(String kgcl) {
         KGCLReader reader = new KGCLReader();
-        assertFalse(reader.read(kgcl));
-        assertTrue(reader.getErrors().size() > 0);
+        Assertions.assertFalse(reader.read(kgcl));
+        Assertions.assertTrue(reader.getErrors().size() > 0);
     }
 }

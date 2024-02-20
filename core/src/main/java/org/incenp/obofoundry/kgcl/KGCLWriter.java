@@ -24,6 +24,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.util.List;
 
 import org.incenp.obofoundry.kgcl.model.Change;
@@ -48,6 +49,15 @@ public class KGCLWriter {
      */
     public KGCLWriter(OutputStream kgclOutput) {
         output = new BufferedWriter(new OutputStreamWriter(kgclOutput));
+    }
+
+    /**
+     * Creates a new instance to write to a character stream writer.
+     * 
+     * @param kgclOutput The character stream to write to.
+     */
+    public KGCLWriter(Writer kgclOutput) {
+        output = new BufferedWriter(kgclOutput);
     }
 
     /**
