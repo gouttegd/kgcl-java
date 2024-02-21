@@ -129,19 +129,21 @@ public class ApplyCommand implements Command {
         if ( changeset.size() > 0 ) {
             List<RejectedChange> rejects = new ArrayList<RejectedChange>();
             KGCLHelper.apply(changeset, ontology, reasoner, line.hasOption("no-partial-apply"), rejects);
-            KGCLWriter writer = getRejectedWriter(line);
-            if ( writer != null ) {
-                writer.setPrefixManager(state.getOntology());
-            }
-            for ( RejectedChange rc : rejects ) {
-                logger.error(String.format("KGCL apply error: %s", rc.getReason()));
+            if ( !rejects.isEmpty() ) {
+                KGCLWriter writer = getRejectedWriter(line);
                 if ( writer != null ) {
-                    writer.write(rc.getReason());
-                    writer.write(rc.getChange());
+                    writer.setPrefixManager(state.getOntology());
                 }
-            }
-            if ( writer != null ) {
-                writer.close();
+                for ( RejectedChange rc : rejects ) {
+                    logger.error(String.format("KGCL apply error: %s", rc.getReason()));
+                    if ( writer != null ) {
+                        writer.write(rc.getReason());
+                        writer.write(rc.getChange());
+                    }
+                }
+                if ( writer != null ) {
+                    writer.close();
+                }
             }
         }
 
