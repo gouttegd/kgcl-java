@@ -26,11 +26,13 @@ import java.util.List;
 import java.util.Set;
 
 import org.incenp.obofoundry.kgcl.model.Change;
+import org.incenp.obofoundry.kgcl.model.EdgeCreation;
 import org.incenp.obofoundry.kgcl.model.NewSynonym;
 import org.incenp.obofoundry.kgcl.model.Node;
 import org.incenp.obofoundry.kgcl.model.NodeObsoletion;
 import org.incenp.obofoundry.kgcl.model.NodeObsoletionWithDirectReplacement;
 import org.incenp.obofoundry.kgcl.model.NodeObsoletionWithNoDirectReplacement;
+import org.incenp.obofoundry.kgcl.model.PlaceUnder;
 import org.semanticweb.owlapi.model.AddAxiom;
 import org.semanticweb.owlapi.model.AxiomType;
 import org.semanticweb.owlapi.model.IRI;
@@ -44,6 +46,7 @@ import org.semanticweb.owlapi.model.OWLOntologyChange;
 import org.semanticweb.owlapi.reasoner.OWLReasoner;
 import org.semanticweb.owlapi.vocab.Namespaces;
 import org.semanticweb.owlapi.vocab.OWL2Datatype;
+import org.semanticweb.owlapi.vocab.OWLRDFVocabulary;
 
 public class ProvisionalOWLTranslator extends OWLTranslator {
 
@@ -121,6 +124,38 @@ public class ProvisionalOWLTranslator extends OWLTranslator {
         return visit((NodeObsoletion) v);
     }
 
+    @Override
+    public List<OWLOntologyChange> visit(EdgeCreation v) {
+        IRI nodeIRI = IRI.create(v.getSubject().getId());
+        if ( !ontology.containsEntityInSignature(nodeIRI) ) {
+            onReject(v, "Node <%s> not found in signature", nodeIRI.toString());
+            return empty;
+        }
+
+        ArrayList<OWLOntologyChange> changes = new ArrayList<OWLOntologyChange>();
+        HashSet<OWLAnnotation> annots = new HashSet<OWLAnnotation>();
+
+        annots.add(factory.getOWLAnnotation(getKGCLProperty("predicate"), IRI.create(v.getPredicate().getId())));
+        annots.add(factory.getOWLAnnotation(getKGCLProperty("object"), IRI.create(v.getObject().getId())));
+        addMetadata(v, annots);
+
+        changes.add(new AddAxiom(ontology, factory.getOWLAnnotationAssertionAxiom(pendingChangeProperty, nodeIRI,
+                IRI.create(KGCL + "EdgeCreation"), annots)));
+
+        return changes;
+    }
+
+    @Override
+    public List<OWLOntologyChange> visit(PlaceUnder v) {
+        if ( v.getPredicate() == null ) {
+            Node predicate = new Node();
+            predicate.setId(OWLRDFVocabulary.RDFS_SUBCLASS_OF.toString());
+            v.setPredicate(predicate);
+        }
+
+        return visit((EdgeCreation) v);
+    }
+
     /**
      * Extracts the list of provisional changes stored as KGCL annotations within
      * the ontology.
@@ -156,6 +191,10 @@ public class ProvisionalOWLTranslator extends OWLTranslator {
                     break;
                 case "NodeObsoletion":
                     v = extractNodeObsoletion(axiom);
+                    break;
+                case "EdgeCreation":
+                case "PlaceUnder":
+                    v = extractEdgeCreation(axiom);
                     break;
                 }
 
@@ -231,6 +270,27 @@ public class ProvisionalOWLTranslator extends OWLTranslator {
                     v.setHasNondirectReplacement(new ArrayList<Node>());
                 }
                 v.getHasNondirectReplacement().add(repl);
+            }
+        }
+
+        return v;
+    }
+
+    private Change extractEdgeCreation(OWLAnnotationAssertionAxiom axiom) {
+        EdgeCreation v = new EdgeCreation();
+        Node subject = new Node();
+        subject.setId(((IRI) axiom.getSubject()).toString());
+        v.setSubject(subject);
+
+        for ( OWLAnnotation annot : axiom.getAnnotations() ) {
+            if ( annot.getProperty().getIRI().toString().equals(KGCL + "predicate") ) {
+                Node predicate = new Node();
+                predicate.setId(annot.getValue().asIRI().get().toString());
+                v.setPredicate(predicate);
+            } else if ( annot.getProperty().getIRI().toString().equals(KGCL + "object") ) {
+                Node object = new Node();
+                object.setId(annot.getValue().asIRI().get().toString());
+                v.setObject(object);
             }
         }
 
