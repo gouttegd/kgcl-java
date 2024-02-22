@@ -20,6 +20,10 @@ package org.incenp.obofoundry.kgcl.robot;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -59,7 +63,7 @@ public class ApplyCommand implements Command {
         options.addOption(null, "no-reject-file", false, "do no write rejected change to a file");
         options.addOption("r", "reasoner", true, "reasoner to use");
         options.addOption("p", "provisional", false, "Apply changes in a provisional manner");
-        options.addOption("P", "pending", false, "Apply pending (provisional) changes");
+        options.addOption("P", "pending", true, "Apply pending (provisional) changes older than the specified date");
     }
 
     @Override
@@ -129,7 +133,16 @@ public class ApplyCommand implements Command {
         OWLReasoner reasoner = CommandLineHelper.getReasonerFactory(line).createReasoner(ontology);
 
         if ( line.hasOption('P') ) {
-            changeset.addAll(KGCLHelper.extractPendingChanges(ontology));
+            ZonedDateTime before = null;
+            String v = line.getOptionValue('P');
+            if ( !v.equalsIgnoreCase("all") ) {
+                try {
+                    before = LocalDate.parse(v).atStartOfDay(ZoneId.systemDefault());
+                } catch ( DateTimeParseException e ) {
+                    throw new Exception("Invalid date for --pending option");
+                }
+            }
+            changeset.addAll(KGCLHelper.extractPendingChanges(ontology, before));
         }
 
         if ( changeset.size() > 0 ) {

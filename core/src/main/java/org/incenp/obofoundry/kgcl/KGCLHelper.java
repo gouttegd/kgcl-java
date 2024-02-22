@@ -21,6 +21,7 @@ package org.incenp.obofoundry.kgcl;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 import org.incenp.obofoundry.kgcl.model.Change;
@@ -109,11 +110,13 @@ public class KGCLHelper {
      * Note that the annotations are removed during the process.
      * 
      * @param ontology The ontology to extract pending changes from.
+     * @param before   If not {@code null}, only changes older than the specified
+     *                 date are extracted.
      * @return The list of pending changes.
      */
-    public static List<Change> extractPendingChanges(OWLOntology ontology) {
+    public static List<Change> extractPendingChanges(OWLOntology ontology, ZonedDateTime before) {
         ProvisionalOWLTranslator extractor = new ProvisionalOWLTranslator(ontology, null);
-        return extractor.extractProvisionalChanges(true);
+        return extractor.extractProvisionalChanges(true, before);
     }
 
     /**

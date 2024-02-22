@@ -18,6 +18,8 @@
 
 package org.incenp.obofoundry.kgcl;
 
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -36,14 +38,18 @@ import org.semanticweb.owlapi.model.OWLAnnotation;
 import org.semanticweb.owlapi.model.OWLAnnotationAssertionAxiom;
 import org.semanticweb.owlapi.model.OWLAnnotationProperty;
 import org.semanticweb.owlapi.model.OWLAxiom;
+import org.semanticweb.owlapi.model.OWLLiteral;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyChange;
 import org.semanticweb.owlapi.reasoner.OWLReasoner;
+import org.semanticweb.owlapi.vocab.Namespaces;
+import org.semanticweb.owlapi.vocab.OWL2Datatype;
 
 public class ProvisionalOWLTranslator extends OWLTranslator {
 
     private static final String KGCL = "https://w3id.org/kgcl/";
     private static final IRI PENDING_CHANGE_IRI = IRI.create(KGCL + "PendingChange");
+    private static final IRI DATE_IRI = IRI.create(Namespaces.DCTERMS.toString(), "date");
 
     private OWLAnnotationProperty pendingChangeProperty;
 
@@ -69,6 +75,7 @@ public class ProvisionalOWLTranslator extends OWLTranslator {
 
         annots.add(factory.getOWLAnnotation(getKGCLProperty("new_value"),
                 factory.getOWLLiteral(v.getNewValue(), v.getNewLanguage())));
+        addMetadata(v, annots);
 
         changes.add(new AddAxiom(ontology, factory.getOWLAnnotationAssertionAxiom(pendingChangeProperty, nodeIRI,
                 IRI.create(KGCL + "NewSynonym"), annots)));
@@ -96,6 +103,8 @@ public class ProvisionalOWLTranslator extends OWLTranslator {
             }
         }
 
+        addMetadata(v, annots);
+
         changes.add(new AddAxiom(ontology, factory.getOWLAnnotationAssertionAxiom(pendingChangeProperty, nodeIRI,
                 IRI.create(KGCL + "NodeObsoletion"), annots)));
 
@@ -121,15 +130,21 @@ public class ProvisionalOWLTranslator extends OWLTranslator {
      * 
      * @param remove If {@code true}, the annotations are removed from the ontology
      *               during the process.
+     * @param before Only return the changes that are older than the specified date.
+     *               If {@code null}, all changes are returned.
      * @return The list of provisional changes.
      */
-    public List<Change> extractProvisionalChanges(boolean remove) {
+    public List<Change> extractProvisionalChanges(boolean remove, ZonedDateTime before) {
         List<Change> changeset = new ArrayList<Change>();
         Set<OWLAxiom> removeAxioms = new HashSet<OWLAxiom>();
 
         for ( OWLAnnotationAssertionAxiom axiom : ontology.getAxioms(AxiomType.ANNOTATION_ASSERTION) ) {
             if ( axiom.getProperty().getIRI().equals(PENDING_CHANGE_IRI) ) {
                 if ( !axiom.getValue().isIRI() ) {
+                    continue;
+                }
+
+                if ( before != null && !isOlderThan(axiom, before) ) {
                     continue;
                 }
 
@@ -156,6 +171,23 @@ public class ProvisionalOWLTranslator extends OWLTranslator {
         }
 
         return changeset;
+    }
+
+    private boolean isOlderThan(OWLAnnotationAssertionAxiom axiom, ZonedDateTime date) {
+        for ( OWLAnnotation annot : axiom.getAnnotations() ) {
+            if (annot.getProperty().getIRI().equals(DATE_IRI) && annot.getValue().isLiteral()) {
+                OWLLiteral value = annot.getValue().asLiteral().get();
+                if ( value.getDatatype().isBuiltIn()
+                        && value.getDatatype().getBuiltInDatatype().equals(OWL2Datatype.XSD_DATE_TIME) ) {
+                    ZonedDateTime dt = ZonedDateTime.parse(value.getLiteral());
+                    if ( dt.isBefore(date) ) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 
     private Change extractNewSynonym(OWLAnnotationAssertionAxiom axiom) {
@@ -207,5 +239,15 @@ public class ProvisionalOWLTranslator extends OWLTranslator {
 
     private OWLAnnotationProperty getKGCLProperty(String name) {
         return factory.getOWLAnnotationProperty(IRI.create(KGCL + name));
+    }
+
+    private void addMetadata(Change change, Set<OWLAnnotation> annotations) {
+        ZonedDateTime date = change.getChangeDate();
+        if ( date == null ) {
+            date = ZonedDateTime.now();
+        }
+        date = date.withNano(0);
+        annotations.add(factory.getOWLAnnotation(factory.getOWLAnnotationProperty(DATE_IRI), factory
+                .getOWLLiteral(date.format(DateTimeFormatter.ISO_INSTANT), OWL2Datatype.XSD_DATE_TIME)));
     }
 }

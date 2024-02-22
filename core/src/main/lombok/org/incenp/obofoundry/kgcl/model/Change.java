@@ -1,5 +1,6 @@
 package org.incenp.obofoundry.kgcl.model;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -16,7 +17,7 @@ public class Change extends ChangeLanguageElement {
     private String seeAlso;
     private String pullRequest;
     private String creator;
-    private String changeDate;
+    private ZonedDateTime changeDate;
     private String contributor;
     private Change hasUndo;
     public <T> T accept(IChangeVisitor<T> v) {
