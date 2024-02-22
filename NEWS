@@ -1,3 +1,11 @@
+Changes in kgcl-java-0.3.2
+--------------------------
+
+    * Re-wire axioms when obsoleting a class with direct replacement.
+    * Better support for language tags.
+    * **Experimental** support for provisional/pending changes.
+
+
 Changes in kgcl-java 0.3.1
 --------------------------
 
