@@ -58,6 +58,8 @@ public class ApplyCommand implements Command {
         options.addOption("R", "reject-file", true, "write rejected change in specified file");
         options.addOption(null, "no-reject-file", false, "do no write rejected change to a file");
         options.addOption("r", "reasoner", true, "reasoner to use");
+        options.addOption("p", "provisional", false, "Apply changes in a provisional manner");
+        options.addOption("P", "pending", false, "Apply pending (provisional) changes");
     }
 
     @Override
@@ -126,9 +128,14 @@ public class ApplyCommand implements Command {
         OWLOntology ontology = state.getOntology();
         OWLReasoner reasoner = CommandLineHelper.getReasonerFactory(line).createReasoner(ontology);
 
+        if ( line.hasOption('P') ) {
+            changeset.addAll(KGCLHelper.extractPendingChanges(ontology));
+        }
+
         if ( changeset.size() > 0 ) {
             List<RejectedChange> rejects = new ArrayList<RejectedChange>();
-            KGCLHelper.apply(changeset, ontology, reasoner, line.hasOption("no-partial-apply"), rejects);
+            KGCLHelper.apply(changeset, ontology, reasoner, line.hasOption("no-partial-apply"), rejects,
+                    line.hasOption('p'));
             if ( !rejects.isEmpty() ) {
                 KGCLWriter writer = getRejectedWriter(line);
                 if ( writer != null ) {

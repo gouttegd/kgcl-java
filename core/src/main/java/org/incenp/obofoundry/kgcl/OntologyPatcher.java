@@ -55,6 +55,7 @@ public class OntologyPatcher implements RejectedChangeListener {
     private OWLReasoner reasoner;
     private OWLTranslator translator;
     private ArrayList<RejectedChange> rejectedChanges;
+    private boolean isProvisional;
 
     /**
      * Creates a new instance to update the specified ontology.
@@ -67,6 +68,21 @@ public class OntologyPatcher implements RejectedChangeListener {
         this.ontology = ontology;
         this.reasoner = reasoner;
         rejectedChanges = new ArrayList<RejectedChange>();
+        isProvisional = false;
+    }
+
+    /**
+     * Sets this patcher object in "provisional" mode, where changes are recorded in
+     * the ontology rather applied.
+     * 
+     * @param provisional {@code true} to enable "provisional" mode, {@code false}
+     *                    for "normal" mode.
+     */
+    public void setProvisional(boolean provisional) {
+        isProvisional = provisional;
+        if ( translator != null ) {
+            translator = null;
+        }
     }
 
     /**
@@ -165,7 +181,8 @@ public class OntologyPatcher implements RejectedChangeListener {
 
     private OWLTranslator getTranslator() {
         if ( translator == null ) {
-            translator = new DirectOWLTranslator(ontology, reasoner);
+            translator = isProvisional ? new ProvisionalOWLTranslator(ontology, reasoner)
+                    : new DirectOWLTranslator(ontology, reasoner);
             translator.addRejectListener(this);
         }
         return translator;

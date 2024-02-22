@@ -33,7 +33,7 @@ import org.semanticweb.owlapi.reasoner.OWLReasoner;
 public class KGCLHelper {
 
     /**
-     * Parse KGCL from a string.
+     * Parses KGCL from a string.
      * 
      * @param kgcl     The KGCL instructions to parse.
      * @param ontology An ontology that may provide a prefix manager to allow the
@@ -46,7 +46,7 @@ public class KGCLHelper {
     }
 
     /**
-     * Parse KGCL from a string and collect syntax errors.
+     * Parses KGCL from a string and collect syntax errors.
      * 
      * @param kgcl     The KGCL instructions to parse.
      * @param ontology An ontology that may provide a prefix manager to allow the
@@ -62,7 +62,7 @@ public class KGCLHelper {
     }
 
     /**
-     * Parse KGCL from a file.
+     * Parses KGCL from a file.
      * 
      * @param kgcl     The file to parse.
      * @param ontology An ontology that may provide a prefix manager to allow the
@@ -75,7 +75,7 @@ public class KGCLHelper {
     }
 
     /**
-     * Parse KGCL from a file and collect syntax errors.
+     * Parses KGCL from a file and collect syntax errors.
      * 
      * @param kgcl     The file to parse.
      * @param ontology An ontology that may provide a prefix manager to allow the
@@ -103,7 +103,21 @@ public class KGCLHelper {
     }
 
     /**
-     * Apply a KGCL changeset to an ontology.
+     * Gets the "pending" (provisional) changes that are stored as KGCL annotations
+     * in the ontology,
+     * <p>
+     * Note that the annotations are removed during the process.
+     * 
+     * @param ontology The ontology to extract pending changes from.
+     * @return The list of pending changes.
+     */
+    public static List<Change> extractPendingChanges(OWLOntology ontology) {
+        ProvisionalOWLTranslator extractor = new ProvisionalOWLTranslator(ontology, null);
+        return extractor.extractProvisionalChanges(true);
+    }
+
+    /**
+     * Applies a KGCL changeset to an ontology.
      * 
      * @param changeset      The changeset to apply.
      * @param ontology       The ontology to apply it to.
@@ -113,11 +127,11 @@ public class KGCLHelper {
      */
     public static void apply(List<Change> changeset, OWLOntology ontology, OWLReasoner reasoner,
             boolean noPartialApply) {
-        apply(changeset, ontology, reasoner, noPartialApply, null);
+        apply(changeset, ontology, reasoner, noPartialApply, null, false);
     }
 
     /**
-     * Apply a KGCL changeset to an ontology.
+     * Applies a KGCL changeset to an ontology.
      * 
      * @param changeset      The changeset to apply.
      * @param ontology       The ontology to apply it to.
@@ -129,7 +143,27 @@ public class KGCLHelper {
      */
     public static void apply(List<Change> changeset, OWLOntology ontology, OWLReasoner reasoner, boolean noPartialApply,
             List<RejectedChange> rejects) {
+        apply(changeset, ontology, reasoner, noPartialApply, rejects, false);
+    }
+
+    /**
+     * Applies a KGCL changeset to an ontology.
+     * 
+     * @param changeset      The changeset to apply.
+     * @param ontology       The ontology to apply it to.
+     * @param reasoner       The reasoner to use,
+     * @param noPartialApply If {@code true}, changes will only be applied if they
+     *                       can all be applied.
+     * @param rejects        A list that will collect the changes that cannot be
+     *                       applied. May be {@code null}.
+     * @param provisional    If {@code true}, changes will be recorded in the
+     *                       ontology for later application, rather than applied
+     *                       directly.
+     */
+    public static void apply(List<Change> changeset, OWLOntology ontology, OWLReasoner reasoner, boolean noPartialApply,
+            List<RejectedChange> rejects, boolean provisional) {
         OntologyPatcher patcher = new OntologyPatcher(ontology, reasoner);
+        patcher.setProvisional(provisional);
         if ( !patcher.apply(changeset, noPartialApply) && rejects != null ) {
             rejects.addAll(patcher.getRejectedChanges());
         }
