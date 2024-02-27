@@ -62,7 +62,6 @@ import org.semanticweb.owlapi.model.OWLDisjointClassesAxiom;
 import org.semanticweb.owlapi.model.OWLDisjointUnionAxiom;
 import org.semanticweb.owlapi.model.OWLEquivalentClassesAxiom;
 import org.semanticweb.owlapi.model.OWLObjectProperty;
-import org.semanticweb.owlapi.model.OWLObjectPropertyExpression;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyChange;
 import org.semanticweb.owlapi.model.OWLSubClassOfAxiom;
@@ -153,8 +152,8 @@ public class DirectOWLTranslator extends OWLTranslator {
         return classIRI;
     }
 
-    private Set<OWLSubClassOfAxiom> findEdges(IRI subjectIRI, IRI objectIRI, IRI predicateIRI) {
-        HashSet<OWLSubClassOfAxiom> axioms = new HashSet<OWLSubClassOfAxiom>();
+    private Set<OWLAxiom> findEdges(IRI subjectIRI, IRI objectIRI, IRI predicateIRI) {
+        HashSet<OWLAxiom> axioms = new HashSet<OWLAxiom>();
         OWLClass object = factory.getOWLClass(objectIRI);
         OWLObjectProperty property = null;
         if ( predicateIRI != null && !OWLRDFVocabulary.RDFS_SUBCLASS_OF.getIRI().equals(predicateIRI) ) {
@@ -181,7 +180,29 @@ public class DirectOWLTranslator extends OWLTranslator {
             }
         }
 
+        // Search for annotations that can be assimilated to edges (annotations whose
+        // value is an IRI)
+        for ( OWLAnnotationAssertionAxiom axiom : ontology.getAnnotationAssertionAxioms(subjectIRI) ) {
+            if ( axiom.getValue().isIRI() && axiom.getValue().asIRI().get().equals(objectIRI) ) {
+                if ( predicateIRI == null || axiom.getProperty().getIRI().equals(predicateIRI) ) {
+                    axioms.add(axiom);
+                }
+            }
+        }
+
         return axioms;
+    }
+
+    private EdgeType getEdgeType(IRI predicateIRI) {
+        if ( predicateIRI.equals(OWLRDFVocabulary.RDFS_SUBCLASS_OF.getIRI()) ) {
+            return EdgeType.SUBCLASS;
+        } else if ( ontology.containsObjectPropertyInSignature(predicateIRI) ) {
+            return EdgeType.RESTRICTION;
+        } else if ( ontology.containsAnnotationPropertyInSignature(predicateIRI) ) {
+            return EdgeType.ANNOTATION;
+        } else {
+            return null;
+        }
     }
 
     private boolean isAncestor(NodeMove v, IRI base, IRI ancestor) {
@@ -620,18 +641,27 @@ public class DirectOWLTranslator extends OWLTranslator {
         IRI predicateIRI = IRI.create(v.getPredicate().getId());
         IRI objectIRI = IRI.create(v.getObject().getId());
         OWLAxiom edgeAxiom = null;
+        EdgeType edgeType = getEdgeType(predicateIRI);
+        if ( edgeType == null ) {
+            onReject(v, "Edge predicate <%s> not found", v.getPredicate().getId());
+            return empty;
+        }
 
-        if ( predicateIRI.equals(OWLRDFVocabulary.RDFS_SUBCLASS_OF.getIRI()) ) {
+        switch ( edgeType ) {
+        case SUBCLASS:
             edgeAxiom = factory.getOWLSubClassOfAxiom(factory.getOWLClass(subjectIRI), factory.getOWLClass(objectIRI));
-        } else if ( ontology.containsObjectPropertyInSignature(predicateIRI) ) {
+            break;
+
+        case RESTRICTION:
             edgeAxiom = factory.getOWLSubClassOfAxiom(factory.getOWLClass(subjectIRI),
                     factory.getOWLObjectSomeValuesFrom(factory.getOWLObjectProperty(predicateIRI),
                             factory.getOWLClass(objectIRI)));
-        }
+            break;
 
-        if ( edgeAxiom == null ) {
-            onReject(v, "Edge predicate <%s> not found", v.getPredicate().getId());
-            return empty;
+        case ANNOTATION:
+            edgeAxiom = factory.getOWLAnnotationAssertionAxiom(factory.getOWLAnnotationProperty(predicateIRI),
+                    subjectIRI, objectIRI);
+            break;
         }
 
         return makeList(new AddAxiom(ontology, edgeAxiom));
@@ -647,7 +677,7 @@ public class DirectOWLTranslator extends OWLTranslator {
             return empty;
         }
 
-        Set<OWLSubClassOfAxiom> edges = findEdges(subjectIRI, objectIRI, predicateIRI);
+        Set<OWLAxiom> edges = findEdges(subjectIRI, objectIRI, predicateIRI);
         if ( edges.isEmpty() ) {
             onReject(v, "No edge found between %s and %s", subjectIRI.toQuotedString(), objectIRI.toQuotedString());
         }
@@ -705,7 +735,7 @@ public class DirectOWLTranslator extends OWLTranslator {
             return empty;
         }
 
-        Set<OWLSubClassOfAxiom> edges = findEdges(subjectIRI, oldObjectIRI, null);
+        Set<OWLAxiom> edges = findEdges(subjectIRI, oldObjectIRI, null);
         if ( edges.isEmpty() ) {
             onReject(v, "No edge found between %s and %s", subjectIRI.toQuotedString(), oldObjectIRI.toQuotedString());
         }
@@ -718,9 +748,16 @@ public class DirectOWLTranslator extends OWLTranslator {
 
         HashSet<OWLAxiom> newAxioms = new HashSet<OWLAxiom>();
         ClassRewritingVisitor visitor = new ClassRewritingVisitor(factory, oldObjectIRI, newObjectIRI);
-        for ( OWLSubClassOfAxiom scoa : edges ) {
-            newAxioms.add(factory.getOWLSubClassOfAxiom(scoa.getSubClass(), scoa.getSuperClass().accept(visitor),
-                    scoa.getAnnotations()));
+        for ( OWLAxiom edgeAxiom : edges ) {
+            if ( edgeAxiom instanceof OWLSubClassOfAxiom ) {
+                OWLSubClassOfAxiom scoa = (OWLSubClassOfAxiom) edgeAxiom;
+                newAxioms.add(factory.getOWLSubClassOfAxiom(scoa.getSubClass(), scoa.getSuperClass().accept(visitor),
+                        scoa.getAnnotations()));
+            } else if ( edgeAxiom instanceof OWLAnnotationAssertionAxiom ) {
+                OWLAnnotationAssertionAxiom aaa = (OWLAnnotationAssertionAxiom) edgeAxiom;
+                newAxioms.add(factory.getOWLAnnotationAssertionAxiom(aaa.getProperty(), subjectIRI, newObjectIRI,
+                        aaa.getAnnotations()));
+            }
         }
 
         ArrayList<OWLOntologyChange> changes = new ArrayList<OWLOntologyChange>();
@@ -751,29 +788,39 @@ public class DirectOWLTranslator extends OWLTranslator {
             return empty;
         }
 
-        Set<OWLSubClassOfAxiom> edges = findEdges(subjectIRI, objectIRI, oldPredicateIRI);
+        Set<OWLAxiom> edges = findEdges(subjectIRI, objectIRI, oldPredicateIRI);
         if ( edges.isEmpty() ) {
             onReject(v, "No %s edge found between %s and %s", oldPredicateIRI.toQuotedString(),
                     subjectIRI.toQuotedString(), objectIRI.toQuotedString());
             return empty;
         }
 
+        EdgeType newEdgeType = getEdgeType(newPredicateIRI);
+        if ( newEdgeType == null ) {
+            onReject(v, "Edge predicate <%s> not found", v.getNewValue());
+            return empty;
+        }
+
         ArrayList<OWLOntologyChange> changes = new ArrayList<OWLOntologyChange>();
 
-        for ( OWLSubClassOfAxiom axiom : edges ) {
-            OWLAxiom newAxiom;
-            if ( oldPredicateIRI.equals(OWLRDFVocabulary.RDFS_SUBCLASS_OF.getIRI()) ) {
-                // Change from rdfs:subClassOf to a property restriction
-                newAxiom = factory.getOWLSubClassOfAxiom(axiom.getSubClass(), factory.getOWLObjectSomeValuesFrom(
-                        factory.getOWLObjectProperty(newPredicateIRI), axiom.getSuperClass()));
-            } else if ( newPredicateIRI.equals(OWLRDFVocabulary.RDFS_SUBCLASS_OF.getIRI()) ) {
-                // Change from a property restriction to a direct classification
-                newAxiom = factory.getOWLSubClassOfAxiom(axiom.getSubClass(), factory.getOWLClass(objectIRI));
-            } else {
-                // Change from a property restriction to another property restriction
-                PropertyRewritingVisitor visitor = new PropertyRewritingVisitor(factory, oldPredicateIRI,
-                        newPredicateIRI);
-                newAxiom = factory.getOWLSubClassOfAxiom(axiom.getSubClass(), axiom.getSuperClass().accept(visitor));
+        for ( OWLAxiom axiom : edges ) {
+            OWLAxiom newAxiom = null;
+            switch ( newEdgeType ) {
+            case SUBCLASS:
+                newAxiom = factory.getOWLSubClassOfAxiom(factory.getOWLClass(subjectIRI),
+                        factory.getOWLClass(objectIRI));
+                break;
+
+            case RESTRICTION:
+                newAxiom = factory.getOWLSubClassOfAxiom(factory.getOWLClass(subjectIRI),
+                        factory.getOWLObjectSomeValuesFrom(factory.getOWLObjectProperty(newPredicateIRI),
+                                factory.getOWLClass(objectIRI)));
+                break;
+
+            case ANNOTATION:
+                newAxiom = factory.getOWLAnnotationAssertionAxiom(factory.getOWLAnnotationProperty(newPredicateIRI),
+                        subjectIRI, objectIRI);
+                break;
             }
 
             changes.add(removeAxiom(axiom));
@@ -846,31 +893,6 @@ public class DirectOWLTranslator extends OWLTranslator {
     }
 
     /*
-     * Rewrite a class expression to change any reference to a given object property
-     * to reference to another property.
-     */
-    private class PropertyRewritingVisitor extends RecursiveClassExpressionVisitorBase {
-        private IRI oldProperty;
-        private IRI newProperty;
-
-        protected PropertyRewritingVisitor(OWLDataFactory factory, IRI oldProperty, IRI newProperty) {
-            super(factory);
-            this.oldProperty = oldProperty;
-            this.newProperty = newProperty;
-        }
-
-        @Override
-        public OWLObjectPropertyExpression visit(OWLObjectPropertyExpression pe) {
-            if ( pe.isNamed() ) {
-                if ( pe.asOWLObjectProperty().getIRI().equals(oldProperty) ) {
-                    return factory.getOWLObjectProperty(newProperty);
-                }
-            }
-            return pe;
-        }
-    }
-
-    /*
      * Rewrite all logical axioms to change any reference to a given class to a
      * reference to another class.
      */
@@ -923,5 +945,11 @@ public class DirectOWLTranslator extends OWLTranslator {
             return factory.getOWLDisjointUnionAxiom(axiom.getOWLClass().accept(rewriter).asOWLClass(), union,
                     axiom.getAnnotations());
         }
+    }
+
+    private enum EdgeType {
+        SUBCLASS,
+        RESTRICTION,
+        ANNOTATION
     }
 }

@@ -552,6 +552,20 @@ public class DirectOWLTranslatorTest implements RejectedChangeListener {
     }
 
     @Test
+    void testAnnotationEdge() {
+        EdgeCreation change = new EdgeCreation();
+        change.setSubject(util.getNode("LaReine"));
+        change.setPredicate(util.getForeignNode(OWLRDFVocabulary.RDFS_SEE_ALSO.toString()));
+        change.setObject(util.getNode("Rosa"));
+
+        testChange(change,
+                new AddAxiom(ontology,
+                        factory.getOWLAnnotationAssertionAxiom(
+                                factory.getOWLAnnotationProperty(OWLRDFVocabulary.RDFS_SEE_ALSO.getIRI()),
+                                util.getIRI("LaReine"), util.getIRI("Rosa"))));
+    }
+
+    @Test
     void testCreateExistentialRestrictionEdgeWithMissingProperty() {
         EdgeCreation change = new EdgeCreation();
         change.setSubject(util.getNode("LaReine"));
@@ -580,6 +594,23 @@ public class DirectOWLTranslatorTest implements RejectedChangeListener {
 
         testChange(change, new RemoveAxiom(ontology, factory.getOWLSubClassOfAxiom(getKlass("UnclosedPizza"),
                 factory.getOWLObjectSomeValuesFrom(getObjectProperty("hasTopping"), getKlass("MozzarellaTopping")))));
+    }
+
+    @Test
+    void testDeleteAnnotationEdge() {
+        // The pizza ontology does not contain any annotation-style edge, so we need to
+        // create one
+        OWLAxiom newEdge = factory.getOWLAnnotationAssertionAxiom(
+                factory.getOWLAnnotationProperty(OWLRDFVocabulary.RDFS_SEE_ALSO.getIRI()), util.getIRI("LaReine"),
+                util.getIRI("Rosa"));
+        ontology.getOWLOntologyManager().addAxiom(ontology, newEdge);
+
+        EdgeDeletion change = new EdgeDeletion();
+        change.setSubject(util.getNode("LaReine"));
+        change.setPredicate(util.getForeignNode(OWLRDFVocabulary.RDFS_SEE_ALSO.toString()));
+        change.setObject(util.getNode("Rosa"));
+
+        testChange(change, new RemoveAxiom(ontology, newEdge));
     }
 
     @Test
@@ -630,6 +661,30 @@ public class DirectOWLTranslatorTest implements RejectedChangeListener {
                 factory.getOWLObjectSomeValuesFrom(getObjectProperty("hasBase"), getKlass("PizzaBase")))));
         expected.add(new AddAxiom(ontology, factory.getOWLSubClassOfAxiom(getKlass("Pizza"),
                 factory.getOWLObjectSomeValuesFrom(getObjectProperty("hasBase"), getKlass("PizzaTopping")))));
+
+        testChange(change, expected, null);
+    }
+
+    @Test
+    void testMoveAnnotationEdge() {
+        // The pizza ontology does not contain any annotation-style edge, so we need to
+        // create one
+        OWLAxiom newEdge = factory.getOWLAnnotationAssertionAxiom(
+                factory.getOWLAnnotationProperty(OWLRDFVocabulary.RDFS_SEE_ALSO.getIRI()), util.getIRI("LaReine"),
+                util.getIRI("Rosa"));
+        ontology.getOWLOntologyManager().addAxiom(ontology, newEdge);
+
+        NodeMove change = new NodeMove();
+        change.setAboutEdge(util.getEdge("LaReine", null, null));
+        change.setOldValue(util.getId("Rosa"));
+        change.setNewValue(util.getId("Caprina"));
+
+        ArrayList<OWLOntologyChange> expected = new ArrayList<OWLOntologyChange>();
+        expected.add(new RemoveAxiom(ontology, newEdge));
+        expected.add(new AddAxiom(ontology,
+                factory.getOWLAnnotationAssertionAxiom(
+                        factory.getOWLAnnotationProperty(OWLRDFVocabulary.RDFS_SEE_ALSO.getIRI()),
+                        util.getIRI("LaReine"), util.getIRI("Caprina"))));
 
         testChange(change, expected, null);
     }
@@ -734,6 +789,24 @@ public class DirectOWLTranslatorTest implements RejectedChangeListener {
     }
 
     @Test
+    void testChangeSubClassToAnnotation() {
+        PredicateChange change = new PredicateChange();
+        change.setAboutEdge(util.getEdge("LaReine", null, "NamedPizza"));
+        change.setOldValue(SUBCLASSOF_IRI.toString());
+        change.setNewValue(OWLRDFVocabulary.RDFS_SEE_ALSO.toString());
+
+        ArrayList<OWLOntologyChange> expected = new ArrayList<OWLOntologyChange>();
+        expected.add(
+                new RemoveAxiom(ontology, factory.getOWLSubClassOfAxiom(getKlass("LaReine"), getKlass("NamedPizza"))));
+        expected.add(new AddAxiom(ontology,
+                factory.getOWLAnnotationAssertionAxiom(
+                        factory.getOWLAnnotationProperty(OWLRDFVocabulary.RDFS_SEE_ALSO.getIRI()),
+                        util.getIRI("LaReine"), util.getIRI("NamedPizza"))));
+
+        testChange(change, expected, null);
+    }
+
+    @Test
     void testChangeInexistingPredicate() {
         PredicateChange change = new PredicateChange();
         change.setAboutEdge(util.getEdge("Pizza", null, "PizzaBase"));
@@ -742,6 +815,16 @@ public class DirectOWLTranslatorTest implements RejectedChangeListener {
 
         testChange(change, null, "No <" + SUBCLASSOF_IRI.toString() + "> edge found between <" + PIZZA_BASE
                 + "Pizza> and <" + PIZZA_BASE + "PizzaBase>");
+    }
+
+    @Test
+    void testChangePredicateToInexistingPredicate() {
+        PredicateChange change = new PredicateChange();
+        change.setAboutEdge(util.getEdge("Pizza", null, "PizzaBase"));
+        change.setOldValue(util.getId("hasBase"));
+        change.setNewValue(util.getId("hasAnotherBase"));
+
+        testChange(change, null, "Edge predicate <" + util.getId("hasAnotherBase") + "> not found");
     }
 
     @Test
