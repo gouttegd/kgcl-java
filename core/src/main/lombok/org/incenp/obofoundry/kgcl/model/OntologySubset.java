@@ -9,4 +9,4 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper=false)
-public class OntologySubset extends OntologyElement {}
+public class OntologySubset extends Node {}

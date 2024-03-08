@@ -167,8 +167,8 @@ the library can apply the change to an ontology):
 | create synonym      | yes    | yes     |
 | remove synonym      | yes    | yes     |
 | change synonym      | yes    | yes     |
-| remove from subset  | no     | no      |
-| add to subset       | no     | no      |
+| remove from subset  | yes    | yes     |
+| add to subset       | yes    | yes     |
 | add definition      | yes    | yes     |
 | change definition   | yes    | yes     |
 | remove definition   | yes    | yes     |

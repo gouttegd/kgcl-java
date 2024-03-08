@@ -20,6 +20,7 @@ package org.incenp.obofoundry.kgcl;
 
 import java.util.HashMap;
 
+import org.incenp.obofoundry.kgcl.model.AddNodeToSubset;
 import org.incenp.obofoundry.kgcl.model.Change;
 import org.incenp.obofoundry.kgcl.model.ClassCreation;
 import org.incenp.obofoundry.kgcl.model.EdgeCreation;
@@ -39,6 +40,7 @@ import org.incenp.obofoundry.kgcl.model.NodeShallowing;
 import org.incenp.obofoundry.kgcl.model.NodeUnobsoletion;
 import org.incenp.obofoundry.kgcl.model.PlaceUnder;
 import org.incenp.obofoundry.kgcl.model.PredicateChange;
+import org.incenp.obofoundry.kgcl.model.RemoveNodeFromSubset;
 import org.incenp.obofoundry.kgcl.model.RemoveSynonym;
 import org.incenp.obofoundry.kgcl.model.RemoveTextDefinition;
 import org.incenp.obofoundry.kgcl.model.RemoveUnder;
@@ -339,5 +341,15 @@ public class KGCLTextTranslator extends ChangeVisitorBase<String> {
     public String visit(NodeAnnotationChange v) {
         return String.format("change annotation of %s with %s from %s to %s", renderNode(v.getAboutNode()),
                 renderId(v.getAnnotationProperty()), renderOldValue(v), renderNewValue(v));
+    }
+
+    @Override
+    public String visit(AddNodeToSubset v) {
+        return String.format("add %s to subset %s", renderNode(v.getAboutNode()), renderNode(v.getInSubset()));
+    }
+
+    @Override
+    public String visit(RemoveNodeFromSubset v) {
+        return String.format("remove %s from subset %s", renderNode(v.getAboutNode()), renderNode(v.getInSubset()));
     }
 }

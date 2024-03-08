@@ -20,6 +20,7 @@ package org.incenp.obofoundry.kgcl;
 
 import java.util.ArrayList;
 
+import org.incenp.obofoundry.kgcl.model.AddNodeToSubset;
 import org.incenp.obofoundry.kgcl.model.Change;
 import org.incenp.obofoundry.kgcl.model.ClassCreation;
 import org.incenp.obofoundry.kgcl.model.EdgeCreation;
@@ -37,8 +38,10 @@ import org.incenp.obofoundry.kgcl.model.NodeObsoletionWithNoDirectReplacement;
 import org.incenp.obofoundry.kgcl.model.NodeRename;
 import org.incenp.obofoundry.kgcl.model.NodeShallowing;
 import org.incenp.obofoundry.kgcl.model.NodeUnobsoletion;
+import org.incenp.obofoundry.kgcl.model.OntologySubset;
 import org.incenp.obofoundry.kgcl.model.PlaceUnder;
 import org.incenp.obofoundry.kgcl.model.PredicateChange;
+import org.incenp.obofoundry.kgcl.model.RemoveNodeFromSubset;
 import org.incenp.obofoundry.kgcl.model.RemoveSynonym;
 import org.incenp.obofoundry.kgcl.model.RemoveTextDefinition;
 import org.incenp.obofoundry.kgcl.model.RemoveUnder;
@@ -273,6 +276,28 @@ public class KGCLTextTranslatorTest {
         change.setNewValue("new value");
 
         render(change, "change annotation of EX:0001 with EX:hasProperty from \"old value\" to \"new value\"");
+    }
+
+    @Test
+    void testRenderAddSubsetChange() {
+        AddNodeToSubset change = new AddNodeToSubset();
+        change.setAboutNode(util.getNode("0001"));
+        OntologySubset subset = new OntologySubset();
+        subset.setId(util.getId("subset_a"));
+        change.setInSubset(subset);
+
+        render(change, "add EX:0001 to subset EX:subset_a");
+    }
+
+    @Test
+    void testRenderRemoveSubsetChange() {
+        RemoveNodeFromSubset change = new RemoveNodeFromSubset();
+        change.setAboutNode(util.getNode("0001"));
+        OntologySubset subset = new OntologySubset();
+        subset.setId(util.getId("subset_a"));
+        change.setInSubset(subset);
+
+        render(change, "remove EX:0001 from subset EX:subset_a");
     }
 
     @Test

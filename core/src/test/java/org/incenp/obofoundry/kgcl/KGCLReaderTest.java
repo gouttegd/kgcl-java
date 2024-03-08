@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+import org.incenp.obofoundry.kgcl.model.AddNodeToSubset;
 import org.incenp.obofoundry.kgcl.model.Change;
 import org.incenp.obofoundry.kgcl.model.ClassCreation;
 import org.incenp.obofoundry.kgcl.model.EdgeCreation;
@@ -41,7 +42,9 @@ import org.incenp.obofoundry.kgcl.model.NodeObsoletionWithNoDirectReplacement;
 import org.incenp.obofoundry.kgcl.model.NodeRename;
 import org.incenp.obofoundry.kgcl.model.NodeShallowing;
 import org.incenp.obofoundry.kgcl.model.NodeUnobsoletion;
+import org.incenp.obofoundry.kgcl.model.OntologySubset;
 import org.incenp.obofoundry.kgcl.model.PredicateChange;
+import org.incenp.obofoundry.kgcl.model.RemoveNodeFromSubset;
 import org.incenp.obofoundry.kgcl.model.RemoveSynonym;
 import org.incenp.obofoundry.kgcl.model.RemoveTextDefinition;
 import org.incenp.obofoundry.kgcl.model.SynonymReplacement;
@@ -425,6 +428,28 @@ class KGCLReaderTest {
         change.setNewValue("new value");
 
         testParse("change annotation of EX:0001 with EX:hasProperty from 'old value' to 'new value'", change);
+    }
+
+    @Test
+    void testAddSubsetChange() {
+        AddNodeToSubset change = new AddNodeToSubset();
+        change.setAboutNode(util.getNode("0001"));
+        OntologySubset subset = new OntologySubset();
+        subset.setId(util.getId("subset_a"));
+        change.setInSubset(subset);
+
+        testParse("add EX:0001 to subset EX:subset_a", change);
+    }
+
+    @Test
+    void testRemoveSubsetChange() {
+        RemoveNodeFromSubset change = new RemoveNodeFromSubset();
+        change.setAboutNode(util.getNode("0001"));
+        OntologySubset subset = new OntologySubset();
+        subset.setId(util.getId("subset_a"));
+        change.setInSubset(subset);
+
+        testParse("remove EX:0001 from subset EX:subset_a", change);
     }
 
     /*

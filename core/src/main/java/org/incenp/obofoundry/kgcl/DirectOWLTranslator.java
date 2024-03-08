@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.incenp.obofoundry.kgcl.model.AddNodeToSubset;
 import org.incenp.obofoundry.kgcl.model.Change;
 import org.incenp.obofoundry.kgcl.model.ClassCreation;
 import org.incenp.obofoundry.kgcl.model.EdgeCreation;
@@ -43,6 +44,7 @@ import org.incenp.obofoundry.kgcl.model.NodeShallowing;
 import org.incenp.obofoundry.kgcl.model.NodeUnobsoletion;
 import org.incenp.obofoundry.kgcl.model.PlaceUnder;
 import org.incenp.obofoundry.kgcl.model.PredicateChange;
+import org.incenp.obofoundry.kgcl.model.RemoveNodeFromSubset;
 import org.incenp.obofoundry.kgcl.model.RemoveSynonym;
 import org.incenp.obofoundry.kgcl.model.RemoveTextDefinition;
 import org.incenp.obofoundry.kgcl.model.RemoveUnder;
@@ -98,6 +100,8 @@ import org.semanticweb.owlapi.vocab.OWLRDFVocabulary;
  * {@link #visit(NewTextDefinition)} and similar methods.
  */
 public class DirectOWLTranslator extends OWLTranslator {
+
+    private final static IRI IN_SUBSET = IRI.create("http://www.geneontology.org/formats/oboInOwl#inSubset");
 
     private Set<IRI> addedIRIs = new HashSet<IRI>();
     private Set<OWLAxiom> removedAxioms = new HashSet<OWLAxiom>();
@@ -862,6 +866,44 @@ public class DirectOWLTranslator extends OWLTranslator {
         if ( found > 0 && changes.isEmpty() ) {
             onReject(v, "Expected annotation value not found for property %s on node %s", propertyId.toQuotedString(),
                     nodeId.toQuotedString());
+        }
+
+        return changes;
+    }
+
+    @Override
+    public List<OWLOntologyChange> visit(AddNodeToSubset v) {
+        if ( aboutNodeExists(v) ) {
+            return makeList(new AddAxiom(ontology, factory.getOWLAnnotationAssertionAxiom(
+                    factory.getOWLAnnotationProperty(IN_SUBSET), IRI.create(v.getAboutNode().getId()),
+                    IRI.create(v.getInSubset().getId()))));
+        }
+
+        return empty;
+    }
+
+    @Override
+    public List<OWLOntologyChange> visit(RemoveNodeFromSubset v) {
+        ArrayList<OWLOntologyChange> changes = new ArrayList<OWLOntologyChange>();
+
+        IRI nodeId = IRI.create(v.getAboutNode().getId());
+        if ( !ontology.containsEntityInSignature(nodeId) ) {
+            onReject(v, "Node %s not found in signature", nodeId.toQuotedString());
+            return changes;
+        }
+
+        IRI subsetId = IRI.create(v.getInSubset().getId());
+        for ( OWLAnnotationAssertionAxiom axiom : ontology.getAnnotationAssertionAxioms(nodeId) ) {
+            if ( axiom.getProperty().getIRI().equals(IN_SUBSET) ) {
+                OWLAnnotationValue value = axiom.getValue();
+                if ( value.isIRI() && value.asIRI().get().equals(subsetId) ) {
+                    changes.add(removeAxiom(axiom));
+                }
+            }
+        }
+
+        if ( changes.isEmpty() ) {
+            onReject(v, "Node %s not found in subset %s", nodeId.toQuotedString(), subsetId.toQuotedString());
         }
 
         return changes;

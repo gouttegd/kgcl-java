@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 
+import org.incenp.obofoundry.kgcl.model.AddNodeToSubset;
 import org.incenp.obofoundry.kgcl.model.Change;
 import org.incenp.obofoundry.kgcl.model.ClassCreation;
 import org.incenp.obofoundry.kgcl.model.EdgeCreation;
@@ -42,8 +43,10 @@ import org.incenp.obofoundry.kgcl.model.NodeObsoletionWithNoDirectReplacement;
 import org.incenp.obofoundry.kgcl.model.NodeRename;
 import org.incenp.obofoundry.kgcl.model.NodeShallowing;
 import org.incenp.obofoundry.kgcl.model.NodeUnobsoletion;
+import org.incenp.obofoundry.kgcl.model.OntologySubset;
 import org.incenp.obofoundry.kgcl.model.PlaceUnder;
 import org.incenp.obofoundry.kgcl.model.PredicateChange;
+import org.incenp.obofoundry.kgcl.model.RemoveNodeFromSubset;
 import org.incenp.obofoundry.kgcl.model.RemoveSynonym;
 import org.incenp.obofoundry.kgcl.model.RemoveTextDefinition;
 import org.incenp.obofoundry.kgcl.model.RemoveUnder;
@@ -86,6 +89,7 @@ public class DirectOWLTranslatorTest implements RejectedChangeListener {
     private static final IRI RELATED_SYN_IRI = Obo2OWLVocabulary.IRI_OIO_hasRelatedSynonym.getIRI();
     private static final IRI CONSIDER_IRI = Obo2OWLVocabulary.IRI_OIO_consider.getIRI();
     private static final IRI REPLACED_IRI = Obo2OWLVocabulary.IRI_IAO_0100001.getIRI();
+    private static final IRI IN_SUBSET_IRI = IRI.create("http://www.geneontology.org/formats/oboInOwl#inSubset");
     private static final TestUtils util = new TestUtils(PIZZA_BASE);
 
     private OWLOntology ontology;
@@ -863,6 +867,70 @@ public class DirectOWLTranslatorTest implements RejectedChangeListener {
 
         testChange(change, null, "Expected annotation value not found for property <" + PREFLABEL_IRI.toString()
                 + "> on node <" + PIZZA_BASE + "LaReine>");
+    }
+
+    @Test
+    void testAddSubset() {
+        AddNodeToSubset change = new AddNodeToSubset();
+        setAboutNode(change, "LaReine");
+        OntologySubset subset = new OntologySubset();
+        subset.setId(util.getId("preferred_pizzas"));
+        change.setInSubset(subset);
+
+        testChange(change,
+                new AddAxiom(ontology,
+                        factory.getOWLAnnotationAssertionAxiom(factory.getOWLAnnotationProperty(IN_SUBSET_IRI),
+                                util.getIRI("LaReine"), util.getIRI("preferred_pizzas"))));
+    }
+
+    @Test
+    void testAddInexistingNodeToSubset() {
+        AddNodeToSubset change = new AddNodeToSubset();
+        setAboutNode(change, "InexistingPizza");
+        OntologySubset subset = new OntologySubset();
+        subset.setId(util.getId("preferred_pizzas"));
+        change.setInSubset(subset);
+
+        testChange(change, null, "Node <" + PIZZA_BASE + "InexistingPizza> not found in signature");
+    }
+
+    @Test
+    void testRemoveSubset() {
+        // There are no subsets in the pizza ontology, so we need to create one first
+        OWLAxiom newSubset = factory.getOWLAnnotationAssertionAxiom(factory.getOWLAnnotationProperty(IN_SUBSET_IRI),
+                util.getIRI("LaReine"), util.getIRI("preferred_pizzas"));
+        ontology.getOWLOntologyManager().addAxiom(ontology, newSubset);
+
+        RemoveNodeFromSubset change = new RemoveNodeFromSubset();
+        setAboutNode(change, "LaReine");
+        OntologySubset subset = new OntologySubset();
+        subset.setId(util.getId("preferred_pizzas"));
+        change.setInSubset(subset);
+
+        testChange(change, new RemoveAxiom(ontology, newSubset));
+    }
+
+    @Test
+    void testInexistingRemoveNodeFromSubset() {
+        RemoveNodeFromSubset change = new RemoveNodeFromSubset();
+        setAboutNode(change, "InexistingPizza");
+        OntologySubset subset = new OntologySubset();
+        subset.setId(util.getId("preferred_pizzas"));
+        change.setInSubset(subset);
+
+        testChange(change, null, "Node <" + PIZZA_BASE + "InexistingPizza> not found in signature");
+    }
+
+    @Test
+    void testRemoveNodeNotPresentInSubset() {
+        RemoveNodeFromSubset change = new RemoveNodeFromSubset();
+        setAboutNode(change, "LaReine");
+        OntologySubset subset = new OntologySubset();
+        subset.setId(util.getId("preferred_pizzas"));
+        change.setInSubset(subset);
+
+        testChange(change, null,
+                "Node <" + PIZZA_BASE + "LaReine> not found in subset <" + PIZZA_BASE + "preferred_pizzas>");
     }
 
     /*

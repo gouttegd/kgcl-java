@@ -19,6 +19,8 @@ change    : rename
           | changePredicate
           | changeAnnotation
           | move
+          | addSubset
+          | removeSubset
           ;
       
 rename    : 'rename' id 'from' old_label=text 'to' new_label=text;
@@ -58,6 +60,11 @@ move      : 'move' subject_id=id 'from' old_parent=id 'to' new_parent=id
           | 'deepen' subject_id=id 'from' old_parent=id 'to' new_parent=id
           | 'shallow' subject_id=id 'from' old_parent=id 'to' new_parent=id
           ;
+
+addSubset : 'add' node_id=id 'to' 'subset' subset_id=id;
+
+removeSubset : 'remove' node_id=id 'from' 'subset' subset_id=id;
+
 
 idlist    : id (',' id)*;
 

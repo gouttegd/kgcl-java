@@ -21,6 +21,7 @@ package org.incenp.obofoundry.kgcl;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.incenp.obofoundry.kgcl.model.AddNodeToSubset;
 import org.incenp.obofoundry.kgcl.model.Change;
 import org.incenp.obofoundry.kgcl.model.ClassCreation;
 import org.incenp.obofoundry.kgcl.model.Edge;
@@ -39,7 +40,9 @@ import org.incenp.obofoundry.kgcl.model.NodeObsoletionWithNoDirectReplacement;
 import org.incenp.obofoundry.kgcl.model.NodeRename;
 import org.incenp.obofoundry.kgcl.model.NodeShallowing;
 import org.incenp.obofoundry.kgcl.model.NodeUnobsoletion;
+import org.incenp.obofoundry.kgcl.model.OntologySubset;
 import org.incenp.obofoundry.kgcl.model.PredicateChange;
+import org.incenp.obofoundry.kgcl.model.RemoveNodeFromSubset;
 import org.incenp.obofoundry.kgcl.model.RemoveSynonym;
 import org.incenp.obofoundry.kgcl.model.RemoveTextDefinition;
 import org.incenp.obofoundry.kgcl.model.SynonymReplacement;
@@ -387,6 +390,30 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
     }
 
     @Override
+    public Void visitAddSubset(KGCLParser.AddSubsetContext ctx) {
+        AddNodeToSubset change = new AddNodeToSubset();
+
+        change.setAboutNode(getNode(ctx.node_id));
+        change.setInSubset(getSubset(ctx.subset_id));
+
+        changes.add(change);
+
+        return null;
+    }
+
+    @Override
+    public Void visitRemoveSubset(KGCLParser.RemoveSubsetContext ctx) {
+        RemoveNodeFromSubset change = new RemoveNodeFromSubset();
+
+        change.setAboutNode(getNode(ctx.node_id));
+        change.setInSubset(getSubset(ctx.subset_id));
+
+        changes.add(change);
+
+        return null;
+    }
+
+    @Override
     public Void visitIdAsIRI(KGCLParser.IdAsIRIContext ctx) {
         currentId = unquote(ctx.IRI().getText());
         return null;
@@ -415,6 +442,13 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
         Node node = new Node();
         node.setId(currentId);
         return node;
+    }
+
+    private OntologySubset getSubset(IdContext ctx) {
+        ctx.accept(this);
+        OntologySubset subset = new OntologySubset();
+        subset.setId(currentId);
+        return subset;
     }
 
     private String unquote(String s) {
