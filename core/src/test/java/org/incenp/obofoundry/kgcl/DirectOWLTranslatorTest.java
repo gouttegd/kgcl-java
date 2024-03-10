@@ -75,6 +75,7 @@ import org.semanticweb.owlapi.reasoner.OWLReasoner;
 import org.semanticweb.owlapi.reasoner.OWLReasonerFactory;
 import org.semanticweb.owlapi.vocab.OWLRDFVocabulary;
 import org.semanticweb.owlapi.vocab.SKOSVocabulary;
+import org.semanticweb.owlapi.vocab.XSDVocabulary;
 
 public class DirectOWLTranslatorTest implements RejectedChangeListener {
 
@@ -246,6 +247,41 @@ public class DirectOWLTranslatorTest implements RejectedChangeListener {
         setValue(change, "The queen of pizzas.", "en");
 
         testChange(change, null, null);
+    }
+
+    @Test
+    void testAnnotationWithTypedLiteral() {
+        // Obviously, a integer-typed definition is ridiculous. But this tests that we
+        // can use literals with an arbitrary type, whether that type makes sense or
+        // not.
+        NewTextDefinition change = new NewTextDefinition();
+        setAboutNode(change, "LaReine");
+        change.setNewValue("123");
+        change.setNewDatatype(XSDVocabulary.INTEGER.toString());
+
+        testChange(change, new AddAxiom(ontology, factory.getOWLAnnotationAssertionAxiom(
+                factory.getOWLAnnotationProperty(DEFINITION_IRI), util.getIRI("LaReine"), factory.getOWLLiteral(123))));
+    }
+
+    @Test
+    void testAnnotationLanguageTakesPrecedenceOverDatatype() {
+        NewTextDefinition change = new NewTextDefinition();
+        setAboutNode(change, "LaReine");
+        setValue(change, "The queen of pizzas.", "en");
+        change.setNewDatatype(XSDVocabulary.INTEGER.toString());
+
+        testChange(change,
+                new AddAxiom(ontology, getAnnotation(DEFINITION_IRI, "LaReine", "The queen of pizzas.", "en")));
+    }
+
+    @Test
+    void testAnnotationWithNoLanguageAndNoDatatype() {
+        NewTextDefinition change = new NewTextDefinition();
+        setAboutNode(change, "LaReine");
+        change.setNewValue("The queen of pizzas.");
+
+        testChange(change,
+                new AddAxiom(ontology, getAnnotation(DEFINITION_IRI, "LaReine", "The queen of pizzas.", null)));
     }
 
     @Test

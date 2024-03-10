@@ -63,6 +63,7 @@ import org.semanticweb.owlapi.model.OWLDeclarationAxiom;
 import org.semanticweb.owlapi.model.OWLDisjointClassesAxiom;
 import org.semanticweb.owlapi.model.OWLDisjointUnionAxiom;
 import org.semanticweb.owlapi.model.OWLEquivalentClassesAxiom;
+import org.semanticweb.owlapi.model.OWLLiteral;
 import org.semanticweb.owlapi.model.OWLObjectProperty;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyChange;
@@ -134,6 +135,17 @@ public class DirectOWLTranslator extends OWLTranslator {
         }
 
         return valueLang.equals(changeLang);
+    }
+
+    private OWLLiteral getLiteral(NodeChange change) {
+        if ( change.getNewLanguage() != null ) {
+            return factory.getOWLLiteral(change.getNewValue(), change.getNewLanguage());
+        } else if ( change.getNewDatatype() != null ) {
+            return factory.getOWLLiteral(change.getNewValue(),
+                    factory.getOWLDatatype(IRI.create(change.getNewDatatype())));
+        } else {
+            return factory.getOWLLiteral(change.getNewValue());
+        }
     }
 
     private boolean aboutNodeExists(NodeChange v) {
@@ -264,9 +276,10 @@ public class DirectOWLTranslator extends OWLTranslator {
             return empty;
         }
 
-        AddAxiom addNewLabel = new AddAxiom(ontology, factory.getOWLAnnotationAssertionAxiom(
-                factory.getOWLAnnotationProperty(OWLRDFVocabulary.RDFS_LABEL.getIRI()),
-                IRI.create(v.getAboutNode().getId()), factory.getOWLLiteral(v.getNewValue(), v.getNewLanguage())));
+        AddAxiom addNewLabel = new AddAxiom(ontology,
+                factory.getOWLAnnotationAssertionAxiom(
+                        factory.getOWLAnnotationProperty(OWLRDFVocabulary.RDFS_LABEL.getIRI()),
+                        IRI.create(v.getAboutNode().getId()), getLiteral(v)));
 
         return makeList(removeAxiom(oldLabelAxiom), addNewLabel);
     }
@@ -309,9 +322,8 @@ public class DirectOWLTranslator extends OWLTranslator {
             }
         }
 
-        return makeList(new AddAxiom(ontology,
-                factory.getOWLAnnotationAssertionAxiom(factory.getOWLAnnotationProperty(propertyIri), aboutNodeIri,
-                        factory.getOWLLiteral(v.getNewValue(), v.getNewLanguage()))));
+        return makeList(new AddAxiom(ontology, factory.getOWLAnnotationAssertionAxiom(
+                factory.getOWLAnnotationProperty(propertyIri), aboutNodeIri, getLiteral(v))));
     }
 
     @Override
@@ -363,9 +375,8 @@ public class DirectOWLTranslator extends OWLTranslator {
                     || propertyIri.equals(Obo2OWLConstants.Obo2OWLVocabulary.IRI_OIO_hasRelatedSynonym.getIRI()) ) {
                 if ( compareValue(ax.getValue(), v.getOldValue(), v.getOldLanguage()) ) {
                     changes.add(removeAxiom(ax));
-                    changes.add(new AddAxiom(ontology,
-                            factory.getOWLAnnotationAssertionAxiom(factory.getOWLAnnotationProperty(propertyIri),
-                                    aboutNodeIri, factory.getOWLLiteral(v.getNewValue(), v.getNewLanguage()))));
+                    changes.add(new AddAxiom(ontology, factory.getOWLAnnotationAssertionAxiom(
+                            factory.getOWLAnnotationProperty(propertyIri), aboutNodeIri, getLiteral(v))));
                 }
             }
         }
@@ -394,9 +405,8 @@ public class DirectOWLTranslator extends OWLTranslator {
             }
         }
 
-        return makeList(new AddAxiom(ontology,
-                factory.getOWLAnnotationAssertionAxiom(factory.getOWLAnnotationProperty(definitionIRI), aboutNodeIRI,
-                        factory.getOWLLiteral(v.getNewValue(), v.getNewLanguage()))));
+        return makeList(new AddAxiom(ontology, factory.getOWLAnnotationAssertionAxiom(
+                factory.getOWLAnnotationProperty(definitionIRI), aboutNodeIRI, getLiteral(v))));
     }
 
     @Override
@@ -427,11 +437,13 @@ public class DirectOWLTranslator extends OWLTranslator {
         removeOldDefinition.setAboutNode(v.getAboutNode());
         removeOldDefinition.setOldValue(v.getOldValue());
         removeOldDefinition.setOldLanguage(v.getOldLanguage());
+        removeOldDefinition.setOldDatatype(v.getOldDatatype());
 
         NewTextDefinition addNewDefinition = new NewTextDefinition();
         addNewDefinition.setAboutNode(v.getAboutNode());
         addNewDefinition.setNewValue(v.getNewValue());
         addNewDefinition.setNewLanguage(v.getNewLanguage());
+        addNewDefinition.setNewDatatype(v.getNewDatatype());
 
         // Hack: the remove part may fail if we were provided with the text of the
         // definition to remove and it doesn't match the existing definition -- in which
@@ -856,9 +868,8 @@ public class DirectOWLTranslator extends OWLTranslator {
                 found += 1;
                 if ( compareValue(ax.getValue(), v.getOldValue(), v.getOldLanguage()) ) {
                     changes.add(removeAxiom(ax));
-                    changes.add(new AddAxiom(ontology,
-                            factory.getOWLAnnotationAssertionAxiom(factory.getOWLAnnotationProperty(propertyId), nodeId,
-                                    factory.getOWLLiteral(v.getNewValue(), v.getNewLanguage()))));
+                    changes.add(new AddAxiom(ontology, factory.getOWLAnnotationAssertionAxiom(
+                            factory.getOWLAnnotationProperty(propertyId), nodeId, getLiteral(v))));
                 }
             }
         }
