@@ -128,6 +128,82 @@ public class DirectOWLTranslatorTest implements RejectedChangeListener {
     }
 
     @Test
+    void testNodeRenameNoLangTags() {
+        NodeRename change = new NodeRename();
+        setAboutNode(change, "LaReine");
+        setValue(change, "LaReine", null, true);
+        setValue(change, "TheQueen", null);
+
+        // LaReine has two identical labels in both English and Portuguese; since we
+        // have not specified any language tags, both should be renamed and the original
+        // language tags should be preserved.
+
+        ArrayList<OWLOntologyChange> expected = new ArrayList<OWLOntologyChange>();
+        expected.add(new RemoveAxiom(ontology, getAnnotation(LABEL_IRI, "LaReine", "LaReine", "en")));
+        expected.add(new RemoveAxiom(ontology, getAnnotation(LABEL_IRI, "LaReine", "LaReine", "pt")));
+        expected.add(new AddAxiom(ontology, getAnnotation(LABEL_IRI, "LaReine", "TheQueen", "en")));
+        expected.add(new AddAxiom(ontology, getAnnotation(LABEL_IRI, "LaReine", "TheQueen", "pt")));
+
+        testChange(change, expected, null);
+    }
+
+    @Test
+    void testNodeRenameNoOldLangTag() {
+        NodeRename change = new NodeRename();
+        setAboutNode(change, "LaReine");
+        setValue(change, "LaReine", null, true);
+        setValue(change, "TheQueen", "en");
+
+        // Here, since we have specified English as the NEW language tag, only the
+        // original English label should be renamed; the Portuguese one should be left
+        // untouched, even if its literal value is the same as the English label.
+
+        ArrayList<OWLOntologyChange> expected = new ArrayList<OWLOntologyChange>();
+        expected.add(new RemoveAxiom(ontology, getAnnotation(LABEL_IRI, "LaReine", "LaReine", "en")));
+        expected.add(new AddAxiom(ontology, getAnnotation(LABEL_IRI, "LaReine", "TheQueen", "en")));
+
+        testChange(change, expected, null);
+    }
+
+    @Test
+    void testNodeRenameNoNewLangTag() {
+        NodeRename change = new NodeRename();
+        setAboutNode(change, "LaReine");
+        setValue(change, "LaReine", "en", true);
+        setValue(change, "TheQueen", null);
+
+        // Only the English label should be modified since we have explicitly specified
+        // a language tag on the old value; furthermore, even if the new value has no
+        // language tag, the original tag should be carried over.
+
+        ArrayList<OWLOntologyChange> expected = new ArrayList<OWLOntologyChange>();
+        expected.add(new RemoveAxiom(ontology, getAnnotation(LABEL_IRI, "LaReine", "LaReine", "en")));
+        expected.add(new AddAxiom(ontology, getAnnotation(LABEL_IRI, "LaReine", "TheQueen", "en")));
+
+        testChange(change, expected, null);
+    }
+
+    @Test
+    void testNodeRenameExplicitNewDatatype() {
+        NodeRename change = new NodeRename();
+        setAboutNode(change, "LaReine");
+        setValue(change, "LaReine", "en", true);
+        change.setNewValue("TheQueen");
+        change.setNewDatatype(XSDVocabulary.STRING.toString());
+
+        // Only the English label should be modified since we have explicitly specified
+        // a language tag on the old value; we have also explicitly set a xsd:string
+        // datatype on the new value, so the old language tag should NOT be carried
+        // over.
+
+        ArrayList<OWLOntologyChange> expected = new ArrayList<OWLOntologyChange>();
+        expected.add(new RemoveAxiom(ontology, getAnnotation(LABEL_IRI, "LaReine", "LaReine", "en")));
+        expected.add(new AddAxiom(ontology, getAnnotation(LABEL_IRI, "LaReine", "TheQueen", null)));
+
+        testChange(change, expected, null);
+    }
+
+    @Test
     void testRejectedNodeRename() {
         NodeRename change = new NodeRename();
         setAboutNode(change, "LaReine");

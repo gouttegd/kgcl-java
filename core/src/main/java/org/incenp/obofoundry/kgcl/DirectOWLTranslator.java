@@ -137,12 +137,80 @@ public class DirectOWLTranslator extends OWLTranslator {
         return valueLang.equals(changeLang);
     }
 
+    /*
+     * Helper method to find the annotations whose value matches what a change
+     * expects.
+     */
+    private Set<OWLAnnotationAssertionAxiom> findMatchingAnnotations(IRI property, IRI entity, String text, String lang,
+            String datatype, String newLang) {
+        HashSet<OWLAnnotationAssertionAxiom> axioms = new HashSet<OWLAnnotationAssertionAxiom>();
+        OWLAnnotationAssertionAxiom langLessAxiom = null;
+        for ( OWLAnnotationAssertionAxiom ax : ontology.getAnnotationAssertionAxioms(entity) ) {
+            if ( !ax.getProperty().getIRI().equals(property) ) {
+                continue;
+            }
+
+            OWLAnnotationValue value = ax.getValue();
+            if ( !value.isLiteral() ) {
+                continue;
+            }
+
+            String valueText = value.asLiteral().get().getLiteral();
+            if ( !valueText.equals(text) ) {
+                continue;
+            }
+
+            String valueLang = value.asLiteral().get().getLang();
+            if ( valueLang.isEmpty() ) {
+                // We'll decide later what to do with this one
+                langLessAxiom = ax;
+                continue;
+            }
+
+            // If we are expecting a given language, the language of the value must match.
+            if ( lang != null && !valueLang.equals(lang) ) {
+                continue;
+            }
+
+            // If the new value has an explicit language tag, then even if no language tag
+            // has been explicitly specified for the old value, we can only accept a value
+            // with the same language as the new value.
+            if ( newLang != null && !valueLang.equals(newLang) ) {
+                continue;
+            }
+
+            // At this point both the text and the language match.
+            axioms.add(ax);
+        }
+
+        if ( langLessAxiom != null ) {
+            // We accept the langless axiom only if:
+            // - no language tag was explicitly specified on the old value
+            // - if alanguage tag was explicitly specified on the new value, we didn't find
+            // any annotation in that language
+            // - if a datatype was explicitly specified, it matches the datatype of the
+            // langless axiom's value
+            if ( lang == null && (newLang == null || axioms.isEmpty()) && (datatype == null || langLessAxiom.getValue()
+                    .asLiteral().get().getDatatype().getIRI().toString().equals(datatype)) ) {
+                axioms.add(langLessAxiom);
+            }
+        }
+
+        return axioms;
+    }
+
     private OWLLiteral getLiteral(NodeChange change) {
+        return getLiteral(change, null);
+    }
+
+    private OWLLiteral getLiteral(NodeChange change, String oldLang) {
         if ( change.getNewLanguage() != null ) {
             return factory.getOWLLiteral(change.getNewValue(), change.getNewLanguage());
         } else if ( change.getNewDatatype() != null ) {
             return factory.getOWLLiteral(change.getNewValue(),
                     factory.getOWLDatatype(IRI.create(change.getNewDatatype())));
+        } else if ( oldLang != null ) {
+            return factory.getOWLLiteral(change.getNewValue(), oldLang);
         } else {
             return factory.getOWLLiteral(change.getNewValue());
         }
@@ -261,27 +329,25 @@ public class DirectOWLTranslator extends OWLTranslator {
             return empty;
         }
 
-        OWLAnnotationAssertionAxiom oldLabelAxiom = null;
-        for ( OWLAnnotationAssertionAxiom ax : ontology
-                .getAnnotationAssertionAxioms(IRI.create(v.getAboutNode().getId())) ) {
-            if ( ax.getProperty().getIRI().equals(OWLRDFVocabulary.RDFS_LABEL.getIRI()) ) {
-                if ( compareValue(ax.getValue(), v.getOldValue(), v.getOldLanguage()) ) {
-                    oldLabelAxiom = ax;
-                }
-            }
-        }
+        IRI nodeIRI = IRI.create(v.getAboutNode().getId());
+        Set<OWLAnnotationAssertionAxiom> matches = findMatchingAnnotations(OWLRDFVocabulary.RDFS_LABEL.getIRI(),
+                nodeIRI, v.getOldValue(), v.getOldLanguage(), v.getOldDatatype(), v.getNewLanguage());
 
-        if ( oldLabelAxiom == null ) {
+        if ( matches.isEmpty() ) {
             onReject(v, "Label \"%s\" not found on <%s>", v.getOldValue(), v.getAboutNode().getId());
             return empty;
         }
 
-        AddAxiom addNewLabel = new AddAxiom(ontology,
-                factory.getOWLAnnotationAssertionAxiom(
-                        factory.getOWLAnnotationProperty(OWLRDFVocabulary.RDFS_LABEL.getIRI()),
-                        IRI.create(v.getAboutNode().getId()), getLiteral(v)));
+        ArrayList<OWLOntologyChange> changes = new ArrayList<OWLOntologyChange>();
+        for ( OWLAnnotationAssertionAxiom match : matches ) {
+            changes.add(removeAxiom(match));
+            changes.add(new AddAxiom(ontology,
+                    factory.getOWLAnnotationAssertionAxiom(
+                            factory.getOWLAnnotationProperty(OWLRDFVocabulary.RDFS_LABEL.getIRI()), nodeIRI,
+                            getLiteral(v, match.getValue().asLiteral().get().getLang()))));
+        }
 
-        return makeList(removeAxiom(oldLabelAxiom), addNewLabel);
+        return changes;
     }
 
     @Override
