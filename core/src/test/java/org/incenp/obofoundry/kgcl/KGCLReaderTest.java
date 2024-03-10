@@ -56,6 +56,7 @@ import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.semanticweb.owlapi.vocab.OWLRDFVocabulary;
+import org.semanticweb.owlapi.vocab.XSDVocabulary;
 
 class KGCLReaderTest {
 
@@ -217,6 +218,18 @@ class KGCLReaderTest {
         change.setNewLanguage("fr");
 
         testParse("rename EX:0001 from 'old label'@en to 'nouvelle étiquette'@fr", change);
+    }
+
+    @Test
+    void testChangeValueWithTypeTag() {
+        NodeRename change = new NodeRename();
+        change.setAboutNode(util.getNode("0001"));
+        change.setOldValue("123");
+        change.setOldDatatype(XSDVocabulary.INTEGER.toString());
+        change.setNewValue("456");
+        change.setNewDatatype(XSDVocabulary.STRING.toString());
+
+        testParse("rename EX:0001 from '123'^^xsd:integer to '456'^^xsd:string", change);
     }
 
     @Test

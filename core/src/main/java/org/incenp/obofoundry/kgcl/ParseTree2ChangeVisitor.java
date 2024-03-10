@@ -31,6 +31,7 @@ import org.incenp.obofoundry.kgcl.model.NewSynonym;
 import org.incenp.obofoundry.kgcl.model.NewTextDefinition;
 import org.incenp.obofoundry.kgcl.model.Node;
 import org.incenp.obofoundry.kgcl.model.NodeAnnotationChange;
+import org.incenp.obofoundry.kgcl.model.NodeChange;
 import org.incenp.obofoundry.kgcl.model.NodeDeepening;
 import org.incenp.obofoundry.kgcl.model.NodeDeletion;
 import org.incenp.obofoundry.kgcl.model.NodeMove;
@@ -50,6 +51,7 @@ import org.incenp.obofoundry.kgcl.model.TextDefinitionReplacement;
 import org.incenp.obofoundry.kgcl.parser.KGCLBaseVisitor;
 import org.incenp.obofoundry.kgcl.parser.KGCLParser;
 import org.incenp.obofoundry.kgcl.parser.KGCLParser.IdContext;
+import org.incenp.obofoundry.kgcl.parser.KGCLParser.TextContext;
 import org.semanticweb.owlapi.model.PrefixManager;
 
 /**
@@ -63,8 +65,6 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
 
     private PrefixManager prefixManager;
     private List<Change> changes;
-    private String currentText;
-    private String currentLang;
     private String currentId;
 
     /**
@@ -111,14 +111,8 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
         NodeRename change = new NodeRename();
 
         change.setAboutNode(getNode(ctx.id()));
-
-        ctx.old_label.accept(this);
-        change.setOldValue(currentText);
-        change.setOldLanguage(currentLang);
-
-        ctx.new_label.accept(this);
-        change.setNewValue(currentText);
-        change.setNewLanguage(currentLang);
+        setOldValue(ctx.old_label, change);
+        setNewValue(ctx.new_label, change);
 
         changes.add(change);
 
@@ -184,10 +178,7 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
         NewSynonym change = new NewSynonym();
 
         change.setAboutNode(getNode(ctx.id()));
-
-        ctx.synonym.accept(this);
-        change.setNewValue(currentText);
-        change.setNewLanguage(currentLang);
+        setNewValue(ctx.synonym, change);
 
         if ( ctx.qualifier() != null ) {
             change.setQualifier(ctx.qualifier().getText());
@@ -203,10 +194,7 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
         RemoveSynonym change = new RemoveSynonym();
 
         change.setAboutNode(getNode(ctx.id()));
-
-        ctx.synonym.accept(this);
-        change.setOldValue(currentText);
-        change.setOldLanguage(currentLang);
+        setOldValue(ctx.synonym, change);
 
         changes.add(change);
 
@@ -218,14 +206,8 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
         SynonymReplacement change = new SynonymReplacement();
 
         change.setAboutNode(getNode(ctx.id()));
-
-        ctx.old_synonym.accept(this);
-        change.setOldValue(currentText);
-        change.setOldLanguage(currentLang);
-
-        ctx.new_synonym.accept(this);
-        change.setNewValue(currentText);
-        change.setNewLanguage(currentLang);
+        setOldValue(ctx.old_synonym, change);
+        setNewValue(ctx.new_synonym, change);
 
         changes.add(change);
 
@@ -237,10 +219,7 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
         NewTextDefinition change = new NewTextDefinition();
 
         change.setAboutNode(getNode(ctx.id()));
-
-        ctx.new_definition.accept(this);
-        change.setNewValue(currentText);
-        change.setNewLanguage(currentLang);
+        setNewValue(ctx.new_definition, change);
 
         changes.add(change);
 
@@ -263,14 +242,10 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
         change.setAboutNode(getNode(ctx.id()));
 
         if ( ctx.old_definition != null ) {
-            ctx.old_definition.accept(this);
-            change.setOldValue(currentText);
-            change.setOldLanguage(currentLang);
+            setOldValue(ctx.old_definition, change);
         }
 
-        ctx.new_definition.accept(this);
-        change.setNewValue(currentText);
-        change.setNewLanguage(currentLang);
+        setNewValue(ctx.new_definition, change);
 
         changes.add(change);
 
@@ -282,10 +257,7 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
         ClassCreation change = new ClassCreation();
 
         change.setAboutNode(getNode(ctx.id()));
-
-        ctx.label.accept(this);
-        change.setNewValue(currentText);
-        change.setNewLanguage(currentLang);
+        setNewValue(ctx.label, change);
 
         changes.add(change);
 
@@ -376,13 +348,8 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
         ctx.predicate_id.accept(this);
         change.setAnnotationProperty(currentId);
 
-        ctx.old_annotation.accept(this);
-        change.setOldValue(currentText);
-        change.setOldLanguage(currentLang);
-
-        ctx.new_annotation.accept(this);
-        change.setNewValue(currentText);
-        change.setNewLanguage(currentLang);
+        setOldValue(ctx.old_annotation, change);
+        setNewValue(ctx.new_annotation, change);
 
         changes.add(change);
 
@@ -425,16 +392,24 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
         return null;
     }
 
-    @Override
-    public Void visitText(KGCLParser.TextContext ctx) {
-        currentText = unquote(ctx.string().getText());
-
-        currentLang = null;
+    private void setOldValue(TextContext ctx, NodeChange change) {
+        change.setOldValue(unquote(ctx.string().getText()));
         if ( ctx.lang != null ) {
-            currentLang = ctx.lang.getText().substring(1);
+            change.setOldLanguage(ctx.lang.getText().substring(1));
         }
+        if ( ctx.type != null ) {
+            change.setOldDatatype(expandCurie(ctx.type.datatype.getText()));
+        }
+    }
 
-        return null;
+    private void setNewValue(TextContext ctx, NodeChange change) {
+        change.setNewValue(unquote(ctx.string().getText()));
+        if ( ctx.lang != null ) {
+            change.setNewLanguage(ctx.lang.getText().substring(1));
+        }
+        if ( ctx.type != null ) {
+            change.setNewDatatype(expandCurie(ctx.type.datatype.getText()));
+        }
     }
 
     private Node getNode(IdContext ctx) {

@@ -72,7 +72,9 @@ id        : IRI    #IdAsIRI
           | CURIE  #IdAsCURIE
           ;
           
-text      : string lang=LANGTAG?;
+text      : string lang=LANGTAG?
+          | string type=typetag?
+          ;
 
 string    : SQ_STRING
           | DQ_STRING
@@ -83,6 +85,8 @@ qualifier : 'exact'
           | 'broad'
           | 'related'
           ;
+
+typetag   : '^^' datatype=CURIE;
 
 IRI       : '<' ~[\p{Z}>]+ '>';
 

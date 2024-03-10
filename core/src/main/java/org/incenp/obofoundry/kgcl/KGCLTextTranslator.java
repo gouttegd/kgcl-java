@@ -47,6 +47,7 @@ import org.incenp.obofoundry.kgcl.model.RemoveUnder;
 import org.incenp.obofoundry.kgcl.model.SimpleChange;
 import org.incenp.obofoundry.kgcl.model.SynonymReplacement;
 import org.incenp.obofoundry.kgcl.model.TextDefinitionReplacement;
+import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.PrefixManager;
 
 /**
@@ -93,7 +94,7 @@ public class KGCLTextTranslator extends ChangeVisitorBase<String> {
      * Format a text value for inclusion into a KGCL command. This deals with
      * escaping internal quote characters and appending a language tag if needed.
      */
-    private String renderText(String value, String lang) {
+    private String renderText(String value, String lang, String datatype) {
         StringBuilder sb = new StringBuilder();
         sb.append('"');
         for ( int i = 0, n = value.length(); i < n; i++ ) {
@@ -107,6 +108,9 @@ public class KGCLTextTranslator extends ChangeVisitorBase<String> {
         if ( lang != null && lang.length() > 0 ) {
             sb.append('@');
             sb.append(lang);
+        } else if ( datatype != null && datatype.length() > 0 ) {
+            sb.append("^^");
+            sb.append(prefixManager.getPrefixIRI(IRI.create(datatype)));
         }
 
         return sb.toString();
@@ -116,14 +120,14 @@ public class KGCLTextTranslator extends ChangeVisitorBase<String> {
      * Convenience method to render the "new" value of a change.
      */
     private String renderNewValue(SimpleChange v) {
-        return renderText(v.getNewValue(), v.getNewLanguage());
+        return renderText(v.getNewValue(), v.getNewLanguage(), v.getNewDatatype());
     }
 
     /*
      * Convenience method to render the "old" value of a change.
      */
     private String renderOldValue(SimpleChange v) {
-        return renderText(v.getOldValue(), v.getOldLanguage());
+        return renderText(v.getOldValue(), v.getOldLanguage(), v.getOldDatatype());
     }
 
     /*

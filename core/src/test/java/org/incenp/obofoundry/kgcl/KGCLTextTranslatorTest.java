@@ -50,6 +50,7 @@ import org.incenp.obofoundry.kgcl.model.TextDefinitionReplacement;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.semanticweb.owlapi.util.DefaultPrefixManager;
+import org.semanticweb.owlapi.vocab.XSDVocabulary;
 
 public class KGCLTextTranslatorTest {
 
@@ -324,6 +325,27 @@ public class KGCLTextTranslatorTest {
         change.setAboutNode(defaultNode);
         change.setNewValue("new definition");
         change.setNewLanguage("en");
+
+        render(change, "add definition \"new definition\"@en for EX:0001");
+    }
+
+    @Test
+    void testRenderValueWithTypeTag() {
+        NewTextDefinition change = new NewTextDefinition();
+        change.setAboutNode(defaultNode);
+        change.setNewValue("123");
+        change.setNewDatatype(XSDVocabulary.INTEGER.toString());
+
+        render(change, "add definition \"123\"^^xsd:integer for EX:0001");
+    }
+
+    @Test
+    void testLanguageTagTakesPrecedenceOverTypeTag() {
+        NewTextDefinition change = new NewTextDefinition();
+        change.setAboutNode(defaultNode);
+        change.setNewValue("new definition");
+        change.setNewLanguage("en");
+        change.setNewDatatype(XSDVocabulary.STRING.toString());
 
         render(change, "add definition \"new definition\"@en for EX:0001");
     }
