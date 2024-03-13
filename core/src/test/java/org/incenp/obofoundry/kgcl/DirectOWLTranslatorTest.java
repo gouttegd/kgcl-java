@@ -204,6 +204,100 @@ public class DirectOWLTranslatorTest implements RejectedChangeListener {
     }
 
     @Test
+    void testNodeRenameOldLanguageDoesNotSelectLanglessLabel() {
+        // The pizza ontology does not contain labels without an explicit language tag,
+        // so we need to craft one.
+        ontology.getOWLOntologyManager().addAxiom(ontology, getAnnotation(LABEL_IRI, "LaReine", "LaReine", null));
+
+        NodeRename change = new NodeRename();
+        setAboutNode(change, "LaReine");
+        setValue(change, "LaReine", "en", true);
+        setValue(change, "TheQueen", "en");
+
+        ArrayList<OWLOntologyChange> expected = new ArrayList<OWLOntologyChange>();
+        expected.add(new RemoveAxiom(ontology, getAnnotation(LABEL_IRI, "LaReine", "LaReine", "en")));
+        expected.add(new AddAxiom(ontology, getAnnotation(LABEL_IRI, "LaReine", "TheQueen", "en")));
+
+        testChange(change, expected, null);
+    }
+
+    @Test
+    void testNodeRenameNoLanguageTagDoesSelectLanglessLabel() {
+        // Add langless label
+        ontology.getOWLOntologyManager().addAxiom(ontology, getAnnotation(LABEL_IRI, "LaReine", "LaReine", null));
+
+        NodeRename change = new NodeRename();
+        setAboutNode(change, "LaReine");
+        setValue(change, "LaReine", null, true);
+        setValue(change, "TheQueen", null);
+
+        // All three labels should be renamed, including the langless one.
+
+        ArrayList<OWLOntologyChange> expected = new ArrayList<OWLOntologyChange>();
+        expected.add(new RemoveAxiom(ontology, getAnnotation(LABEL_IRI, "LaReine", "LaReine", "en")));
+        expected.add(new RemoveAxiom(ontology, getAnnotation(LABEL_IRI, "LaReine", "LaReine", "pt")));
+        expected.add(new RemoveAxiom(ontology, getAnnotation(LABEL_IRI, "LaReine", "LaReine", null)));
+        expected.add(new AddAxiom(ontology, getAnnotation(LABEL_IRI, "LaReine", "TheQueen", "en")));
+        expected.add(new AddAxiom(ontology, getAnnotation(LABEL_IRI, "LaReine", "TheQueen", "pt")));
+        expected.add(new AddAxiom(ontology, getAnnotation(LABEL_IRI, "LaReine", "TheQueen", null)));
+
+        testChange(change, expected, null);
+    }
+
+    @Test
+    void testNodeRenameNewLanguageTagDoesNotSelectLanglessLabel() {
+        // Add langless label
+        ontology.getOWLOntologyManager().addAxiom(ontology, getAnnotation(LABEL_IRI, "LaReine", "LaReine", null));
+
+        NodeRename change = new NodeRename();
+        setAboutNode(change, "LaReine");
+        setValue(change, "LaReine", null, true);
+        setValue(change, "TheQueen", "en");
+
+        // Since we have an explicit language tag on the new value, only the English
+        // label should be renamed.
+
+        ArrayList<OWLOntologyChange> expected = new ArrayList<OWLOntologyChange>();
+        expected.add(new RemoveAxiom(ontology, getAnnotation(LABEL_IRI, "LaReine", "LaReine", "en")));
+        expected.add(new AddAxiom(ontology, getAnnotation(LABEL_IRI, "LaReine", "TheQueen", "en")));
+
+        testChange(change, expected, null);
+    }
+
+    @Test
+    void testNodeRenameLanguageTagDoesNotSelectAnotherLangLabel() {
+        // Remove the English label
+        ontology.getOWLOntologyManager().removeAxiom(ontology, getAnnotation(LABEL_IRI, "LaReine", "LaReine", "en"));
+
+        NodeRename change = new NodeRename();
+        setAboutNode(change, "LaReine");
+        setValue(change, "LaReine", "en", true);
+        setValue(change, "TheQueen", "en");
+
+        // Looking for an English label should not match a label with a different
+        // language.
+        testChange(change, null, "Label \"LaReine\" not found on <" + PIZZA_BASE + "LaReine>");
+    }
+
+    @Test
+    void testNodeRenameNewLanguageTagSelectsLanglessLabelIfNoOtherLabelMatches() {
+        // Remove the English label and adds a langless one
+        ontology.getOWLOntologyManager().removeAxiom(ontology, getAnnotation(LABEL_IRI, "LaReine", "LaReine", "en"));
+        ontology.getOWLOntologyManager().addAxiom(ontology, getAnnotation(LABEL_IRI, "LaReine", "LaReine", null));
+
+        NodeRename change = new NodeRename();
+        setAboutNode(change, "LaReine");
+        setValue(change, "LaReine", null, true);
+        setValue(change, "TheQueen", "en");
+
+        ArrayList<OWLOntologyChange> expected = new ArrayList<OWLOntologyChange>();
+        expected.add(new RemoveAxiom(ontology, getAnnotation(LABEL_IRI, "LaReine", "LaReine", null)));
+        expected.add(new AddAxiom(ontology, getAnnotation(LABEL_IRI, "LaReine", "TheQueen", "en")));
+
+        testChange(change, expected, null);
+    }
+
+    @Test
     void testRejectedNodeRename() {
         NodeRename change = new NodeRename();
         setAboutNode(change, "LaReine");
