@@ -63,7 +63,6 @@ import org.semanticweb.owlapi.model.OWLDeclarationAxiom;
 import org.semanticweb.owlapi.model.OWLDisjointClassesAxiom;
 import org.semanticweb.owlapi.model.OWLDisjointUnionAxiom;
 import org.semanticweb.owlapi.model.OWLEquivalentClassesAxiom;
-import org.semanticweb.owlapi.model.OWLLiteral;
 import org.semanticweb.owlapi.model.OWLObjectProperty;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyChange;
@@ -116,104 +115,6 @@ public class DirectOWLTranslator extends OWLTranslator {
      */
     public DirectOWLTranslator(OWLOntology ontology, OWLReasoner reasoner) {
         super(ontology, reasoner);
-    }
-
-    private boolean compareValue(OWLAnnotationValue value, String changeText, String changeLang) {
-        if ( !value.isLiteral() ) {
-            return false;
-        }
-
-        String valueText = value.asLiteral().get().getLiteral();
-        String valueLang = value.asLiteral().get().getLang();
-
-        if ( !valueText.equals(changeText) ) {
-            return false;
-        }
-
-        if ( valueLang == null ) {
-            return changeLang == null ? true : false;
-        }
-
-        return valueLang.equals(changeLang);
-    }
-
-    /*
-     * Helper method to find the annotations whose value matches what a change
-     * expects.
-     */
-    private Set<OWLAnnotationAssertionAxiom> findMatchingAnnotations(IRI property, IRI entity, String text, String lang,
-            String datatype, String newLang) {
-        HashSet<OWLAnnotationAssertionAxiom> axioms = new HashSet<OWLAnnotationAssertionAxiom>();
-        OWLAnnotationAssertionAxiom langLessAxiom = null;
-        for ( OWLAnnotationAssertionAxiom ax : ontology.getAnnotationAssertionAxioms(entity) ) {
-            if ( !ax.getProperty().getIRI().equals(property) ) {
-                continue;
-            }
-
-            OWLAnnotationValue value = ax.getValue();
-            if ( !value.isLiteral() ) {
-                continue;
-            }
-
-            String valueText = value.asLiteral().get().getLiteral();
-            if ( !valueText.equals(text) ) {
-                continue;
-            }
-
-            String valueLang = value.asLiteral().get().getLang();
-            if ( valueLang.isEmpty() ) {
-                // We'll decide later what to do with this one
-                langLessAxiom = ax;
-                continue;
-            }
-
-            // If we are expecting a given language, the language of the value must match.
-            if ( lang != null && !valueLang.equals(lang) ) {
-                continue;
-            }
-
-            // If the new value has an explicit language tag, then even if no language tag
-            // has been explicitly specified for the old value, we can only accept a value
-            // with the same language as the new value.
-            if ( newLang != null && !valueLang.equals(newLang) ) {
-                continue;
-            }
-
-            // At this point both the text and the language match.
-            axioms.add(ax);
-        }
-
-        if ( langLessAxiom != null ) {
-            // We accept the langless axiom only if:
-            // - no language tag was explicitly specified on the old value
-            // - if alanguage tag was explicitly specified on the new value, we didn't find
-            // any annotation in that language
-            // - if a datatype was explicitly specified, it matches the datatype of the
-            // langless axiom's value
-            if ( lang == null && (newLang == null || axioms.isEmpty()) && (datatype == null || langLessAxiom.getValue()
-                    .asLiteral().get().getDatatype().getIRI().toString().equals(datatype)) ) {
-                axioms.add(langLessAxiom);
-            }
-        }
-
-        return axioms;
-    }
-
-    private OWLLiteral getLiteral(NodeChange change) {
-        return getLiteral(change, null);
-    }
-
-    private OWLLiteral getLiteral(NodeChange change, String oldLang) {
-        if ( change.getNewLanguage() != null ) {
-            return factory.getOWLLiteral(change.getNewValue(), change.getNewLanguage());
-        } else if ( change.getNewDatatype() != null ) {
-            return factory.getOWLLiteral(change.getNewValue(),
-                    factory.getOWLDatatype(IRI.create(change.getNewDatatype())));
-        } else if ( oldLang != null ) {
-            return factory.getOWLLiteral(change.getNewValue(), oldLang);
-        } else {
-            return factory.getOWLLiteral(change.getNewValue());
-        }
     }
 
     private boolean aboutNodeExists(NodeChange v) {
@@ -329,16 +230,14 @@ public class DirectOWLTranslator extends OWLTranslator {
             return empty;
         }
 
+        ArrayList<OWLOntologyChange> changes = new ArrayList<OWLOntologyChange>();
         IRI nodeIRI = IRI.create(v.getAboutNode().getId());
         Set<OWLAnnotationAssertionAxiom> matches = findMatchingAnnotations(OWLRDFVocabulary.RDFS_LABEL.getIRI(),
-                nodeIRI, v.getOldValue(), v.getOldLanguage(), v.getOldDatatype(), v.getNewLanguage());
+                nodeIRI, v);
 
         if ( matches.isEmpty() ) {
             onReject(v, "Label \"%s\" not found on <%s>", v.getOldValue(), v.getAboutNode().getId());
-            return empty;
         }
-
-        ArrayList<OWLOntologyChange> changes = new ArrayList<OWLOntologyChange>();
         for ( OWLAnnotationAssertionAxiom match : matches ) {
             changes.add(removeAxiom(match));
             changes.add(new AddAxiom(ontology,
@@ -381,11 +280,9 @@ public class DirectOWLTranslator extends OWLTranslator {
         }
 
         // Check for existing synonym
-        for ( OWLAnnotationAssertionAxiom axiom : ontology.getAnnotationAssertionAxioms(aboutNodeIri) ) {
-            if ( axiom.getProperty().getIRI().equals(propertyIri)
-                    && compareValue(axiom.getValue(), v.getNewValue(), v.getNewLanguage()) ) {
-                return empty;
-            }
+        Set<OWLAnnotationAssertionAxiom> existing = findMatchingAnnotations(propertyIri, aboutNodeIri, v, true);
+        if ( !existing.isEmpty() ) {
+            return empty;
         }
 
         return makeList(new AddAxiom(ontology, factory.getOWLAnnotationAssertionAxiom(
@@ -399,23 +296,24 @@ public class DirectOWLTranslator extends OWLTranslator {
         }
 
         ArrayList<OWLOntologyChange> changes = new ArrayList<OWLOntologyChange>();
-        for ( OWLAnnotationAssertionAxiom ax : ontology
-                .getAnnotationAssertionAxioms(IRI.create(v.getAboutNode().getId())) ) {
-            // The KGCL 'remove synonym' instruction is qualifier-agnostic, so we remove ANY
-            // matching synonym regardless of its type
-            IRI propertyIRI = ax.getProperty().getIRI();
-            if ( propertyIRI.equals(Obo2OWLConstants.Obo2OWLVocabulary.IRI_OIO_hasExactSynonym.getIRI())
-                    || propertyIRI.equals(Obo2OWLConstants.Obo2OWLVocabulary.IRI_OIO_hasBroadSynonym.getIRI())
-                    || propertyIRI.equals(Obo2OWLConstants.Obo2OWLVocabulary.IRI_OIO_hasNarrowSynonym.getIRI())
-                    || propertyIRI.equals(Obo2OWLConstants.Obo2OWLVocabulary.IRI_OIO_hasRelatedSynonym.getIRI()) ) {
-                if ( compareValue(ax.getValue(), v.getOldValue(), v.getOldLanguage()) ) {
-                    changes.add(removeAxiom(ax));
-                }
-            }
-        }
+        IRI nodeIRI = IRI.create(v.getAboutNode().getId());
 
-        if ( changes.isEmpty() ) {
+        // The KGCL 'remove synonym' instruction is qualifier-agnostic, so we look for
+        // ANY matching synonym regardless of its type
+        Set<OWLAnnotationAssertionAxiom> axioms = findMatchingAnnotations(
+                Obo2OWLConstants.Obo2OWLVocabulary.IRI_OIO_hasExactSynonym.getIRI(), nodeIRI, v);
+        axioms.addAll(findMatchingAnnotations(Obo2OWLConstants.Obo2OWLVocabulary.IRI_OIO_hasNarrowSynonym.getIRI(),
+                nodeIRI, v));
+        axioms.addAll(findMatchingAnnotations(Obo2OWLConstants.Obo2OWLVocabulary.IRI_OIO_hasBroadSynonym.getIRI(),
+                nodeIRI, v));
+        axioms.addAll(findMatchingAnnotations(Obo2OWLConstants.Obo2OWLVocabulary.IRI_OIO_hasRelatedSynonym.getIRI(),
+                nodeIRI, v));
+
+        if ( axioms.isEmpty() ) {
             onReject(v, "Synonym \"%s\" not found on <%s>", v.getOldValue(), v.getAboutNode().getId());
+        }
+        for ( OWLAnnotationAssertionAxiom ax : axioms ) {
+            changes.add(removeAxiom(ax));
         }
 
         return changes;
@@ -431,24 +329,25 @@ public class DirectOWLTranslator extends OWLTranslator {
         // avoid code duplication, but the catch is that we need to find out the type of
         // the synonym to remove (exact, narrow, broad, related?) so that we can create
         // a new synonym of the same type.
-        IRI aboutNodeIri = IRI.create(v.getAboutNode().getId());
         ArrayList<OWLOntologyChange> changes = new ArrayList<OWLOntologyChange>();
-        for ( OWLAnnotationAssertionAxiom ax : ontology.getAnnotationAssertionAxioms(aboutNodeIri) ) {
-            IRI propertyIri = ax.getProperty().getIRI();
-            if ( propertyIri.equals(Obo2OWLConstants.Obo2OWLVocabulary.IRI_OIO_hasExactSynonym.getIRI())
-                    || propertyIri.equals(Obo2OWLConstants.Obo2OWLVocabulary.IRI_OIO_hasBroadSynonym.getIRI())
-                    || propertyIri.equals(Obo2OWLConstants.Obo2OWLVocabulary.IRI_OIO_hasNarrowSynonym.getIRI())
-                    || propertyIri.equals(Obo2OWLConstants.Obo2OWLVocabulary.IRI_OIO_hasRelatedSynonym.getIRI()) ) {
-                if ( compareValue(ax.getValue(), v.getOldValue(), v.getOldLanguage()) ) {
-                    changes.add(removeAxiom(ax));
-                    changes.add(new AddAxiom(ontology, factory.getOWLAnnotationAssertionAxiom(
-                            factory.getOWLAnnotationProperty(propertyIri), aboutNodeIri, getLiteral(v))));
-                }
-            }
-        }
+        IRI nodeIRI = IRI.create(v.getAboutNode().getId());
+        Set<OWLAnnotationAssertionAxiom> axioms = findMatchingAnnotations(
+                Obo2OWLConstants.Obo2OWLVocabulary.IRI_OIO_hasExactSynonym.getIRI(), nodeIRI, v);
+        axioms.addAll(findMatchingAnnotations(Obo2OWLConstants.Obo2OWLVocabulary.IRI_OIO_hasNarrowSynonym.getIRI(),
+                nodeIRI, v));
+        axioms.addAll(findMatchingAnnotations(Obo2OWLConstants.Obo2OWLVocabulary.IRI_OIO_hasBroadSynonym.getIRI(),
+                nodeIRI, v));
+        axioms.addAll(findMatchingAnnotations(Obo2OWLConstants.Obo2OWLVocabulary.IRI_OIO_hasRelatedSynonym.getIRI(),
+                nodeIRI, v));
 
-        if ( changes.isEmpty() ) {
+        if ( axioms.isEmpty() ) {
             onReject(v, "Synonym \"%s\" not found on <%s>", v.getOldValue(), v.getAboutNode().getId());
+        }
+        for ( OWLAnnotationAssertionAxiom ax : axioms ) {
+            IRI propertyIRI = ax.getProperty().getIRI();
+            changes.add(removeAxiom(ax));
+            changes.add(new AddAxiom(ontology, factory.getOWLAnnotationAssertionAxiom(
+                    factory.getOWLAnnotationProperty(propertyIRI), nodeIRI, getLiteral(v))));
         }
 
         return changes;
@@ -464,11 +363,9 @@ public class DirectOWLTranslator extends OWLTranslator {
         IRI definitionIRI = Obo2OWLConstants.Obo2OWLVocabulary.IRI_IAO_0000115.getIRI();
 
         // Check for existing definition
-        for ( OWLAnnotationAssertionAxiom axiom : ontology.getAnnotationAssertionAxioms(aboutNodeIRI) ) {
-            if ( axiom.getProperty().getIRI().equals(definitionIRI)
-                    && compareValue(axiom.getValue(), v.getNewValue(), v.getNewLanguage()) ) {
-                return empty;
-            }
+        Set<OWLAnnotationAssertionAxiom> existing = findMatchingAnnotations(definitionIRI, aboutNodeIRI, v, true);
+        if ( !existing.isEmpty() ) {
+            return empty;
         }
 
         return makeList(new AddAxiom(ontology, factory.getOWLAnnotationAssertionAxiom(
@@ -481,20 +378,19 @@ public class DirectOWLTranslator extends OWLTranslator {
             return empty;
         }
 
-        for ( OWLAnnotationAssertionAxiom ax : ontology
-                .getAnnotationAssertionAxioms(IRI.create(v.getAboutNode().getId())) ) {
-            if ( ax.getProperty().getIRI().equals(Obo2OWLConstants.Obo2OWLVocabulary.IRI_IAO_0000115.getIRI()) ) {
-                // If we have the text of the definition to remove, check that it matches the
-                // definition we found. The KGCL command syntax does not allow specifying the
-                // text of the definition to remove, but the KGCL model does.
-                if ( v.getOldValue() == null || compareValue(ax.getValue(), v.getOldValue(), v.getOldLanguage()) ) {
-                    return makeList(removeAxiom(ax));
-                }
-            }
+        ArrayList<OWLOntologyChange> changes = new ArrayList<OWLOntologyChange>();
+        IRI nodeIRI = IRI.create(v.getAboutNode().getId());
+        Set<OWLAnnotationAssertionAxiom> existing = findMatchingAnnotations(
+                Obo2OWLConstants.Obo2OWLVocabulary.IRI_IAO_0000115.getIRI(), nodeIRI, v);
+
+        if ( existing.isEmpty() ) {
+            onReject(v, "Definition not found on <%s>", v.getAboutNode().getId());
+        }
+        for ( OWLAnnotationAssertionAxiom ax : existing ) {
+            changes.add(removeAxiom(ax));
         }
 
-        onReject(v, "Definition not found on <%s>", v.getAboutNode().getId());
-        return empty;
+        return changes;
     }
 
     @Override
@@ -928,21 +824,16 @@ public class DirectOWLTranslator extends OWLTranslator {
             return changes;
         }
 
-        int found = 0;
-        for ( OWLAnnotationAssertionAxiom ax : ontology.getAnnotationAssertionAxioms(nodeId) ) {
-            if ( ax.getProperty().getIRI().equals(propertyId) ) {
-                found += 1;
-                if ( compareValue(ax.getValue(), v.getOldValue(), v.getOldLanguage()) ) {
-                    changes.add(removeAxiom(ax));
-                    changes.add(new AddAxiom(ontology, factory.getOWLAnnotationAssertionAxiom(
-                            factory.getOWLAnnotationProperty(propertyId), nodeId, getLiteral(v))));
-                }
-            }
-        }
-
-        if ( found > 0 && changes.isEmpty() ) {
+        Set<OWLAnnotationAssertionAxiom> axioms = findMatchingAnnotations(propertyId, nodeId, v);
+        if ( axioms.isEmpty() ) {
             onReject(v, "Expected annotation value not found for property %s on node %s", propertyId.toQuotedString(),
                     nodeId.toQuotedString());
+        }
+
+        for ( OWLAnnotationAssertionAxiom ax : axioms ) {
+            changes.add(removeAxiom(ax));
+            changes.add(new AddAxiom(ontology, factory.getOWLAnnotationAssertionAxiom(
+                    factory.getOWLAnnotationProperty(propertyId), nodeId, getLiteral(v))));
         }
 
         return changes;
