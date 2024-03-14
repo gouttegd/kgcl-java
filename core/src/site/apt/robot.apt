@@ -85,3 +85,7 @@ $ robot merge -i input1.ofn -i input2.ofn \
   applied. As for other ROBOT commands that need a reasoner, the
   reasoner to use can be specified with the <<<--reasoner>>> (or
   <<<-r>>>) option. The default reasoner is <ELK>.
+  
+  If the <<<--default-new-language>>> option is specified, any
+  NodeChange operation that does not have an explicit language tag will
+  use the specified default new language tag.

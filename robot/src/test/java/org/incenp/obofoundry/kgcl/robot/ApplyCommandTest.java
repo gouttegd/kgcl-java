@@ -95,6 +95,18 @@ public class ApplyCommandTest {
         Assertions.assertFalse(rejectFile.exists());
     }
 
+    @Test
+    void testNoDefaultLanguageTag() {
+        runCommand("pizza.ofn", "pizza-renamed-reine-all-langs.ofn", "--kgcl",
+                "rename pizza:LaReine from 'LaReine' to 'TheQueen'");
+    }
+
+    @Test
+    void testDefaultLanguageTag() {
+        runCommand("pizza.ofn", "pizza-renamed-reine-english-only.ofn", "--kgcl",
+                "rename pizza:LaReine from 'LaReine' to 'TheQueen'", "--default-new-language", "en");
+    }
+
     /*
      * Try running a KGCL-Apply command and check that the output ontology matches
      * what we expect.

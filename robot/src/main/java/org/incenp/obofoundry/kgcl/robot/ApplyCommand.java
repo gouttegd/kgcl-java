@@ -34,6 +34,7 @@ import org.incenp.obofoundry.kgcl.KGCLSyntaxError;
 import org.incenp.obofoundry.kgcl.KGCLWriter;
 import org.incenp.obofoundry.kgcl.RejectedChange;
 import org.incenp.obofoundry.kgcl.model.Change;
+import org.incenp.obofoundry.kgcl.model.NodeChange;
 import org.obolibrary.robot.Command;
 import org.obolibrary.robot.CommandLineHelper;
 import org.obolibrary.robot.CommandState;
@@ -64,6 +65,7 @@ public class ApplyCommand implements Command {
         options.addOption("r", "reasoner", true, "reasoner to use");
         options.addOption("p", "provisional", false, "Apply changes in a provisional manner");
         options.addOption("P", "pending", true, "Apply pending (provisional) changes older than the specified date");
+        options.addOption("l", "default-new-language", true, "Use the specified new language tag by default");
     }
 
     @Override
@@ -143,6 +145,17 @@ public class ApplyCommand implements Command {
                 }
             }
             changeset.addAll(KGCLHelper.extractPendingChanges(ontology, before));
+        }
+
+        if ( line.hasOption("default-new-language") ) {
+            for ( Change change : changeset ) {
+                if ( change instanceof NodeChange ) {
+                    NodeChange nc = (NodeChange) change;
+                    if ( nc.getNewLanguage() == null ) {
+                        nc.setNewLanguage(line.getOptionValue("default-new-language"));
+                    }
+                }
+            }
         }
 
         if ( changeset.size() > 0 ) {
