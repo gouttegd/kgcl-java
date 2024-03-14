@@ -347,7 +347,8 @@ public class DirectOWLTranslator extends OWLTranslator {
             IRI propertyIRI = ax.getProperty().getIRI();
             changes.add(removeAxiom(ax));
             changes.add(new AddAxiom(ontology, factory.getOWLAnnotationAssertionAxiom(
-                    factory.getOWLAnnotationProperty(propertyIRI), nodeIRI, getLiteral(v))));
+                    factory.getOWLAnnotationProperty(propertyIRI), nodeIRI,
+                    getLiteral(v, ax.getValue().asLiteral().get().getLang()))));
         }
 
         return changes;
@@ -833,7 +834,8 @@ public class DirectOWLTranslator extends OWLTranslator {
         for ( OWLAnnotationAssertionAxiom ax : axioms ) {
             changes.add(removeAxiom(ax));
             changes.add(new AddAxiom(ontology, factory.getOWLAnnotationAssertionAxiom(
-                    factory.getOWLAnnotationProperty(propertyId), nodeId, getLiteral(v))));
+                    factory.getOWLAnnotationProperty(propertyId), nodeId,
+                    getLiteral(v, ax.getValue().asLiteral().get().getLang()))));
         }
 
         return changes;
