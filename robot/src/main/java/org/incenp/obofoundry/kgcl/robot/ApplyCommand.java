@@ -151,7 +151,7 @@ public class ApplyCommand implements Command {
             for ( Change change : changeset ) {
                 if ( change instanceof NodeChange ) {
                     NodeChange nc = (NodeChange) change;
-                    if ( nc.getNewLanguage() == null ) {
+                    if ( nc.getNewLanguage() == null && nc.getNewDatatype() == null ) {
                         nc.setNewLanguage(line.getOptionValue("default-new-language"));
                     }
                 }

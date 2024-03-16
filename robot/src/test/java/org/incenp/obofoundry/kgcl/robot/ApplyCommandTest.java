@@ -107,6 +107,12 @@ public class ApplyCommandTest {
                 "rename pizza:LaReine from 'LaReine' to 'TheQueen'", "--default-new-language", "en");
     }
 
+    @Test
+    void testDefaultLanguageTagWithExplicitDatatype() {
+        runCommand("pizza.ofn", "pizza-renamed-reine-no-lang.ofn", "--kgcl",
+                "rename pizza:LaReine from 'LaReine' to 'TheQueen'^^xsd:string", "--default-new-language", "en");
+    }
+
     /*
      * Try running a KGCL-Apply command and check that the output ontology matches
      * what we expect.
