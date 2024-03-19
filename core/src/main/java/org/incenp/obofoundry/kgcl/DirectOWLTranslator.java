@@ -91,7 +91,8 @@ import org.semanticweb.owlapi.vocab.OWLRDFVocabulary;
  * <pre>
  * Change change = ...;
  * OWLOntology ontology = ...;
- * Change2OwlVisitor visitor = new Change2OwlVisitor(ontology);
+ * OWLReasoner reasoner = ...;
+ * DirectOWLTranslator visitor = new DirectOWLTranslator(ontology, reasoner);
  * List&lt;OWLOntologyChange&gt; changeAsOwlChanges = change.accept(visitor);
  * </pre>
  * 

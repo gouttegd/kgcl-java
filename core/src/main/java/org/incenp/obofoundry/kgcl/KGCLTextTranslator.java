@@ -64,7 +64,7 @@ import org.semanticweb.owlapi.model.PrefixManager;
  * 
  * <pre>
  * Change change = ... ;
- * Change2TextVisitor visitor = new Change2TextVisitor();
+ * KGCLTextTranslator visitor = new KGCLTextTranslator();
  * String changeAsText = change.accept(visitor);
  * </pre>
  */
