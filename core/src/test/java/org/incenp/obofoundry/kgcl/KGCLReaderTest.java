@@ -33,6 +33,7 @@ import org.incenp.obofoundry.kgcl.model.NewSynonym;
 import org.incenp.obofoundry.kgcl.model.NewTextDefinition;
 import org.incenp.obofoundry.kgcl.model.Node;
 import org.incenp.obofoundry.kgcl.model.NodeAnnotationChange;
+import org.incenp.obofoundry.kgcl.model.NodeCreation;
 import org.incenp.obofoundry.kgcl.model.NodeDeepening;
 import org.incenp.obofoundry.kgcl.model.NodeDeletion;
 import org.incenp.obofoundry.kgcl.model.NodeMove;
@@ -42,7 +43,9 @@ import org.incenp.obofoundry.kgcl.model.NodeObsoletionWithNoDirectReplacement;
 import org.incenp.obofoundry.kgcl.model.NodeRename;
 import org.incenp.obofoundry.kgcl.model.NodeShallowing;
 import org.incenp.obofoundry.kgcl.model.NodeUnobsoletion;
+import org.incenp.obofoundry.kgcl.model.ObjectPropertyCreation;
 import org.incenp.obofoundry.kgcl.model.OntologySubset;
+import org.incenp.obofoundry.kgcl.model.OwlType;
 import org.incenp.obofoundry.kgcl.model.PredicateChange;
 import org.incenp.obofoundry.kgcl.model.RemoveNodeFromSubset;
 import org.incenp.obofoundry.kgcl.model.RemoveSynonym;
@@ -86,6 +89,7 @@ class KGCLReaderTest {
 
         ClassCreation c4 = new ClassCreation();
         c4.setAboutNode(util.getNode("0004"));
+        c4.getAboutNode().setOwlType(OwlType.CLASS);
         c4.setNewValue("xyz");
 
         EdgeCreation c5 = new EdgeCreation();
@@ -367,9 +371,40 @@ class KGCLReaderTest {
     void testNewClassChange() {
         ClassCreation change = new ClassCreation();
         change.setAboutNode(util.getNode("0001"));
+        change.getAboutNode().setOwlType(OwlType.CLASS);
         change.setNewValue("new label");
 
         testParse("create class EX:0001 'new label'", change);
+    }
+
+    @Test
+    void testNewObjectPropertyChange() {
+        ObjectPropertyCreation change = new ObjectPropertyCreation();
+        change.setAboutNode(util.getNode("0001"));
+        change.getAboutNode().setOwlType(OwlType.OBJECT_PROPERTY);
+        change.setNewValue("new label");
+
+        testParse("create relation EX:0001 'new label'", change);
+    }
+
+    @Test
+    void testNewIndividualChange() {
+        NodeCreation change = new NodeCreation();
+        change.setAboutNode(util.getNode("0001"));
+        change.getAboutNode().setOwlType(OwlType.NAMED_INVIDIDUAL);
+        change.setNewValue("new label");
+
+        testParse("create instance EX:0001 'new label'", change);
+    }
+
+    @Test
+    void testNewAnnotationPropertyChange() {
+        NodeCreation change = new NodeCreation();
+        change.setAboutNode(util.getNode("0001"));
+        change.getAboutNode().setOwlType(OwlType.ANNOTATION_PROPERTY);
+        change.setNewValue("new label");
+
+        testParse("create annotation property EX:0001 'new label'", change);
     }
 
     @Test

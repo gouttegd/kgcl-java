@@ -20,7 +20,8 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper={% if gen.parent_has_slots(cls) %}true{% else %}false{% endif %})
 public class {{ cls.name }} {% if cls.is_a -%} extends {{ cls.is_a }} {%- endif %} {
 {%- for f in cls.fields %}
-    private {{ f.range }} {{ f.name }};
+    private {% if f.source_slot.range == 'owl_type' %}OwlType
+            {%- else %}{{ f.range }}{% endif %} {{ f.name }};
 {%- endfor -%}
 
 {% if cls.name == "Change" or gen.has_ancestor(cls, "Change") %}

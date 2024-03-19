@@ -32,6 +32,7 @@ import org.incenp.obofoundry.kgcl.model.NewTextDefinition;
 import org.incenp.obofoundry.kgcl.model.Node;
 import org.incenp.obofoundry.kgcl.model.NodeAnnotationChange;
 import org.incenp.obofoundry.kgcl.model.NodeChange;
+import org.incenp.obofoundry.kgcl.model.NodeCreation;
 import org.incenp.obofoundry.kgcl.model.NodeDeepening;
 import org.incenp.obofoundry.kgcl.model.NodeDeletion;
 import org.incenp.obofoundry.kgcl.model.NodeMove;
@@ -41,7 +42,9 @@ import org.incenp.obofoundry.kgcl.model.NodeObsoletionWithNoDirectReplacement;
 import org.incenp.obofoundry.kgcl.model.NodeRename;
 import org.incenp.obofoundry.kgcl.model.NodeShallowing;
 import org.incenp.obofoundry.kgcl.model.NodeUnobsoletion;
+import org.incenp.obofoundry.kgcl.model.ObjectPropertyCreation;
 import org.incenp.obofoundry.kgcl.model.OntologySubset;
+import org.incenp.obofoundry.kgcl.model.OwlType;
 import org.incenp.obofoundry.kgcl.model.PredicateChange;
 import org.incenp.obofoundry.kgcl.model.RemoveNodeFromSubset;
 import org.incenp.obofoundry.kgcl.model.RemoveSynonym;
@@ -253,10 +256,25 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
     }
 
     @Override
-    public Void visitNewClass(KGCLParser.NewClassContext ctx) {
-        ClassCreation change = new ClassCreation();
+    public Void visitNewNode(KGCLParser.NewNodeContext ctx) {
+        NodeCreation change = null;
+        OwlType type = OwlType.fromString(ctx.nodeType().getText());
+
+        switch ( type ) {
+        case CLASS:
+            change = new ClassCreation();
+            break;
+        case OBJECT_PROPERTY:
+            change = new ObjectPropertyCreation();
+            break;
+        default:
+            /* Other types don't have their own change object. */
+            change = new NodeCreation();
+            break;
+        }
 
         change.setAboutNode(getNode(ctx.id()));
+        change.getAboutNode().setOwlType(type);
         setNewValue(ctx.label, change);
 
         changes.add(change);

@@ -33,6 +33,7 @@ import org.incenp.obofoundry.kgcl.model.NewTextDefinition;
 import org.incenp.obofoundry.kgcl.model.Node;
 import org.incenp.obofoundry.kgcl.model.NodeAnnotationChange;
 import org.incenp.obofoundry.kgcl.model.NodeChange;
+import org.incenp.obofoundry.kgcl.model.NodeCreation;
 import org.incenp.obofoundry.kgcl.model.NodeDeepening;
 import org.incenp.obofoundry.kgcl.model.NodeDeletion;
 import org.incenp.obofoundry.kgcl.model.NodeMove;
@@ -42,6 +43,8 @@ import org.incenp.obofoundry.kgcl.model.NodeObsoletionWithNoDirectReplacement;
 import org.incenp.obofoundry.kgcl.model.NodeRename;
 import org.incenp.obofoundry.kgcl.model.NodeShallowing;
 import org.incenp.obofoundry.kgcl.model.NodeUnobsoletion;
+import org.incenp.obofoundry.kgcl.model.ObjectPropertyCreation;
+import org.incenp.obofoundry.kgcl.model.OwlType;
 import org.incenp.obofoundry.kgcl.model.PlaceUnder;
 import org.incenp.obofoundry.kgcl.model.PredicateChange;
 import org.incenp.obofoundry.kgcl.model.RemoveNodeFromSubset;
@@ -592,21 +595,68 @@ public class DirectOWLTranslator extends OWLTranslator {
     }
 
     @Override
-    public List<OWLOntologyChange> visit(ClassCreation v) {
-        IRI classIRI = IRI.create(v.getAboutNode().getId());
-        if ( ontology.containsClassInSignature(classIRI) ) {
-            onReject(v, "Class <%s> already exists", classIRI.toString());
-            return empty;
+    public List<OWLOntologyChange> visit(NodeCreation v) {
+        ArrayList<OWLOntologyChange> changes = new ArrayList<OWLOntologyChange>();
+        IRI nodeIRI = IRI.create(v.getAboutNode().getId());
+
+        switch ( v.getAboutNode().getOwlType() ) {
+        case CLASS:
+        default:
+            if ( ontology.containsClassInSignature(nodeIRI) ) {
+                onReject(v, "Class <%s> already exists", nodeIRI.toString());
+            } else {
+                changes.add(new AddAxiom(ontology, factory.getOWLDeclarationAxiom(factory.getOWLClass(nodeIRI))));
+            }
+            break;
+        case NAMED_INVIDIDUAL:
+            if ( ontology.containsIndividualInSignature(nodeIRI) ) {
+                onReject(v, "Invididual <%s> already exists", nodeIRI.toString());
+            } else {
+                changes.add(
+                        new AddAxiom(ontology, factory.getOWLDeclarationAxiom(factory.getOWLNamedIndividual(nodeIRI))));
+            }
+            break;
+        case OBJECT_PROPERTY:
+            if ( ontology.containsObjectPropertyInSignature(nodeIRI) ) {
+                onReject(v, "Object property <%s> already exists", nodeIRI.toString());
+            } else {
+                changes.add(
+                        new AddAxiom(ontology, factory.getOWLDeclarationAxiom(factory.getOWLObjectProperty(nodeIRI))));
+            }
+            break;
+        case ANNOTATION_PROPERTY:
+            if ( ontology.containsAnnotationPropertyInSignature(nodeIRI) ) {
+                onReject(v, "Annotation property <%s> already exists", nodeIRI.toString());
+            } else {
+                changes.add(new AddAxiom(ontology,
+                        factory.getOWLDeclarationAxiom(factory.getOWLAnnotationProperty(nodeIRI))));
+            }
+            break;
         }
 
-        OWLAxiom newClassAxiom = factory.getOWLDeclarationAxiom(factory.getOWLClass(classIRI));
-        OWLAxiom newLabelAxiom = factory.getOWLAnnotationAssertionAxiom(
-                factory.getOWLAnnotationProperty(OWLRDFVocabulary.RDFS_LABEL.getIRI()), classIRI,
-                factory.getOWLLiteral(v.getNewValue(), v.getNewLanguage()));
+        if ( !changes.isEmpty() ) {
+            addedIRIs.add(nodeIRI);
+            changes.add(new AddAxiom(ontology, factory.getOWLAnnotationAssertionAxiom(
+                    factory.getOWLAnnotationProperty(OWLRDFVocabulary.RDFS_LABEL.getIRI()), nodeIRI, getLiteral(v))));
+        }
 
-        addedIRIs.add(classIRI);
+        return changes;
+    }
 
-        return makeList(new AddAxiom(ontology, newClassAxiom), new AddAxiom(ontology, newLabelAxiom));
+    @Override
+    public List<OWLOntologyChange> visit(ClassCreation v) {
+        if (v.getAboutNode().getOwlType() != OwlType.CLASS) {
+            v.getAboutNode().setOwlType(OwlType.CLASS);
+        }
+        return visit((NodeCreation) v);
+    }
+
+    @Override
+    public List<OWLOntologyChange> visit(ObjectPropertyCreation v) {
+        if ( v.getAboutNode().getOwlType() != OwlType.OBJECT_PROPERTY ) {
+            v.getAboutNode().setOwlType(OwlType.OBJECT_PROPERTY);
+        }
+        return visit((NodeCreation) v);
     }
 
     @Override

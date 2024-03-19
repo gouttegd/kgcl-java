@@ -29,6 +29,7 @@ import org.incenp.obofoundry.kgcl.model.NewSynonym;
 import org.incenp.obofoundry.kgcl.model.NewTextDefinition;
 import org.incenp.obofoundry.kgcl.model.Node;
 import org.incenp.obofoundry.kgcl.model.NodeAnnotationChange;
+import org.incenp.obofoundry.kgcl.model.NodeCreation;
 import org.incenp.obofoundry.kgcl.model.NodeDeepening;
 import org.incenp.obofoundry.kgcl.model.NodeDeletion;
 import org.incenp.obofoundry.kgcl.model.NodeMove;
@@ -38,6 +39,8 @@ import org.incenp.obofoundry.kgcl.model.NodeObsoletionWithNoDirectReplacement;
 import org.incenp.obofoundry.kgcl.model.NodeRename;
 import org.incenp.obofoundry.kgcl.model.NodeShallowing;
 import org.incenp.obofoundry.kgcl.model.NodeUnobsoletion;
+import org.incenp.obofoundry.kgcl.model.ObjectPropertyCreation;
+import org.incenp.obofoundry.kgcl.model.OwlType;
 import org.incenp.obofoundry.kgcl.model.PlaceUnder;
 import org.incenp.obofoundry.kgcl.model.PredicateChange;
 import org.incenp.obofoundry.kgcl.model.RemoveNodeFromSubset;
@@ -288,8 +291,25 @@ public class KGCLTextTranslator extends ChangeVisitorBase<String> {
     }
 
     @Override
+    public String visit(NodeCreation v) {
+        return String.format("create %s %s %s", v.getAboutNode().getOwlType(), renderNode(v.getAboutNode()),
+                renderNewValue(v));
+    }
+
+    @Override
     public String visit(ClassCreation v) {
-        return String.format("create class %s %s", renderNode(v.getAboutNode()), renderNewValue(v));
+        if ( v.getAboutNode().getOwlType() != OwlType.CLASS ) {
+            v.getAboutNode().setOwlType(OwlType.CLASS);
+        }
+        return visit((NodeCreation) v);
+    }
+
+    @Override
+    public String visit(ObjectPropertyCreation v) {
+        if ( v.getAboutNode().getOwlType() != OwlType.OBJECT_PROPERTY ) {
+            v.getAboutNode().setOwlType(OwlType.OBJECT_PROPERTY);
+        }
+        return visit((NodeCreation) v);
     }
 
     @Override

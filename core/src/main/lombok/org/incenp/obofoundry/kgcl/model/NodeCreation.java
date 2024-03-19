@@ -12,7 +12,7 @@ import lombok.EqualsAndHashCode;
 public class NodeCreation extends NodeChange {
     private Node nodeId;
     private String name;
-    private String owlType;
+    private OwlType owlType;
     private Annotation annotationSet;
     public <T> T accept(IChangeVisitor<T> v) {
         return v.visit(this);

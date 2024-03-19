@@ -29,6 +29,7 @@ import org.incenp.obofoundry.kgcl.model.NewSynonym;
 import org.incenp.obofoundry.kgcl.model.NewTextDefinition;
 import org.incenp.obofoundry.kgcl.model.Node;
 import org.incenp.obofoundry.kgcl.model.NodeAnnotationChange;
+import org.incenp.obofoundry.kgcl.model.NodeCreation;
 import org.incenp.obofoundry.kgcl.model.NodeDeepening;
 import org.incenp.obofoundry.kgcl.model.NodeDeletion;
 import org.incenp.obofoundry.kgcl.model.NodeMove;
@@ -38,7 +39,9 @@ import org.incenp.obofoundry.kgcl.model.NodeObsoletionWithNoDirectReplacement;
 import org.incenp.obofoundry.kgcl.model.NodeRename;
 import org.incenp.obofoundry.kgcl.model.NodeShallowing;
 import org.incenp.obofoundry.kgcl.model.NodeUnobsoletion;
+import org.incenp.obofoundry.kgcl.model.ObjectPropertyCreation;
 import org.incenp.obofoundry.kgcl.model.OntologySubset;
+import org.incenp.obofoundry.kgcl.model.OwlType;
 import org.incenp.obofoundry.kgcl.model.PlaceUnder;
 import org.incenp.obofoundry.kgcl.model.PredicateChange;
 import org.incenp.obofoundry.kgcl.model.RemoveNodeFromSubset;
@@ -188,6 +191,35 @@ public class KGCLTextTranslatorTest {
         change.setNewValue("new label");
 
         render(change, "create class EX:0001 \"new label\"");
+    }
+
+    @Test
+    void testRenderObjectPropertyCreation() {
+        ObjectPropertyCreation change = new ObjectPropertyCreation();
+        change.setAboutNode(defaultNode);
+        change.setNewValue("new label");
+
+        render(change, "create relation EX:0001 \"new label\"");
+    }
+
+    @Test
+    void testRenderIndividualCreation() {
+        NodeCreation change = new NodeCreation();
+        change.setAboutNode(defaultNode);
+        change.getAboutNode().setOwlType(OwlType.NAMED_INVIDIDUAL);
+        change.setNewValue("new label");
+
+        render(change, "create instance EX:0001 \"new label\"");
+    }
+
+    @Test
+    void testRenderAnnotationPropertyCreation() {
+        NodeCreation change = new NodeCreation();
+        change.setAboutNode(defaultNode);
+        change.getAboutNode().setOwlType(OwlType.ANNOTATION_PROPERTY);
+        change.setNewValue("new label");
+
+        render(change, "create annotation property EX:0001 \"new label\"");
     }
 
     @Test

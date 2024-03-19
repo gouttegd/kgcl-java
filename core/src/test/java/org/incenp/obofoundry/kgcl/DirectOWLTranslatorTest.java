@@ -43,6 +43,7 @@ import org.incenp.obofoundry.kgcl.model.NodeObsoletionWithNoDirectReplacement;
 import org.incenp.obofoundry.kgcl.model.NodeRename;
 import org.incenp.obofoundry.kgcl.model.NodeShallowing;
 import org.incenp.obofoundry.kgcl.model.NodeUnobsoletion;
+import org.incenp.obofoundry.kgcl.model.ObjectPropertyCreation;
 import org.incenp.obofoundry.kgcl.model.OntologySubset;
 import org.incenp.obofoundry.kgcl.model.PlaceUnder;
 import org.incenp.obofoundry.kgcl.model.PredicateChange;
@@ -738,6 +739,29 @@ public class DirectOWLTranslatorTest implements RejectedChangeListener {
         setValue(change, "TheQueen", "en");
 
         testChange(change, null, "Class <" + PIZZA_BASE + "LaReine> already exists");
+    }
+
+    @Test
+    void testCreateObjectProperty() {
+        ObjectPropertyCreation change = new ObjectPropertyCreation();
+        setAboutNode(change, "hasOrigin");
+        setValue(change, "has origin", "en");
+
+        ArrayList<OWLOntologyChange> expected = new ArrayList<OWLOntologyChange>();
+        OWLObjectProperty prop = getObjectProperty("hasOrigin");
+        expected.add(new AddAxiom(ontology, factory.getOWLDeclarationAxiom(prop)));
+        expected.add(new AddAxiom(ontology, getAnnotation(LABEL_IRI, "hasOrigin", "has origin", "en")));
+
+        testChange(change, expected, null);
+    }
+
+    @Test
+    void testCreateExistingObjectProperty() {
+        ObjectPropertyCreation change = new ObjectPropertyCreation();
+        setAboutNode(change, "hasIngredient");
+        setValue(change, "has ingredient", "en");
+
+        testChange(change, null, "Object property <" + PIZZA_BASE + "hasIngredient> already exists");
     }
 
     @Test

@@ -13,7 +13,7 @@ change    : rename
           | newDefinition
           | removeDefinition
           | changeDefinition
-          | newClass
+          | newNode
           | newEdge
           | deleteEdge
           | changePredicate
@@ -46,7 +46,7 @@ removeDefinition: 'remove' 'definition' 'for' id;
 
 changeDefinition: 'change' 'definition' 'of' id ('from' old_definition=text)? 'to' new_definition=text;
 
-newClass  : 'create' 'class' id label=text;
+newNode   : 'create' nodeType id label=text;
 
 newEdge   : 'create' 'edge' subject_id=id predicate_id=id object_id=id;
 
@@ -65,12 +65,13 @@ addSubset : 'add' node_id=id 'to' 'subset' subset_id=id;
 
 removeSubset : 'remove' node_id=id 'from' 'subset' subset_id=id;
 
-
 idlist    : id (',' id)*;
 
 id        : IRI    #IdAsIRI
           | CURIE  #IdAsCURIE
           ;
+
+nodeType  : 'class' | 'relation' | 'instance' | 'annotation property';
           
 text      : string lang=LANGTAG?
           | string type=typetag?

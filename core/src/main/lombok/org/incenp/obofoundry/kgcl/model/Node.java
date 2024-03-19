@@ -13,4 +13,4 @@ public class Node extends OntologyElement {
     private String id;
     private String name;
     private Annotation annotationSet;
-    private String owlType;}
+    private OwlType owlType;}
