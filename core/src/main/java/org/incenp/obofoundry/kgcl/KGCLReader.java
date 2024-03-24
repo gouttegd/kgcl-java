@@ -161,7 +161,12 @@ public class KGCLReader {
      *                 ontology has been read from a {@code OWLDocumentFormat} that
      *                 does not support prefixes, it is ignored and a default prefix
      *                 manager is used instead.
+     * 
+     * @deprecated Using an ontology as the prefix manager is no longer recommended.
+     *             Provide the reader with an explicit PrefixManager (with
+     *             {@link #setPrefixManager(PrefixManager)}) instead.
      */
+    @Deprecated
     public void setPrefixManager(OWLOntology ontology) {
         if ( ontology != null ) {
             OWLDocumentFormat format = ontology.getOWLOntologyManager().getOntologyFormat(ontology);

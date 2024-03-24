@@ -457,16 +457,16 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
     }
 
     private String expandCurie(String curie) {
-        String[] parts = curie.split(":", 2);
-        String prefix = parts[0] + ":";
-        String expandedPrefix;
-
-        if ( prefixManager != null && prefixManager.containsPrefixMapping(prefix) ) {
-            expandedPrefix = prefixManager.getIRI(prefix).toString();
-        } else {
-            expandedPrefix = String.format("http://purl.obolibrary.org/obo/%s_", parts[0]);
+        if ( prefixManager == null ) {
+            return curie;
         }
 
-        return expandedPrefix + parts[1];
+        String[] parts = curie.split(":", 2);
+        String prefix = parts[0] + ":";
+        if ( prefixManager.containsPrefixMapping(prefix) ) {
+            return prefixManager.getIRI(prefix).toString() + parts[1];
+        }
+
+        return curie;
     }
 }

@@ -33,12 +33,14 @@ import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
+import org.semanticweb.owlapi.model.PrefixManager;
 
 public class KGCLHelperTest {
 
     private static final TestUtils util = new TestUtils("http://www.co-ode.org/ontologies/pizza/pizza.owl#");
 
     private OWLOntology ontology;
+    private PrefixManager prefixManager;
 
     @BeforeEach
     private void initialisePatcher() {
@@ -46,6 +48,7 @@ public class KGCLHelperTest {
 
         try {
             ontology = mgr.loadOntologyFromOntologyDocument(new File("src/test/resources/pizza.ofn"));
+            prefixManager = mgr.getOntologyFormat(ontology).asPrefixOWLOntologyFormat();
         } catch ( OWLOntologyCreationException e ) {
             Assertions.fail(e);
         }
@@ -55,7 +58,7 @@ public class KGCLHelperTest {
     void testStringParsing() {
         List<Change> changeset = null;
         try {
-            changeset = KGCLHelper.parse("obsolete pizza:LaReine", ontology);
+            changeset = KGCLHelper.parse("obsolete pizza:LaReine", prefixManager);
         } catch ( IOException e ) {
             Assertions.fail(e);
         }
@@ -67,7 +70,7 @@ public class KGCLHelperTest {
     void testStringParsingWithSyntaxError() {
         List<Change> changeset = null;
         try {
-            changeset = KGCLHelper.parse("not kgcl", ontology);
+            changeset = KGCLHelper.parse("not kgcl", prefixManager);
         } catch ( IOException e ) {
             Assertions.fail(e);
         }
@@ -80,7 +83,7 @@ public class KGCLHelperTest {
         ArrayList<KGCLSyntaxError> errors = new ArrayList<KGCLSyntaxError>();
         List<Change> changeset = null;
         try {
-            changeset = KGCLHelper.parse("not kgcl", ontology, errors);
+            changeset = KGCLHelper.parse("not kgcl", prefixManager, errors);
         } catch ( IOException e ) {
             Assertions.fail(e);
         }

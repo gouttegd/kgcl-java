@@ -39,8 +39,11 @@ import org.obolibrary.robot.Command;
 import org.obolibrary.robot.CommandLineHelper;
 import org.obolibrary.robot.CommandState;
 import org.obolibrary.robot.IOHelper;
+import org.semanticweb.owlapi.model.OWLDocumentFormat;
 import org.semanticweb.owlapi.model.OWLOntology;
+import org.semanticweb.owlapi.model.PrefixManager;
 import org.semanticweb.owlapi.reasoner.OWLReasoner;
+import org.semanticweb.owlapi.util.DefaultPrefixManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -109,18 +112,26 @@ public class ApplyCommand implements Command {
         }
         IOHelper ioHelper = CommandLineHelper.getIOHelper(line);
         state = CommandLineHelper.updateInputOntology(ioHelper, state, line);
+        OWLOntology ontology = state.getOntology();
+
+        PrefixManager prefixManager = new DefaultPrefixManager();
+        prefixManager.copyPrefixesFrom(ioHelper.getPrefixManager());
+        OWLDocumentFormat ontologyFormat = ontology.getOWLOntologyManager().getOntologyFormat(ontology);
+        if ( ontologyFormat.isPrefixOWLOntologyFormat() ) {
+            prefixManager.copyPrefixesFrom(ontologyFormat.asPrefixOWLOntologyFormat());
+        }
 
         List<Change> changeset = new ArrayList<Change>();
         List<KGCLSyntaxError> errors = new ArrayList<KGCLSyntaxError>();
         if ( line.hasOption('k') ) {
             for ( String kgcl : line.getOptionValues('k') ) {
-                changeset.addAll(KGCLHelper.parse(kgcl, state.getOntology(), errors));
+                changeset.addAll(KGCLHelper.parse(kgcl, prefixManager, errors));
             }
         }
         if ( line.hasOption('K') ) {
             for ( String kgclFile : line.getOptionValues('K') ) {
                 File f = new File(kgclFile);
-                changeset.addAll(KGCLHelper.parse(f, state.getOntology(), errors));
+                changeset.addAll(KGCLHelper.parse(f, prefixManager, errors));
             }
         }
 
@@ -131,7 +142,6 @@ public class ApplyCommand implements Command {
             throw new Exception("Invalid KGCL input, aborting");
         }
 
-        OWLOntology ontology = state.getOntology();
         OWLReasoner reasoner = CommandLineHelper.getReasonerFactory(line).createReasoner(ontology);
 
         if ( line.hasOption('P') ) {
@@ -165,7 +175,7 @@ public class ApplyCommand implements Command {
             if ( !rejects.isEmpty() ) {
                 KGCLWriter writer = getRejectedWriter(line);
                 if ( writer != null ) {
-                    writer.setPrefixManager(state.getOntology());
+                    writer.setPrefixManager(prefixManager);
                 }
                 for ( RejectedChange rc : rejects ) {
                     logger.error(String.format("KGCL apply error: %s", rc.getReason()));

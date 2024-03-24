@@ -175,9 +175,9 @@ class KGCLReaderTest {
     }
 
     @Test
-    void testUnknownPrefixIsOBOStyleID() {
+    void testUnknownPrefixIsLeftAlone() {
         NodeObsoletion change = new NodeObsoletion();
-        change.setAboutNode(util.getForeignNode("http://purl.obolibrary.org/obo/PFX_0001"));
+        change.setAboutNode(util.getForeignNode("PFX:0001"));
 
         testParse("obsolete PFX:0001", change);
 
