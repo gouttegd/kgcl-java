@@ -89,7 +89,9 @@ public class AutoIDAllocator extends ChangeVisitorBase<Void> {
     private String getAutoID(String id) {
         String autoID = idMap.get(id);
         if ( autoID == null ) {
-            autoID = idGenerator.nextID();
+            if ( idGenerator != null ) {
+                autoID = idGenerator.nextID();
+            }
             if ( autoID == null ) {
                 unallocatedIDs.add(id);
                 autoID = id;
