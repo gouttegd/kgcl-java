@@ -19,6 +19,7 @@
 package org.incenp.obofoundry.kgcl.robot;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -30,6 +31,10 @@ import java.util.UUID;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
+import org.incenp.obofoundry.idrange.IDRange;
+import org.incenp.obofoundry.idrange.IDRangePolicyException;
+import org.incenp.obofoundry.idrange.IDRangePolicyParser;
+import org.incenp.obofoundry.idrange.IIDRangePolicy;
 import org.incenp.obofoundry.kgcl.AutoIDAllocator;
 import org.incenp.obofoundry.kgcl.IAutoIDGenerator;
 import org.incenp.obofoundry.kgcl.KGCLHelper;
@@ -80,6 +85,8 @@ public class ApplyCommand implements Command {
         options.addOption(null, "auto-id-width", true, "Width of automatically assigned IDs");
         options.addOption(null, "auto-id-prefix", true, "Prefix for automatically assigned IDs");
         options.addOption(null, "auto-id-temp-prefix", true, "Generate random temporary IDs in the specified prefix");
+        options.addOption(null, "auto-id-range-file", true, "Assign IDs from the specified ID range file");
+        options.addOption(null, "auto-id-range-name", true, "Use the specified ID range name");
     }
 
     @Override
@@ -181,12 +188,9 @@ public class ApplyCommand implements Command {
         }
 
         if ( changeset.size() > 0 ) {
-            IAutoIDGenerator idGenerator = getAutoIDGenerator(line, ontology);
-            if ( idGenerator != null ) {
-                AutoIDAllocator idAllocator = new AutoIDAllocator(idGenerator);
-                if ( !idAllocator.reallocate(changeset) ) {
-                    throw new Exception("Cannot generate automatic IDs");
-                }
+            AutoIDAllocator idAllocator = new AutoIDAllocator(getAutoIDGenerator(line, ontology));
+            if ( !idAllocator.reallocate(changeset) ) {
+                throw new Exception("Cannot generate automatic IDs");
             }
 
             List<RejectedChange> rejects = new ArrayList<RejectedChange>();
@@ -242,7 +246,72 @@ public class ApplyCommand implements Command {
         } else if ( line.hasOption("auto-id-temp-prefix") ) {
             String prefix = line.getOptionValue("auto-id-temp-prefix");
             return () -> prefix + UUID.randomUUID().toString();
+        } else if ( line.hasOption("auto-id-range-file") ) {
+            return getAutoIDGenerator(line, ontology, line.getOptionValue("auto-id-range-file"), false);
+        } else {
+            String rangeFile = findIDRangeFile();
+            if ( rangeFile != null ) {
+                return getAutoIDGenerator(line, ontology, rangeFile, true);
+            }
         }
+        return null;
+    }
+
+    private IAutoIDGenerator getAutoIDGenerator(CommandLine line, OWLOntology ontology, String rangeFile,
+            boolean silent) throws Exception {
+        IDRangePolicyParser parser = new IDRangePolicyParser(rangeFile);
+        try {
+            IIDRangePolicy policy = parser.parse();
+            IDRange range = null;
+            if ( line.hasOption("auto-id-range-name") ) {
+                range = policy.getRange(line.getOptionValue("auto-id-range-name"));
+                if ( range == null ) {
+                    throw new Exception("Requested range not found in ID range file");
+                }
+            }
+
+            if ( range == null ) {
+                range = policy.getRange("kgcl");
+            }
+            if ( range == null ) {
+                range = policy.getRange("KGCL");
+            }
+            if ( range == null ) {
+                range = policy.getRange("ontobot");
+            }
+            if ( range == null ) {
+                range = policy.getRange("Ontobot");
+            }
+
+            if ( range != null ) {
+                String format = String.format("%s%%0%dd", policy.getPrefix(), policy.getWidth());
+                return new SimpleIDGenerator(ontology, format, range.getLowerBound(), range.getUpperBound());
+            } else if ( !silent ) {
+                throw new Exception("No range specified and no default range found in ID range file");
+            }
+        } catch ( IDRangePolicyException e ) {
+            if ( !silent ) {
+                throw new Exception("Cannot parse ID range policy file");
+            }
+        }
+
+        return null;
+    }
+
+    private String findIDRangeFile() {
+        FilenameFilter idRangeFilter = new FilenameFilter() {
+            @Override
+            public boolean accept(File file, String name) {
+                return name.endsWith("-idranges.owl");
+            }
+        };
+
+        File currentDir = new File(".");
+        String[] rangeFiles = currentDir.list(idRangeFilter);
+        if ( rangeFiles.length == 1 ) {
+            return rangeFiles[0];
+        }
+
         return null;
     }
 }
