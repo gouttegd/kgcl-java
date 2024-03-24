@@ -26,13 +26,17 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
+import org.incenp.obofoundry.kgcl.AutoIDAllocator;
+import org.incenp.obofoundry.kgcl.IAutoIDGenerator;
 import org.incenp.obofoundry.kgcl.KGCLHelper;
 import org.incenp.obofoundry.kgcl.KGCLSyntaxError;
 import org.incenp.obofoundry.kgcl.KGCLWriter;
 import org.incenp.obofoundry.kgcl.RejectedChange;
+import org.incenp.obofoundry.kgcl.SimpleIDGenerator;
 import org.incenp.obofoundry.kgcl.model.Change;
 import org.incenp.obofoundry.kgcl.model.NodeChange;
 import org.obolibrary.robot.Command;
@@ -69,6 +73,13 @@ public class ApplyCommand implements Command {
         options.addOption("p", "provisional", false, "Apply changes in a provisional manner");
         options.addOption("P", "pending", true, "Apply pending (provisional) changes older than the specified date");
         options.addOption("l", "default-new-language", true, "Use the specified new language tag by default");
+
+        // Auto-ID options
+        options.addOption(null, "auto-id-min", true, "Lower range value for automatically assigned IDs");
+        options.addOption(null, "auto-id-max", true, "Upper range value for automatically assigned IDs");
+        options.addOption(null, "auto-id-width", true, "Width of automatically assigned IDs");
+        options.addOption(null, "auto-id-prefix", true, "Prefix for automatically assigned IDs");
+        options.addOption(null, "auto-id-temp-prefix", true, "Generate random temporary IDs in the specified prefix");
     }
 
     @Override
@@ -115,6 +126,7 @@ public class ApplyCommand implements Command {
         OWLOntology ontology = state.getOntology();
 
         PrefixManager prefixManager = new DefaultPrefixManager();
+        prefixManager.setPrefix("AUTOID:", AutoIDAllocator.AUTOID_BASE_IRI);
         prefixManager.copyPrefixesFrom(ioHelper.getPrefixManager());
         OWLDocumentFormat ontologyFormat = ontology.getOWLOntologyManager().getOntologyFormat(ontology);
         if ( ontologyFormat.isPrefixOWLOntologyFormat() ) {
@@ -169,6 +181,14 @@ public class ApplyCommand implements Command {
         }
 
         if ( changeset.size() > 0 ) {
+            IAutoIDGenerator idGenerator = getAutoIDGenerator(line, ontology);
+            if ( idGenerator != null ) {
+                AutoIDAllocator idAllocator = new AutoIDAllocator(idGenerator);
+                if ( !idAllocator.reallocate(changeset) ) {
+                    throw new Exception("Cannot generate automatic IDs");
+                }
+            }
+
             List<RejectedChange> rejects = new ArrayList<RejectedChange>();
             KGCLHelper.apply(changeset, ontology, reasoner, line.hasOption("no-partial-apply"), rejects,
                     line.hasOption('p'));
@@ -207,4 +227,22 @@ public class ApplyCommand implements Command {
         }
     }
 
+    private IAutoIDGenerator getAutoIDGenerator(CommandLine line, OWLOntology ontology)
+            throws Exception {
+        if ( line.hasOption("audo-id-prefix") ) {
+            if ( !line.hasOption("auto-id-min") ) {
+                throw new Exception("Missing --auto-id-min option for auto-assigned IDs");
+            }
+            int lower = Integer.parseInt(line.getOptionValue("auto-id-min"));
+            int upper = line.hasOption("auto-id-max") ? Integer.parseInt(line.getOptionValue("auto-id-max"))
+                    : lower + 1000;
+            int width = line.hasOption("auto-id-width") ? Integer.parseInt(line.getOptionValue("auto-id-width")) : 7;
+            String format = String.format("%s%%0%dd", line.getOptionValue("auto-id-prefix"), width);
+            return new SimpleIDGenerator(ontology, format, lower, upper);
+        } else if ( line.hasOption("auto-id-temp-prefix") ) {
+            String prefix = line.getOptionValue("auto-id-temp-prefix");
+            return () -> prefix + UUID.randomUUID().toString();
+        }
+        return null;
+    }
 }
