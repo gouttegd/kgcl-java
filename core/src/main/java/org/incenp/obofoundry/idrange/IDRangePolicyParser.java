@@ -110,11 +110,14 @@ public class IDRangePolicyParser {
 
             for ( OWLDatatypeDefinitionAxiom ax : ont.getDatatypeDefinitions(datatype) ) {
                 IDRange range = ax.getDataRange().accept(visitor);
-                if ( range == null ) {
-                    throw new IDRangePolicyException("Invalid range definition");
+                if ( range != null ) {
+                    policy.ranges.put(name, range);
                 }
-                policy.ranges.put(name, range);
             }
+        }
+
+        if ( policy.ranges.isEmpty() ) {
+            throw new IDRangePolicyException("No correct ranges found in ID range policy");
         }
 
         return policy;
