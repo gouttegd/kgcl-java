@@ -28,7 +28,7 @@ import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 
-public class SimpleIDGeneratorTest {
+public class SequentialIDGeneratorTest {
 
     private OWLOntology ontology;
 
@@ -45,29 +45,58 @@ public class SimpleIDGeneratorTest {
 
     @Test
     void testGenerateIDWithinRange() {
-        IAutoIDGenerator gen = new SimpleIDGenerator(ontology, "https://example.org/%07d", 1000, 2000);
+        IAutoIDGenerator gen = new SequentialIDGenerator(ontology, "https://example.org/%07d", 1000, 2000);
 
         for ( int i = 0; i < 10; i++ ) {
             String id = gen.nextID();
-            Assertions.assertTrue(id.startsWith("https://example.org/0001"));
+            Assertions.assertEquals(String.format("https://example.org/%07d", 1000 + i), id);
         }
     }
 
     @Test
     void testAvoidUsedLowerIDs() {
         OWLDataFactory factory = ontology.getOWLOntologyManager().getOWLDataFactory();
-        for (int i = 1000 ; i < 1100; i++ ) {
+        for ( int i = 1000; i < 1100; i++ ) {
             String id = String.format("https://example.org/%07d", i);
             ontology.getOWLOntologyManager().addAxiom(ontology,
                     factory.getOWLDeclarationAxiom(factory.getOWLClass(IRI.create(id))));
         }
 
-        IAutoIDGenerator gen = new SimpleIDGenerator(ontology, "https://example.org/%07d", 1000, 2000);
+        IAutoIDGenerator gen = new SequentialIDGenerator(ontology, "https://example.org/%07d", 1000, 2000);
 
         for ( int i = 0; i < 10; i++ ) {
             String id = gen.nextID();
-            Assertions.assertTrue(id.startsWith("https://example.org/0001"));
-            Assertions.assertFalse(id.startsWith("https://example/org/00010"));
+            Assertions.assertEquals(String.format("https://example.org/%07d", 1100 + i), id);
         }
     }
+
+    @Test
+    void testAvoidUsingMidRangeIDs() {
+        OWLDataFactory factory = ontology.getOWLOntologyManager().getOWLDataFactory();
+        ontology.getOWLOntologyManager().addAxiom(ontology,
+                factory.getOWLDeclarationAxiom(factory.getOWLClass(IRI.create("https://example.org/0001005"))));
+
+        IAutoIDGenerator gen = new SequentialIDGenerator(ontology, "https://example.org/%07d", 1000, 2000);
+
+        for ( int i = 0; i < 10; i++ ) {
+            String id = gen.nextID();
+            int expected = i < 5 ? i : i + 1;
+            Assertions.assertEquals(String.format("https://example.org/%07d", 1000 + expected), id);
+        }
+    }
+
+    @Test
+    void testFailUponHittingUpperBound() {
+        IAutoIDGenerator gen = new SequentialIDGenerator(ontology, "https://example.org/%07d", 1000, 1005);
+
+        for ( int i = 0; i < 10; i++ ) {
+            String id = gen.nextID();
+            if ( i < 5 ) {
+                Assertions.assertEquals(String.format("https://example.org/%07d", 1000 + i), id);
+            } else {
+                Assertions.assertNull(id);
+            }
+        }
+    }
+
 }

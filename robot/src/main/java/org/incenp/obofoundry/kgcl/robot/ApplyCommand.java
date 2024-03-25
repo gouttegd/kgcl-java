@@ -40,8 +40,8 @@ import org.incenp.obofoundry.kgcl.IAutoIDGenerator;
 import org.incenp.obofoundry.kgcl.KGCLHelper;
 import org.incenp.obofoundry.kgcl.KGCLSyntaxError;
 import org.incenp.obofoundry.kgcl.KGCLWriter;
+import org.incenp.obofoundry.kgcl.RandomizedIDGenerator;
 import org.incenp.obofoundry.kgcl.RejectedChange;
-import org.incenp.obofoundry.kgcl.SimpleIDGenerator;
 import org.incenp.obofoundry.kgcl.model.Change;
 import org.incenp.obofoundry.kgcl.model.NodeChange;
 import org.obolibrary.robot.Command;
@@ -242,7 +242,7 @@ public class ApplyCommand implements Command {
                     : lower + 1000;
             int width = line.hasOption("auto-id-width") ? Integer.parseInt(line.getOptionValue("auto-id-width")) : 7;
             String format = String.format("%s%%0%dd", line.getOptionValue("auto-id-prefix"), width);
-            return new SimpleIDGenerator(ontology, format, lower, upper);
+            return new RandomizedIDGenerator(ontology, format, lower, upper);
         } else if ( line.hasOption("auto-id-temp-prefix") ) {
             String prefix = line.getOptionValue("auto-id-temp-prefix");
             return () -> prefix + UUID.randomUUID().toString();
@@ -285,7 +285,7 @@ public class ApplyCommand implements Command {
 
             if ( range != null ) {
                 String format = String.format("%s%%0%dd", policy.getPrefix(), policy.getWidth());
-                return new SimpleIDGenerator(ontology, format, range.getLowerBound(), range.getUpperBound());
+                return new RandomizedIDGenerator(ontology, format, range.getLowerBound(), range.getUpperBound());
             } else if ( !silent ) {
                 throw new Exception("No range specified and no default range found in ID range file");
             }

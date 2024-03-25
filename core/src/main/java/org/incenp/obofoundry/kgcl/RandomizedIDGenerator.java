@@ -25,9 +25,11 @@ import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLOntology;
 
 /**
- * Generates numerical IDs within a given range.
+ * Generates numerical IDs within a given a range. This class is similar to
+ * {@link SequentialIDGenerator} except that numerical IDs are chosen randomly
+ * within the target range, instead of being chosen sequentially.
  */
-public class SimpleIDGenerator implements IAutoIDGenerator {
+public class RandomizedIDGenerator implements IAutoIDGenerator {
 
     private OWLOntology ontology;
     private String format;
@@ -42,21 +44,20 @@ public class SimpleIDGenerator implements IAutoIDGenerator {
      * @param ontology The ontology to generate IDs for. Its contents will be
      *                 checked to ensure the generated IDs do not clash with
      *                 existing entities.
-     * @param format   The String used to format the newly generated IDs. It must
-     *                 contain a C-style format specifier indicating where the
-     *                 numerical portion of the ID should appear and in which
-     *                 format.
-     * @param min      The lower bound for newly generated IDs.
-     * @param max      The upper bound for newly generated IDs.
+     * @param format   The format of newly generated IDs. It must contain a C-style
+     *                 format specified indicating where the numerical portion of
+     *                 the ID should appear and in which format.
+     * @param min      The lower bound (inclusive) for newly generated IDs.
+     * @param max      The upper bound (exclusive) for newly generated IDs.
      */
-    public SimpleIDGenerator(OWLOntology ontology, String format, int min, int max) {
+    public RandomizedIDGenerator(OWLOntology ontology, String format, int min, int max) {
         this.ontology = ontology;
         this.format = format;
 
         boolean found = false;
         do {
             String test = String.format(format, min);
-            if ( !exists(test) ) {
+            if ( !exists(test, false) ) {
                 found = true;
             } else {
                 min += 1;
@@ -74,26 +75,22 @@ public class SimpleIDGenerator implements IAutoIDGenerator {
         String id = null;
         do {
             i += rand.nextInt(100);
-            id = String.format(format, i);
-            found = !exists(id);
+            id = String.format(format,i);
+            found = !exists(id, true);
         } while ( i < upperBound && !found );
 
-        if ( found ) {
-            testedIDs.add(id);
-        }
-
-        return id;
+        return found ? id : null;
     }
 
-    private boolean exists(String id) {
-        if ( testedIDs.contains(id) ) {
+    private boolean exists(String id, boolean add) {
+        if (testedIDs.contains(id)) {
             return true;
         } else if ( ontology.containsEntityInSignature(IRI.create(id)) ) {
             testedIDs.add(id);
             return true;
-        } else {
-            return false;
+        } else if (add) {
+            testedIDs.add(id);
         }
+        return false;
     }
-
 }
