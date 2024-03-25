@@ -19,7 +19,6 @@
 package org.incenp.obofoundry.kgcl.robot;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -31,10 +30,6 @@ import java.util.UUID;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
-import org.incenp.obofoundry.idrange.IDRange;
-import org.incenp.obofoundry.idrange.IDRangePolicyException;
-import org.incenp.obofoundry.idrange.IDRangePolicyParser;
-import org.incenp.obofoundry.idrange.IIDRangePolicy;
 import org.incenp.obofoundry.kgcl.AutoIDAllocator;
 import org.incenp.obofoundry.kgcl.IAutoIDGenerator;
 import org.incenp.obofoundry.kgcl.KGCLHelper;
@@ -231,9 +226,14 @@ public class ApplyCommand implements Command {
         }
     }
 
-    private IAutoIDGenerator getAutoIDGenerator(CommandLine line, OWLOntology ontology)
-            throws Exception {
-        if ( line.hasOption("audo-id-prefix") ) {
+    private IAutoIDGenerator getAutoIDGenerator(CommandLine line, OWLOntology ontology) throws Exception {
+        IAutoIDGenerator generator = null;
+
+        if ( line.hasOption("auto-id-prefix") ) {
+            /*
+             * Manual mode; generate IDs in a range that is explicitly specified on the
+             * command line.
+             */
             if ( !line.hasOption("auto-id-min") ) {
                 throw new Exception("Missing --auto-id-min option for auto-assigned IDs");
             }
@@ -242,76 +242,26 @@ public class ApplyCommand implements Command {
                     : lower + 1000;
             int width = line.hasOption("auto-id-width") ? Integer.parseInt(line.getOptionValue("auto-id-width")) : 7;
             String format = String.format("%s%%0%dd", line.getOptionValue("auto-id-prefix"), width);
-            return new RandomizedIDGenerator(ontology, format, lower, upper);
+            generator = new RandomizedIDGenerator(ontology, format, lower, upper);
         } else if ( line.hasOption("auto-id-temp-prefix") ) {
+            /*
+             * Temporary ID mode; generate temporary IDs that should later be replaced by
+             * permanent IDs.
+             */
             String prefix = line.getOptionValue("auto-id-temp-prefix");
-            return () -> prefix + UUID.randomUUID().toString();
-        } else if ( line.hasOption("auto-id-range-file") ) {
-            return getAutoIDGenerator(line, ontology, line.getOptionValue("auto-id-range-file"), false);
+            generator = () -> prefix + UUID.randomUUID().toString();
         } else {
-            String rangeFile = findIDRangeFile();
-            if ( rangeFile != null ) {
-                return getAutoIDGenerator(line, ontology, rangeFile, true);
-            }
-        }
-        return null;
-    }
+            /*
+             * Range-file mode; similar to manual mode, but the range is obtained from a
+             * file of ID ranges.
+             */
+            String rangeFile = line.getOptionValue("auto-id-range-file");
+            String requestedName = line.getOptionValue("auto-id-range-name");
+            String[] defaultNames = new String[] { "kgcl", "KGCL", "ontobot", "Ontobot" };
 
-    private IAutoIDGenerator getAutoIDGenerator(CommandLine line, OWLOntology ontology, String rangeFile,
-            boolean silent) throws Exception {
-        IDRangePolicyParser parser = new IDRangePolicyParser(rangeFile);
-        try {
-            IIDRangePolicy policy = parser.parse();
-            IDRange range = null;
-            if ( line.hasOption("auto-id-range-name") ) {
-                range = policy.getRange(line.getOptionValue("auto-id-range-name"));
-                if ( range == null ) {
-                    throw new Exception("Requested range not found in ID range file");
-                }
-            }
-
-            if ( range == null ) {
-                range = policy.getRange("kgcl");
-            }
-            if ( range == null ) {
-                range = policy.getRange("KGCL");
-            }
-            if ( range == null ) {
-                range = policy.getRange("ontobot");
-            }
-            if ( range == null ) {
-                range = policy.getRange("Ontobot");
-            }
-
-            if ( range != null ) {
-                String format = String.format("%s%%0%dd", policy.getPrefix(), policy.getWidth());
-                return new RandomizedIDGenerator(ontology, format, range.getLowerBound(), range.getUpperBound());
-            } else if ( !silent ) {
-                throw new Exception("No range specified and no default range found in ID range file");
-            }
-        } catch ( IDRangePolicyException e ) {
-            if ( !silent ) {
-                throw new Exception("Cannot parse ID range policy file");
-            }
+            generator = IDRangeHelper.maybeGetIDGenerator(ontology, rangeFile, requestedName, defaultNames, true);
         }
 
-        return null;
-    }
-
-    private String findIDRangeFile() {
-        FilenameFilter idRangeFilter = new FilenameFilter() {
-            @Override
-            public boolean accept(File file, String name) {
-                return name.endsWith("-idranges.owl");
-            }
-        };
-
-        File currentDir = new File(".");
-        String[] rangeFiles = currentDir.list(idRangeFilter);
-        if ( rangeFiles.length == 1 ) {
-            return rangeFiles[0];
-        }
-
-        return null;
+        return generator;
     }
 }
