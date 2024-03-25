@@ -85,6 +85,7 @@ public class StandaloneRobot {
         m.addCommand("verify", new VerifyCommand());
 
         m.addCommand("kgcl-apply", new ApplyCommand());
+        m.addCommand("kgcl-mint", new MintCommand());
 
         new PluginManager().addPluggableCommands(m);
 
