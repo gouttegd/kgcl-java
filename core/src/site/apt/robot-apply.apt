@@ -1,0 +1,158 @@
+ROBOT apply command
+
+  The <<<apply>>> command provided by the KGCL plugin allows injecting
+  KGCL-specified changes into an ontology as part of a ROBOT pipeline.
+
+* Usage
+
+  The <<<apply>>> command takes a single KGCL instruction specified with
+  the <<<-k>>> (or <<<--kgcl>>>) option, or a KGCL file (with one
+  instruction per line) specified with the <<<-K>>> (or
+  <<<--kgcl-file>>>) option. Both options can be used repeatedly, to
+  specify more than one change (with <<<-k>>>) or changes from more than
+  one file (with <<<-K>>>). It applies the change(s) to the current
+  ontology loaded in ROBOT.
+  
+  For example, the following command will apply the changes described in
+  the <<<changes.kgcl>>> file to the ontology read from <<<input.ofn>>>,
+  and save the modified ontology in <<<output.ofn>>>:
+  
++-------------------------------------------------------
+$ robot apply -i input.ofn -K changes.kgcl -o output.ofn
++-------------------------------------------------------
+
+  To apply a single change directly from the command line instead:
+  
++----------------------------------------------------------------------------
+$ robot apply -i input.ofn -k "create class EX:999 'new class'" -o output.ofn
++----------------------------------------------------------------------------
+
+  As for any other ROBOT command, the <<<-i>>> and <<<-o>>> options may
+  be omitted if the <<<apply>>> command is not the first or last command
+  of the pipeline:
+  
++--------------------------------------------------------------------
+$ robot merge -i input1.ofn -i input2.ofn \
+        apply -K changes.kgcl \
+        annotate --ontology-iri http://example.org/test -o output.ofn
++--------------------------------------------------------------------
+
+  If some changes cannot be applied because they don’t match the
+  contents of the ontology (for example, a change that tries to add a
+  label to a class that does not exist), they will be written back to a
+  file with the same name as the original KGCL file (the first KGCL
+  file, if more than one has been specified), with a <<<.rej>>>
+  extension appended. Use the <<<--reject-file>>> to specify the name of
+  another file where to write the rejected changes, or
+  <<<-no-reject-file>>> to disable writing back rejected changes.
+  
+  The other changes (those that <can> be applied) will be applied
+  normally, unless the <<<--no-partial-apply>>> option is used – in
+  which case the command will refuse to apply any changes at all unless
+  they can all be applied.
+  
+  Some changes require the use of a reasoner to check if they can be
+  applied. As for other ROBOT commands that need a reasoner, the
+  reasoner to use can be specified with the <<<--reasoner>>> (or
+  <<<-r>>>) option. The default reasoner is <ELK>.
+  
+  If the <<<--default-new-language>>> option is specified, any
+  NodeChange operation that does not have an explicit language tag will
+  use the specified default new language tag.
+  
+* Automatically assigned IDs for new entities
+
+  All KGCL operations require that you know the identifiers of the
+  affected entities. When <creating> a new entity, this can be
+  annoying as it means you need to figure out the identifier of the
+  entity to be created.
+  
+  To avoid this, you can get the <<<apply>>> command to automatically
+  assign identifiers to newly created entities, by referencing them with
+  pseudo-identifiers in the <<<AUTOID:>>> namespace. For example, you
+  can do the following:
+  
++----------------------------------------------------------
+create AUTOID:1 "my new class"
+add definition "the definition of my new class" to AUTOID:1
+create edge AUTOID:1 rdfs:subClassOf EX:1234
++----------------------------------------------------------
+
+  to create a new class, give it a label and definition, and make it a
+  subclass of the (supposedly existing) EX:1234 class, without having to
+  know in advance what the identifier of the new class should be.
+  
+  Automatic identifiers can be assigned using three different modes,
+  described below.
+  
+** Manual range mode
+
+  In this mode, the command will generate identifiers of the form
+  <prefix><num>, where <prefix> is a user-specified IRI prefix and <num>
+  is a numerical identifier randomly picked within a given range.
+  
+  This mode is controlled by the following options:
+  
+  [--auto-id-prefix <prefix>] Indicates the IRI prefix to use.
+  
+  [--auto-id-min-id <num>] Indicates the lower bound (inclusive) of the
+                           range in which the numerical part of the
+                           identifiers should be picked.
+
+  [--auto-id-max-id <num>] Indicates the upper bound (exclusive) of the
+                           range. If this option is not specified, the
+                           default value is the value of
+                           <<<--auto-id-min-id>>> + 1000.
+
+  [--auto-id-width <num>] Indicates the number of digits in the
+                          numerical part of the identifiers to generate.
+                          Defaults to 7.
+
+  []
+
+  When generating a new identifier, existing identifiers in the ontology
+  are always checked to avoid inadvertently creating an identifier that
+  is already in use.
+
+** Range-file based mode
+
+  This mode is similar to the “manual range mode“ above, except that the
+  details about the range are provided by a <ID range file>, such as
+  those automatically generated by the
+  {{{https://github.com/INCATools/ontology-development-kit}Ontology
+  Development Kit}} and also used by the
+  {{{http://protege.stanford.edu/}Protégé editor}}.
+  
+  If your ontology uses such an ID range file, you can instruct the
+  <<<apply>>> command to use one of the ranges it defines with the
+  following two options:
+  
+  [--auto-id-range-file <file>] Indicates the name of the ID range file.
+  
+  [--auto-id-range-name <name>] Indicates the name of the range to use.
+                                This should match the value of the
+                                <<<allocatedto>>> annotation of one of
+                                the ranges defined in the file.
+
+  []
+
+  If a range name is not explicitly specified, the <<<apply>>> command
+  will by default look for a range allocated to <<<kgcl>>>, <<<KGCL>>>,
+  <<<ontobot>>>, and <<<Ontobot>>>, in that order.
+  
+  If a file with a name that ends with <<<-idranges.owl>>> exists in the
+  current working directory, and no other mode has been explicitly
+  selected (with the <<<---auto-id-prefix>>> or
+  <<<--auto-id-temp-prefix>>> options), the <<<kgcl>>> command will try
+  to automatically use that file.
+  
+** Temporary mode
+
+  In this mode, the command will generate identifiers of the form
+  <prefix><uuid>, where <prefix> is a user-specified IRI prefix and
+  <uuid> is a randomly generated unique identifier.
+  
+  This mode is enabled by a single option:
+  
+  [--auto-id-temp-prefix <prefix>] Indicates the IRI prefix of the
+                                   temporary identifiers to generate.

@@ -1,13 +1,12 @@
 ROBOT command
 
-  KGCL-Java provides a {{{http://robot.obolibrary.org/}ROBOT}} command
-  <<<apply>>> that is intended to allow the injection of KGCL-specified
-  changes as part of a ROBOT pipeline.
+  KGCL-Java provides {{{http://robot.obolibrary.org/}ROBOT}} commands to
+  use KGCL within a ROBOT pipeline.
   
-* Enabling the KGCL command in ROBOT
+* Enabling the KGCL commands in ROBOT
 
   ROBOT 1.9.5 has built-in support for pluggable commands. To enable the
-  <<<apply>>> command provided by this project in ROBOT, place the
+  commands provided by this project in ROBOT, place the
   <<<kgcl-robot-plugin-X.Y.Z.jar>>> file in a directory where ROBOT
   searches for plugins:
   
@@ -22,9 +21,9 @@ ROBOT command
   []
   
   It is recommended to rename the archive file to a simple, mono-word
-  name, such as <<<kgcl.jar>>>. The command provided by the plugins
+  name, such as <<<kgcl.jar>>>. The commands provided by the plugins
   will then be available from the command line under the name
-  <<<kgcl:apply>>>.
+  <<<kgcl:COMMAND_NAME>>>, such as <<<kgcl:apply>>>.
   
   If for some reasons the use of a plugin is not possible or not wanted,
   building KGCL-Java with the standard Maven goal <<<package>>> will
@@ -32,60 +31,16 @@ ROBOT command
   That file will contain a full distribution of the latest version of
   ROBOT (1.9.5) in which the commands below will be available as
   built-in comands (in addition to all the standard commands).
+  
+  Note that in the standalone version, the commands are prefixed with a
+  <<<kgcl->>> prefix for clarity (e.g. <<<kgcl-apply>>>).
+  
+* Available commands
 
-* Usage
-
-  The <<<apply>>> command takes a single KGCL instruction specified with
-  the <<<-k>>> (or <<<--kgcl>>>) option, or a KGCL file (with one
-  instruction per line) specified with the <<<-K>>> (or
-  <<<--kgcl-file>>>) option. Both options can be used repeatedly, to
-  specify more than one change (with <<<-k>>>) or changes from more than
-  one file (with <<<-K>>>). It applies the change(s) to the current
-  ontology loaded in ROBOT.
+  Currently, this project provides two commands:
   
-  For example, the following command will apply the changes described in
-  the <<<changes.kgcl>>> file to the ontology read from <<<input.ofn>>>,
-  and save the modified ontology in <<<output.ofn>>>:
-  
-+-------------------------------------------------------
-$ robot apply -i input.ofn -K changes.kgcl -o output.ofn
-+-------------------------------------------------------
-
-  To apply a single change directly from the command line instead:
-  
-+----------------------------------------------------------------------------
-$ robot apply -i input.ofn -k "create class EX:999 'new class'" -o output.ofn
-+----------------------------------------------------------------------------
-
-  As for any other ROBOT command, the <<<-i>>> and <<<-o>>> options may
-  be omitted if the <<<apply>>> command is not the first or last command
-  of the pipeline:
-  
-+--------------------------------------------------------------------
-$ robot merge -i input1.ofn -i input2.ofn \
-        apply -K changes.kgcl \
-        annotate --ontology-iri http://example.org/test -o output.ofn
-+--------------------------------------------------------------------
-
-  If some changes cannot be applied because they don’t match the
-  contents of the ontology (for example, a change that tries to add a
-  label to a class that does not exist), they will be written back to a
-  file with the same name as the original KGCL file (the first KGCL
-  file, if more than one has been specified), with a <<<.rej>>>
-  extension appended. Use the <<<--reject-file>>> to specify the name of
-  another file where to write the rejected changes, or
-  <<<-no-reject-file>>> to disable writing back rejected changes. 
-  
-  The other changes (those that <can> be applied) will be applied
-  normally, unless the <<<--no-partial-apply>>> option is used – in
-  which case the command will refuse to apply any changes at all unless
-  they can all be applied.
-  
-  Some changes require the use of a reasoner to check if they can be
-  applied. As for other ROBOT commands that need a reasoner, the
-  reasoner to use can be specified with the <<<--reasoner>>> (or
-  <<<-r>>>) option. The default reasoner is <ELK>.
-  
-  If the <<<--default-new-language>>> option is specified, any
-  NodeChange operation that does not have an explicit language tag will
-  use the specified default new language tag.
+  * {{{./robot-apply.html}apply}} to inject KGCL-specified changes into
+    an ontology;
+    
+  * {{{./robot-mint.html}mint}} to replace temporary identifiers in an
+    ontology by newly minted permanent identifiers.

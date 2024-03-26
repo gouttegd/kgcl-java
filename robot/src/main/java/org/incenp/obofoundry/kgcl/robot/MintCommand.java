@@ -81,10 +81,8 @@ public class MintCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "robot mint --input <file> --temp-id-prefix <prefix> --keep-deprecated\n"
-                + "          --minted-from-property <property>] --minted-id-prefix <prefix>\n"
-                + "          --pad-width <integer> --min-id <integer> --max-id <integer>\n"
-                + "          --id-range-file <file> --id-range-name <name>\n";
+        return "robot mint -i <file> [--minted-id-prefix <prefix> --min-id <integer>|"
+                + "--id-range-file <file> --id-range-name <name>] -o <file>";
     }
 
     @Override

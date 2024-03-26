@@ -7,7 +7,10 @@
     <menu name="KGCL-Java">
       <item name="About" href="index.html" />
       <item name="Java library" href="library.html" />
-      <item name="ROBOT command" href="robot.html" />
+      <item name="ROBOT commands" href="robot.html">
+        <item name="apply" href="robot-apply.html" />
+        <item name="mint" href="robot-mint.html" />
+      </item>
       <item name="API Documentation" href="apidocs/index.html" />
     </menu>
     <menu ref="reports" />
