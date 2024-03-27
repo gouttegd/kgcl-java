@@ -22,13 +22,8 @@ import java.io.File;
 import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
-import org.geneontology.owl.differ.Differ;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.obolibrary.robot.CommandManager;
-import org.semanticweb.owlapi.apibinding.OWLManager;
-import org.semanticweb.owlapi.model.OWLOntology;
-import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 
 public class ApplyCommandTest {
 
@@ -120,65 +115,8 @@ public class ApplyCommandTest {
                 "create relation EX:0101 'object property 1'", "--kgcl", "create edge EX:0001 EX:0101 EX:0002");
     }
 
-    /*
-     * Try running a KGCL-Apply command and check that the output ontology matches
-     * what we expect.
-     * 
-     * inputFile: the input ontology (filename relative to
-     * {,../core}/src/test/resources). outputFile: expected output file (likewise);
-     * if null, ignore the output.
-     */
     private void runCommand(String inputFile, String outputFile, String... extra) {
-        File input = new File("/src/test/resources/" + inputFile);
-        if ( !input.exists() ) {
-            input = new File("../core/src/test/resources/" + inputFile);
-        }
-
-        File expectedOutput = null;
-        File actualOutput = null;
-        if ( outputFile != null ) {
-            expectedOutput = new File("src/test/resources/" + outputFile);
-            if ( !expectedOutput.exists() ) {
-                expectedOutput = new File("../core/src/test/resources/" + outputFile);
-            }
-            actualOutput = new File("src/test/resources/output-" + outputFile);
-        } else {
-            actualOutput = new File("dont-care.ofn");
-        }
-
-        String[] args = new String[1 + 2 + 2 + extra.length];
-        args[0] = "kgcl-apply";
-        args[1] = "--input";
-        args[2] = input.getPath();
-        args[3] = "--output";
-        args[4] = actualOutput.getPath();
-        for ( int i = 0; i < extra.length; i++ ) {
-            args[i + 5] = extra[i];
-        }
-
-        CommandManager robot = new CommandManager();
-        robot.addCommand("kgcl-apply", new ApplyCommand());
-        robot.main(args);
-
-        if ( outputFile != null ) {
-            compareOntologies(expectedOutput, actualOutput);
-        } else if ( actualOutput.exists() ) {
-            actualOutput.delete();
-        }
-    }
-
-    private void compareOntologies(File expected, File actual) {
-        try {
-            OWLOntology expectedOntology = OWLManager.createOWLOntologyManager().loadOntologyFromOntologyDocument(expected);
-            OWLOntology actualOntology = OWLManager.createOWLOntologyManager().loadOntologyFromOntologyDocument(actual);
-            Differ.BasicDiff diff = Differ.diff(expectedOntology, actualOntology);
-            Assertions.assertTrue(diff.isEmpty());
-            if ( diff.isEmpty() ) {
-                actual.delete();
-            }
-        } catch ( OWLOntologyCreationException e ) {
-            Assertions.fail(e);
-        }
+        TestUtils.runCommand("apply", inputFile, outputFile, extra);
     }
 
     private void checkOutput(String expectedFile, String actualFile) {

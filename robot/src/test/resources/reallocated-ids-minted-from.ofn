@@ -1,0 +1,28 @@
+Prefix(owl:=<http://www.w3.org/2002/07/owl#>)
+Prefix(rdf:=<http://www.w3.org/1999/02/22-rdf-syntax-ns#>)
+Prefix(xml:=<http://www.w3.org/XML/1998/namespace>)
+Prefix(xsd:=<http://www.w3.org/2001/XMLSchema#>)
+Prefix(rdfs:=<http://www.w3.org/2000/01/rdf-schema#>)
+
+
+Ontology(
+Declaration(Class(<https://example.org/0001>))
+Declaration(Class(<https://example.org/0501>))
+Declaration(AnnotationProperty(<https://example.org/properties#mintedFrom>))
+
+
+############################
+#   Classes
+############################
+
+# Class: <https://example.org/0001> (class 1)
+
+AnnotationAssertion(rdfs:label <https://example.org/0001> "class 1")
+
+# Class: <https://example.org/0501> (class 2)
+
+AnnotationAssertion(rdfs:label <https://example.org/0501> "class 2")
+AnnotationAssertion(<https://example.org/properties#mintedFrom> <https://example.org/0501> <http://purl.obolibrary.org/temp#00819d24-4175-43d4-8405-3a1be211a394>)
+
+
+)
