@@ -35,11 +35,11 @@ public class IDRangePolicyParserTest {
         IDRange alice = policy.getRange("Alice");
         Assertions.assertNotNull(alice);
         Assertions.assertEquals(1, alice.getLowerBound());
-        Assertions.assertEquals(500000, alice.getUpperBound());
+        Assertions.assertEquals(501, alice.getUpperBound());
 
         IDRange bob = policy.getRange("Bob");
         Assertions.assertNotNull("bob");
-        Assertions.assertEquals(500001, bob.getLowerBound());
-        Assertions.assertEquals(1000000, bob.getUpperBound());
+        Assertions.assertEquals(501, bob.getLowerBound());
+        Assertions.assertEquals(1000, bob.getUpperBound());
     }
 }

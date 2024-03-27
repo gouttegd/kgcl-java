@@ -102,7 +102,7 @@ public class IDRangeHelper {
         }
 
         if ( range == null ) {
-            throw new IDRangePolicyException("Not suitable range found in ID range file");
+            throw new IDRangePolicyException("No suitable range found in ID range file");
         }
 
         String format = String.format("%s%%0%dd", policy.getPrefix(), policy.getWidth());
