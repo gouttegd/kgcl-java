@@ -107,7 +107,10 @@ public class DirectOWLTranslator extends OWLTranslator {
 
     private final static IRI IN_SUBSET = IRI.create("http://www.geneontology.org/formats/oboInOwl#inSubset");
 
-    private Set<IRI> addedIRIs = new HashSet<IRI>();
+    private Set<IRI> addedClasses = new HashSet<IRI>();
+    private Set<IRI> addedObjectProperties = new HashSet<IRI>();
+    private Set<IRI> addedAnnotationProperties = new HashSet<IRI>();
+    private Set<IRI> addedIndividuals = new HashSet<IRI>();
     private Set<OWLAxiom> removedAxioms = new HashSet<OWLAxiom>();
 
     /**
@@ -124,7 +127,9 @@ public class DirectOWLTranslator extends OWLTranslator {
     private boolean aboutNodeExists(NodeChange v) {
         String nodeId = v.getAboutNode().getId();
         IRI nodeIRI = IRI.create(nodeId);
-        if ( !ontology.containsEntityInSignature(nodeIRI) && !addedIRIs.contains(nodeIRI) ) {
+        if ( !ontology.containsEntityInSignature(nodeIRI) && !addedClasses.contains(nodeIRI)
+                && !addedObjectProperties.contains(nodeIRI) && !addedAnnotationProperties.contains(nodeIRI)
+                && !addedIndividuals.contains(nodeIRI) ) {
             onReject(v, "Node <%s> not found in signature", nodeId);
             return false;
         }
@@ -134,7 +139,7 @@ public class DirectOWLTranslator extends OWLTranslator {
 
     private IRI findClass(Change v, String id) {
         IRI classIRI = IRI.create(id);
-        if ( !ontology.containsClassInSignature(classIRI) && !addedIRIs.contains(classIRI) ) {
+        if ( !ontology.containsClassInSignature(classIRI) && !addedClasses.contains(classIRI) ) {
             onReject(v, "Class %s not found in signature", classIRI.toQuotedString());
             return null;
         }
@@ -185,9 +190,11 @@ public class DirectOWLTranslator extends OWLTranslator {
     private EdgeType getEdgeType(IRI predicateIRI) {
         if ( predicateIRI.equals(OWLRDFVocabulary.RDFS_SUBCLASS_OF.getIRI()) ) {
             return EdgeType.SUBCLASS;
-        } else if ( ontology.containsObjectPropertyInSignature(predicateIRI) ) {
+        } else if ( ontology.containsObjectPropertyInSignature(predicateIRI)
+                || addedObjectProperties.contains(predicateIRI) ) {
             return EdgeType.RESTRICTION;
-        } else if ( ontology.containsAnnotationPropertyInSignature(predicateIRI) ) {
+        } else if ( ontology.containsAnnotationPropertyInSignature(predicateIRI)
+                || addedAnnotationProperties.contains(predicateIRI) ) {
             return EdgeType.ANNOTATION;
         } else {
             return null;
@@ -607,6 +614,7 @@ public class DirectOWLTranslator extends OWLTranslator {
                 onReject(v, "Class <%s> already exists", nodeIRI.toString());
             } else {
                 changes.add(new AddAxiom(ontology, factory.getOWLDeclarationAxiom(factory.getOWLClass(nodeIRI))));
+                addedClasses.add(nodeIRI);
             }
             break;
         case NAMED_INVIDIDUAL:
@@ -615,6 +623,7 @@ public class DirectOWLTranslator extends OWLTranslator {
             } else {
                 changes.add(
                         new AddAxiom(ontology, factory.getOWLDeclarationAxiom(factory.getOWLNamedIndividual(nodeIRI))));
+                addedIndividuals.add(nodeIRI);
             }
             break;
         case OBJECT_PROPERTY:
@@ -623,6 +632,7 @@ public class DirectOWLTranslator extends OWLTranslator {
             } else {
                 changes.add(
                         new AddAxiom(ontology, factory.getOWLDeclarationAxiom(factory.getOWLObjectProperty(nodeIRI))));
+                addedObjectProperties.add(nodeIRI);
             }
             break;
         case ANNOTATION_PROPERTY:
@@ -631,12 +641,12 @@ public class DirectOWLTranslator extends OWLTranslator {
             } else {
                 changes.add(new AddAxiom(ontology,
                         factory.getOWLDeclarationAxiom(factory.getOWLAnnotationProperty(nodeIRI))));
+                addedAnnotationProperties.add(nodeIRI);
             }
             break;
         }
 
         if ( !changes.isEmpty() ) {
-            addedIRIs.add(nodeIRI);
             changes.add(new AddAxiom(ontology, factory.getOWLAnnotationAssertionAxiom(
                     factory.getOWLAnnotationProperty(OWLRDFVocabulary.RDFS_LABEL.getIRI()), nodeIRI, getLiteral(v))));
         }

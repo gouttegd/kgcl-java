@@ -34,6 +34,7 @@ import org.incenp.obofoundry.kgcl.model.NewTextDefinition;
 import org.incenp.obofoundry.kgcl.model.Node;
 import org.incenp.obofoundry.kgcl.model.NodeAnnotationChange;
 import org.incenp.obofoundry.kgcl.model.NodeChange;
+import org.incenp.obofoundry.kgcl.model.NodeCreation;
 import org.incenp.obofoundry.kgcl.model.NodeDeepening;
 import org.incenp.obofoundry.kgcl.model.NodeDeletion;
 import org.incenp.obofoundry.kgcl.model.NodeMove;
@@ -45,6 +46,7 @@ import org.incenp.obofoundry.kgcl.model.NodeShallowing;
 import org.incenp.obofoundry.kgcl.model.NodeUnobsoletion;
 import org.incenp.obofoundry.kgcl.model.ObjectPropertyCreation;
 import org.incenp.obofoundry.kgcl.model.OntologySubset;
+import org.incenp.obofoundry.kgcl.model.OwlType;
 import org.incenp.obofoundry.kgcl.model.PlaceUnder;
 import org.incenp.obofoundry.kgcl.model.PredicateChange;
 import org.incenp.obofoundry.kgcl.model.RemoveNodeFromSubset;
@@ -1163,6 +1165,32 @@ public class DirectOWLTranslatorTest implements RejectedChangeListener {
                 "Node <" + PIZZA_BASE + "LaReine> not found in subset <" + PIZZA_BASE + "preferred_pizzas>");
     }
 
+    @Test
+    void testAddAndUseNewObjectProperty() {
+        ArrayList<Change> changes = new ArrayList<Change>();
+        // Let's invent rivalry between pizza!
+        NodeCreation nc = new NodeCreation();
+        setAboutNode(nc, "hasRival");
+        setValue(nc, "has rival", "en");
+        nc.getAboutNode().setOwlType(OwlType.OBJECT_PROPERTY);
+        changes.add(nc);
+        EdgeCreation ec = new EdgeCreation();
+        ec.setSubject(util.getNode("LaReine"));
+        ec.setPredicate(util.getNode("hasRival"));
+        ec.setObject(util.getNode("Margherita"));
+        changes.add(ec);
+
+        ArrayList<OWLOntologyChange> expected = new ArrayList<OWLOntologyChange>();
+        expected.add(new AddAxiom(ontology,
+                factory.getOWLDeclarationAxiom(factory.getOWLObjectProperty(util.getIRI("hasRival")))));
+        expected.add(new AddAxiom(ontology,
+                getAnnotation(OWLRDFVocabulary.RDFS_LABEL.getIRI(), "hasRival", "has rival", "en")));
+        expected.add(new AddAxiom(ontology, factory.getOWLSubClassOfAxiom(getKlass("LaReine"),
+                factory.getOWLObjectSomeValuesFrom(getObjectProperty("hasRival"), getKlass("Margherita")))));
+
+        testChanges(changes, expected);
+    }
+
     /*
      * Helper methods.
      */
@@ -1209,6 +1237,21 @@ public class DirectOWLTranslatorTest implements RejectedChangeListener {
             expectedList.add(expected[i]);
         }
         testChange(change, expectedList, null);
+    }
+
+    /*
+     * Likewise, but try transforming several KGCL operations in one go.
+     */
+    void testChanges(List<Change> changes, List<OWLOntologyChange> expectedChanges) {
+        DirectOWLTranslator translator = new DirectOWLTranslator(ontology, null);
+        translator.addRejectListener(this);
+        List<OWLOntologyChange> actualChanges = new ArrayList<OWLOntologyChange>();
+        for ( Change change : changes ) {
+            actualChanges.addAll(change.accept(translator));
+        }
+
+        assertUnsortedIterableEquals(expectedChanges, actualChanges);
+        Assertions.assertEquals(0, actualRejections.size());
     }
 
     /*
