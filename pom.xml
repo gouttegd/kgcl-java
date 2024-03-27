@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.incenp</groupId>
   <artifactId>kgcl</artifactId>
-  <version>0.3.3-SNAPSHOT</version>
+  <version>0.4.0</version>
   <packaging>pom</packaging>
 
   <name>KGCL-Java</name>
@@ -33,7 +33,7 @@
     <connection>scm:git:https://github.com/gouttegd/kgcl-java.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/gouttegd/kgcl-java.git</developerConnection>
     <url>https://github.com/gouttegd/kgcl-java</url>
-    <tag>HEAD</tag>
+    <tag>kgcl-java-0.4.0</tag>
   </scm>
 
   <issueManagement>
