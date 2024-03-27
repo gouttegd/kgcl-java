@@ -1,3 +1,14 @@
+Changes in kgcl-java-0.4.0
+--------------------------
+
+    * Allow creating edges that use an annotation property.
+    * Allow creating new object and annotation properties.
+    * Add support for explicit typing of literal values.
+    * Lax comparison of literal values with a language tag.
+    * Add support for auto-assignation of IDs for new entities.
+    * New `mint` helper command to re-assign temporary IDs.
+
+
 Changes in kgcl-java-0.3.2
 --------------------------
 
