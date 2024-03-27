@@ -1,0 +1,38 @@
+Prefix(EX:=<https://example.org/>)
+Prefix(owl:=<http://www.w3.org/2002/07/owl#>)
+Prefix(rdf:=<http://www.w3.org/1999/02/22-rdf-syntax-ns#>)
+Prefix(xml:=<http://www.w3.org/XML/1998/namespace>)
+Prefix(xsd:=<http://www.w3.org/2001/XMLSchema#>)
+Prefix(rdfs:=<http://www.w3.org/2000/01/rdf-schema#>)
+
+
+Ontology(
+Declaration(Class(<https://example.org/0001>))
+Declaration(Class(<https://example.org/0002>))
+Declaration(ObjectProperty(<https://example.org/0101>))
+
+############################
+#   Object Properties
+############################
+
+# Object Property: <https://example.org/0101> (object property 1)
+
+AnnotationAssertion(rdfs:label <https://example.org/0101> "object property 1")
+
+
+
+############################
+#   Classes
+############################
+
+# Class: <https://example.org/0001> (class 1)
+
+AnnotationAssertion(rdfs:label <https://example.org/0001> "class 1")
+SubClassOf(<https://example.org/0001> ObjectSomeValuesFrom(<https://example.org/0101> <https://example.org/0002>))
+
+# Class: <https://example.org/0002> (class 2)
+
+AnnotationAssertion(rdfs:label <https://example.org/0002> "class 2")
+
+
+)

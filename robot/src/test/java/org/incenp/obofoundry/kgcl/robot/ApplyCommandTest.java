@@ -113,6 +113,13 @@ public class ApplyCommandTest {
                 "rename pizza:LaReine from 'LaReine' to 'TheQueen'^^xsd:string", "--default-new-language", "en");
     }
 
+    @Test
+    void testCreateNewOntology() {
+        runCommand("dont-care.ofn", "from-scratch.ofn", "--create", "--add-prefix", "EX: https://example.org/",
+                "--kgcl", "create class EX:0001 'class 1'", "--kgcl", "create class EX:0002 'class 2'", "--kgcl",
+                "create relation EX:0101 'object property 1'", "--kgcl", "create edge EX:0001 EX:0101 EX:0002");
+    }
+
     /*
      * Try running a KGCL-Apply command and check that the output ontology matches
      * what we expect.

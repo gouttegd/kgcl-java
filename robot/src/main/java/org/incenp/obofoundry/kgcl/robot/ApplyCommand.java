@@ -43,6 +43,7 @@ import org.obolibrary.robot.Command;
 import org.obolibrary.robot.CommandLineHelper;
 import org.obolibrary.robot.CommandState;
 import org.obolibrary.robot.IOHelper;
+import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.OWLDocumentFormat;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.PrefixManager;
@@ -64,6 +65,7 @@ public class ApplyCommand implements Command {
         options = CommandLineHelper.getCommonOptions();
         options.addOption("i", "input", true, "load ontology from file");
         options.addOption("o", "output", true, "save ontology to file");
+        options.addOption("c", "create", false, "create a new ontology with the changes");
         options.addOption("k", "kgcl", true, "apply a single change");
         options.addOption("K", "kgcl-file", true, "apply all changes in specified file");
         options.addOption(null, "no-partial-apply", false, "apply all changes or none at all");
@@ -124,8 +126,14 @@ public class ApplyCommand implements Command {
             state = new CommandState();
         }
         IOHelper ioHelper = CommandLineHelper.getIOHelper(line);
-        state = CommandLineHelper.updateInputOntology(ioHelper, state, line);
-        OWLOntology ontology = state.getOntology();
+        OWLOntology ontology = null;
+        if ( !line.hasOption("create") ) {
+            state = CommandLineHelper.updateInputOntology(ioHelper, state, line);
+            ontology = state.getOntology();
+        } else {
+            ontology = OWLManager.createOWLOntologyManager().createOntology();
+            state.setOntology(ontology);
+        }
 
         PrefixManager prefixManager = new DefaultPrefixManager();
         prefixManager.setPrefix("AUTOID:", AutoIDAllocator.AUTOID_BASE_IRI);

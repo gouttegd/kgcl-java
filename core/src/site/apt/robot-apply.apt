@@ -37,6 +37,14 @@ $ robot merge -i input1.ofn -i input2.ofn \
         annotate --ontology-iri http://example.org/test -o output.ofn
 +--------------------------------------------------------------------
 
+  It is also possible to create a brand new ontology by using the
+  <<<--create>>> option instead of <<<--input>>>. In this case a new
+  ontology will be created from the changes (obviously this only makes
+  sense if the changes include at least some <<<create>>> instructions
+  such as <<<create class>>>, <<<create relation>>>, etc.). The newly
+  created ontology will become the current ontology of the ROBOT
+  pipeline.
+
   If some changes cannot be applied because they don’t match the
   contents of the ontology (for example, a change that tries to add a
   label to a class that does not exist), they will be written back to a
