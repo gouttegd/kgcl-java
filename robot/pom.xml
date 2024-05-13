@@ -27,6 +27,12 @@
       <artifactId>robot-command</artifactId>
       <version>1.9.5</version>
     </dependency>
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <version>1.5.6</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
@@ -34,7 +40,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
-        <version>3.2.4</version>
+        <version>3.5.3</version>
         <executions>
           <execution>
             <id>robot-standalone</id>
