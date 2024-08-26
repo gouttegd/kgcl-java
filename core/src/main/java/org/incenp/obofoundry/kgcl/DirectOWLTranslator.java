@@ -66,7 +66,6 @@ import org.semanticweb.owlapi.model.OWLDeclarationAxiom;
 import org.semanticweb.owlapi.model.OWLDisjointClassesAxiom;
 import org.semanticweb.owlapi.model.OWLDisjointUnionAxiom;
 import org.semanticweb.owlapi.model.OWLEquivalentClassesAxiom;
-import org.semanticweb.owlapi.model.OWLObjectProperty;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyChange;
 import org.semanticweb.owlapi.model.OWLSubClassOfAxiom;
@@ -144,47 +143,6 @@ public class DirectOWLTranslator extends OWLTranslator {
             return null;
         }
         return classIRI;
-    }
-
-    private Set<OWLAxiom> findEdges(IRI subjectIRI, IRI objectIRI, IRI predicateIRI) {
-        HashSet<OWLAxiom> axioms = new HashSet<OWLAxiom>();
-        OWLClass object = factory.getOWLClass(objectIRI);
-        OWLObjectProperty property = null;
-        if ( predicateIRI != null && !OWLRDFVocabulary.RDFS_SUBCLASS_OF.getIRI().equals(predicateIRI) ) {
-            property = factory.getOWLObjectProperty(predicateIRI);
-        }
-
-        for ( OWLAxiom axiom : ontology.getAxioms(factory.getOWLClass(subjectIRI), Imports.INCLUDED) ) {
-            if ( axiom instanceof OWLSubClassOfAxiom ) {
-                OWLSubClassOfAxiom scoa = (OWLSubClassOfAxiom) axiom;
-                OWLClassExpression objectExpression = scoa.getSuperClass();
-                if ( objectExpression.containsEntityInSignature(object) ) {
-                    if ( predicateIRI == null ) {
-                        // No predicate specified, so any edge between subject and object is a match
-                        axioms.add(scoa);
-                    } else if ( property != null
-                            && objectExpression.getObjectPropertiesInSignature().contains(property) ) {
-                        // Predicate is a property and this expression has it, so it's a match
-                        axioms.add(scoa);
-                    } else if ( property == null && objectExpression.isNamed() ) {
-                        // Predicate is rdfs:subClassOf and this expression is the object, it's a match
-                        axioms.add(scoa);
-                    }
-                }
-            }
-        }
-
-        // Search for annotations that can be assimilated to edges (annotations whose
-        // value is an IRI)
-        for ( OWLAnnotationAssertionAxiom axiom : ontology.getAnnotationAssertionAxioms(subjectIRI) ) {
-            if ( axiom.getValue().isIRI() && axiom.getValue().asIRI().get().equals(objectIRI) ) {
-                if ( predicateIRI == null || axiom.getProperty().getIRI().equals(predicateIRI) ) {
-                    axioms.add(axiom);
-                }
-            }
-        }
-
-        return axioms;
     }
 
     private EdgeType getEdgeType(IRI predicateIRI) {
@@ -1018,11 +976,5 @@ public class DirectOWLTranslator extends OWLTranslator {
             return factory.getOWLDisjointUnionAxiom(axiom.getOWLClass().accept(rewriter).asOWLClass(), union,
                     axiom.getAnnotations());
         }
-    }
-
-    private enum EdgeType {
-        SUBCLASS,
-        RESTRICTION,
-        ANNOTATION
     }
 }

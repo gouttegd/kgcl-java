@@ -28,11 +28,18 @@ import org.incenp.obofoundry.kgcl.model.NodeChange;
 import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLAnnotationAssertionAxiom;
 import org.semanticweb.owlapi.model.OWLAnnotationValue;
+import org.semanticweb.owlapi.model.OWLAxiom;
+import org.semanticweb.owlapi.model.OWLClass;
+import org.semanticweb.owlapi.model.OWLClassExpression;
 import org.semanticweb.owlapi.model.OWLDataFactory;
 import org.semanticweb.owlapi.model.OWLLiteral;
+import org.semanticweb.owlapi.model.OWLObjectProperty;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyChange;
+import org.semanticweb.owlapi.model.OWLSubClassOfAxiom;
+import org.semanticweb.owlapi.model.parameters.Imports;
 import org.semanticweb.owlapi.reasoner.OWLReasoner;
+import org.semanticweb.owlapi.vocab.OWLRDFVocabulary;
 
 /**
  * Base class to translate KGCL change objects into OWL axioms.
@@ -215,5 +222,61 @@ public class OWLTranslator extends ChangeVisitorBase<List<OWLOntologyChange>> {
      */
     protected OWLLiteral getLiteral(NodeChange change) {
         return getLiteral(change, null);
+    }
+
+    /**
+     * Gets all axioms representing edges between a subject and an object.
+     * 
+     * @param subject   The subject to look for.
+     * @param object    The object to look for.
+     * @param predicate The predicate to look for. May be {@code null}, in which
+     *                  case the method will return all edges between the subject
+     *                  and the object regardless of their predicate.
+     * @return A set of matching axioms.
+     */
+    protected Set<OWLAxiom> findEdges(IRI subject, IRI object, IRI predicate) {
+        HashSet<OWLAxiom> edges = new HashSet<OWLAxiom>();
+
+        OWLObjectProperty property = null;
+        if ( predicate != null && !OWLRDFVocabulary.RDFS_SUBCLASS_OF.getIRI().equals(predicate) ) {
+            property = factory.getOWLObjectProperty(predicate);
+        }
+
+        // Search for edges between classes
+        for ( OWLAxiom axiom : ontology.getAxioms(factory.getOWLClass(subject), Imports.INCLUDED) ) {
+            if ( axiom instanceof OWLSubClassOfAxiom ) {
+                OWLSubClassOfAxiom scoa = (OWLSubClassOfAxiom) axiom;
+                OWLClassExpression objectExpression = scoa.getSuperClass();
+                OWLClass objectClass = factory.getOWLClass(object);
+
+                if ( objectExpression.containsEntityInSignature(objectClass) && objectExpression.getClassesInSignature().size() == 1 ) {
+                    if ( predicate == null ) {
+                        // No predicate specified, so any edge between subject and object is a match
+                        edges.add(scoa);
+                    } else if ( property != null
+                            && objectExpression.getObjectPropertiesInSignature().contains(property) ) {
+                        // Predicate is a property and this expression has it, so it's a match
+                        edges.add(scoa);
+                    } else if ( property == null && objectExpression.isNamed() ) {
+                        // Predicate is rdfs:subClassOf and this expression is the object, it's a match
+                        edges.add(scoa);
+                    }
+                }
+            }
+        }
+
+        // TODO: Search for edges between properties or individuals
+
+        // Search for annotations that can be assimilated to edges (annotations whose
+        // value is an IRI)
+        for ( OWLAnnotationAssertionAxiom axiom : ontology.getAnnotationAssertionAxioms(subject) ) {
+            if ( axiom.getValue().isIRI() && axiom.getValue().asIRI().get().equals(object) ) {
+                if ( predicate == null || axiom.getProperty().getIRI().equals(predicate) ) {
+                    edges.add(axiom);
+                }
+            }
+        }
+
+        return edges;
     }
 }
