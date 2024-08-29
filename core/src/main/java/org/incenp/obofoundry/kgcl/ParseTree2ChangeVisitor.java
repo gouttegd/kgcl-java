@@ -72,6 +72,7 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
     private List<Change> changes;
     private List<IParseTreeErrorListener> errorListeners = new ArrayList<IParseTreeErrorListener>();
     private String currentId;
+    private boolean isBogus = false;
 
     /**
      * Creates a new visitor with the specified prefix manager.
@@ -139,7 +140,7 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
         setOldValue(ctx.old_label, change);
         setNewValue(ctx.new_label, change);
 
-        changes.add(change);
+        maybeAddChange(change);
 
         return null;
     }
@@ -148,7 +149,7 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
     public Void visitObsoleteNoReplacement(KGCLParser.ObsoleteNoReplacementContext ctx) {
         NodeObsoletion change = new NodeObsoletion();
         change.setAboutNode(getNode(ctx.old_id));
-        changes.add(change);
+        maybeAddChange(change);
 
         return null;
     }
@@ -158,7 +159,7 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
         NodeObsoletionWithDirectReplacement change = new NodeObsoletionWithDirectReplacement();
         change.setAboutNode(getNode(ctx.old_id));
         change.setHasDirectReplacement(getNode(ctx.new_id));
-        changes.add(change);
+        maybeAddChange(change);
 
         return null;
     }
@@ -175,7 +176,7 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
         }
         change.setHasNondirectReplacement(alternatives);
 
-        changes.add(change);
+        maybeAddChange(change);
 
         return null;
     }
@@ -184,7 +185,7 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
     public Void visitUnobsolete(KGCLParser.UnobsoleteContext ctx) {
         NodeUnobsoletion change = new NodeUnobsoletion();
         change.setAboutNode(getNode(ctx.id()));
-        changes.add(change);
+        maybeAddChange(change);
 
         return null;
     }
@@ -193,7 +194,7 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
     public Void visitDelete(KGCLParser.DeleteContext ctx) {
         NodeDeletion change = new NodeDeletion();
         change.setAboutNode(getNode(ctx.id()));
-        changes.add(change);
+        maybeAddChange(change);
 
         return null;
     }
@@ -209,7 +210,7 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
             change.setQualifier(ctx.qualifier().getText());
         }
 
-        changes.add(change);
+        maybeAddChange(change);
 
         return null;
     }
@@ -221,7 +222,7 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
         change.setAboutNode(getNode(ctx.id()));
         setOldValue(ctx.synonym, change);
 
-        changes.add(change);
+        maybeAddChange(change);
 
         return null;
     }
@@ -234,7 +235,7 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
         setOldValue(ctx.old_synonym, change);
         setNewValue(ctx.new_synonym, change);
 
-        changes.add(change);
+        maybeAddChange(change);
 
         return null;
     }
@@ -246,7 +247,7 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
         change.setAboutNode(getNode(ctx.id()));
         setNewValue(ctx.new_definition, change);
 
-        changes.add(change);
+        maybeAddChange(change);
 
         return null;
     }
@@ -255,7 +256,7 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
     public Void visitRemoveDefinition(KGCLParser.RemoveDefinitionContext ctx) {
         RemoveTextDefinition change = new RemoveTextDefinition();
         change.setAboutNode(getNode(ctx.id()));
-        changes.add(change);
+        maybeAddChange(change);
 
         return null;
     }
@@ -272,7 +273,7 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
 
         setNewValue(ctx.new_definition, change);
 
-        changes.add(change);
+        maybeAddChange(change);
 
         return null;
     }
@@ -299,7 +300,7 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
         change.getAboutNode().setOwlType(type);
         setNewValue(ctx.label, change);
 
-        changes.add(change);
+        maybeAddChange(change);
 
         return null;
     }
@@ -310,7 +311,7 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
         change.setSubject(getNode(ctx.subject_id));
         change.setPredicate(getNode(ctx.predicate_id));
         change.setObject(getNode(ctx.object_id));
-        changes.add(change);
+        maybeAddChange(change);
 
         return null;
     }
@@ -321,7 +322,7 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
         change.setSubject(getNode(ctx.subject_id));
         change.setPredicate(getNode(ctx.predicate_id));
         change.setObject(getNode(ctx.object_id));
-        changes.add(change);
+        maybeAddChange(change);
 
         return null;
     }
@@ -354,7 +355,7 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
         ctx.new_parent.accept(this);
         change.setNewValue(currentId);
 
-        changes.add(change);
+        maybeAddChange(change);
 
         return null;
     }
@@ -374,7 +375,7 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
         ctx.new_predicate_id.accept(this);
         change.setNewValue(currentId);
 
-        changes.add(change);
+        maybeAddChange(change);
 
         return null;
     }
@@ -391,7 +392,7 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
         setOldValue(ctx.old_annotation, change);
         setNewValue(ctx.new_annotation, change);
 
-        changes.add(change);
+        maybeAddChange(change);
 
         return null;
     }
@@ -403,7 +404,7 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
         change.setAboutNode(getNode(ctx.node_id));
         change.setInSubset(getSubset(ctx.subset_id));
 
-        changes.add(change);
+        maybeAddChange(change);
 
         return null;
     }
@@ -415,7 +416,7 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
         change.setAboutNode(getNode(ctx.node_id));
         change.setInSubset(getSubset(ctx.subset_id));
 
-        changes.add(change);
+        maybeAddChange(change);
 
         return null;
     }
@@ -505,8 +506,16 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
     }
 
     private void onParseTreeError(Token token, String message) {
+        isBogus = true;
         for ( IParseTreeErrorListener listener : errorListeners ) {
             listener.parseTreeError(token.getLine(), token.getCharPositionInLine(), message);
         }
+    }
+
+    private void maybeAddChange(Change change) {
+        if ( !isBogus ) {
+            changes.add(change);
+        }
+        isBogus = false;
     }
 }
