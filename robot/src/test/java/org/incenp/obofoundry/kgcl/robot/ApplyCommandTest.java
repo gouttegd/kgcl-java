@@ -115,6 +115,11 @@ public class ApplyCommandTest {
                 "create relation EX:0101 'object property 1'", "--kgcl", "create edge EX:0001 EX:0101 EX:0002");
     }
 
+    @Test
+    void testIdAsLabel() {
+        runCommand("pizza.ofn", "pizza-no-sultana-topping.ofn", "--kgcl", "obsolete 'SultanaTopping'");
+    }
+
     private void runCommand(String inputFile, String outputFile, String... extra) {
         TestUtils.runCommand("apply", inputFile, outputFile, extra);
     }

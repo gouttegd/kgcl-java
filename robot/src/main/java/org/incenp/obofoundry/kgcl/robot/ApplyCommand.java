@@ -32,9 +32,11 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.incenp.obofoundry.kgcl.AutoIDAllocator;
 import org.incenp.obofoundry.kgcl.IAutoIDGenerator;
+import org.incenp.obofoundry.kgcl.IEntityLabelResolver;
 import org.incenp.obofoundry.kgcl.KGCLHelper;
 import org.incenp.obofoundry.kgcl.KGCLSyntaxError;
 import org.incenp.obofoundry.kgcl.KGCLWriter;
+import org.incenp.obofoundry.kgcl.OntologyBasedLabelResolver;
 import org.incenp.obofoundry.kgcl.RandomizedIDGenerator;
 import org.incenp.obofoundry.kgcl.RejectedChange;
 import org.incenp.obofoundry.kgcl.model.Change;
@@ -142,18 +144,19 @@ public class ApplyCommand implements Command {
         if ( ontologyFormat.isPrefixOWLOntologyFormat() ) {
             prefixManager.copyPrefixesFrom(ontologyFormat.asPrefixOWLOntologyFormat());
         }
+        IEntityLabelResolver labelResolver = new OntologyBasedLabelResolver(ontology);
 
         List<Change> changeset = new ArrayList<Change>();
         List<KGCLSyntaxError> errors = new ArrayList<KGCLSyntaxError>();
         if ( line.hasOption('k') ) {
             for ( String kgcl : line.getOptionValues('k') ) {
-                changeset.addAll(KGCLHelper.parse(kgcl, prefixManager, errors));
+                changeset.addAll(KGCLHelper.parse(kgcl, prefixManager, errors, labelResolver));
             }
         }
         if ( line.hasOption('K') ) {
             for ( String kgclFile : line.getOptionValues('K') ) {
                 File f = new File(kgclFile);
-                changeset.addAll(KGCLHelper.parse(f, prefixManager, errors));
+                changeset.addAll(KGCLHelper.parse(f, prefixManager, errors, labelResolver));
             }
         }
 

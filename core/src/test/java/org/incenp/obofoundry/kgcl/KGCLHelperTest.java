@@ -93,6 +93,29 @@ public class KGCLHelperTest {
     }
 
     @Test
+    void testUsingLabelsAsIds() {
+        List<Change> changeset = null;
+        List<KGCLSyntaxError> errors = new ArrayList<KGCLSyntaxError>();
+        IEntityLabelResolver resolver = new OntologyBasedLabelResolver(ontology);
+
+        try {
+            changeset = KGCLHelper.parse("obsolete 'LaReine'", prefixManager, errors, resolver);
+        } catch ( IOException e ) {
+            Assertions.fail(e);
+        }
+        Assertions.assertEquals(1, changeset.size());
+        Assertions.assertTrue(errors.isEmpty());
+
+        try {
+            changeset = KGCLHelper.parse("obsolete 'bogus label'", prefixManager, errors, resolver);
+        } catch ( IOException e ) {
+            Assertions.fail(e);
+        }
+        Assertions.assertTrue(changeset.isEmpty());
+        Assertions.assertEquals(1, errors.size());
+    }
+
+    @Test
     void applyChangeset() {
         int nOrigAxioms = ontology.getAxiomCount();
         KGCLHelper.apply(getChangeset(true), ontology, null, false);

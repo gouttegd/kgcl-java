@@ -44,11 +44,11 @@ public class KGCLHelper {
      * @throws IOException If any non-KGCL I/O error occurs.
      */
     public static List<Change> parse(String kgcl, PrefixManager prefixManager) throws IOException {
-        return doParse(new KGCLReader(new StringReader(kgcl)), prefixManager, null);
+        return doParse(new KGCLReader(new StringReader(kgcl)), prefixManager, null, null);
     }
 
     /**
-     * Parses KGCL from a string and collect syntax errors.
+     * Parses KGCL from a string and collects syntax errors.
      * 
      * @param kgcl          The KGCL instructions to parse.
      * @param prefixManager A prefix manager to expand CURIEs into IRIs. May be
@@ -60,7 +60,28 @@ public class KGCLHelper {
      */
     public static List<Change> parse(String kgcl, PrefixManager prefixManager, List<KGCLSyntaxError> errors)
             throws IOException {
-        return doParse(new KGCLReader(new StringReader(kgcl)), prefixManager, errors);
+        return doParse(new KGCLReader(new StringReader(kgcl)), prefixManager, errors, null);
+    }
+
+    /**
+     * Parses KGCL from a string and collects syntax errors. This method allows the
+     * use of labels in place of identifiers.
+     * 
+     * @param kgcl          The KGCL instructions to parse.
+     * @param prefixManager A prefix manager to expand CURIEs into IRIS. May be
+     *                      {@code null}.
+     * @param errors        A list that will collect any syntax error encountered
+     *                      when parsing. If {@code null}, errors will be ignored.
+     * @param labelResolver A helper object to resolve labels into identifiers. May
+     *                      be {@code null}, in which case any use of a label where
+     *                      an identifier is normally expected would result in a
+     *                      syntax error.
+     * @return A KGCL changeset.
+     * @throws IOException If any non-KGCL I/O error occurs.
+     */
+    public static List<Change> parse(String kgcl, PrefixManager prefixManager, List<KGCLSyntaxError> errors,
+            IEntityLabelResolver labelResolver) throws IOException {
+        return doParse(new KGCLReader(new StringReader(kgcl)), prefixManager, errors, labelResolver);
     }
 
     /**
@@ -73,11 +94,11 @@ public class KGCLHelper {
      * @throws IOException If any non-KGCL I/O error occurs.
      */
     public static List<Change> parse(File kgcl, PrefixManager prefixManager) throws IOException {
-        return doParse(new KGCLReader(kgcl), prefixManager, null);
+        return doParse(new KGCLReader(kgcl), prefixManager, null, null);
     }
 
     /**
-     * Parses KGCL from a file and collect syntax errors.
+     * Parses KGCL from a file and collects syntax errors.
      * 
      * @param kgcl          The file to parse.
      * @param prefixManager A prefix manager to expand CURIEs into IRIs. May be
@@ -89,12 +110,35 @@ public class KGCLHelper {
      */
     public static List<Change> parse(File kgcl, PrefixManager prefixManager, List<KGCLSyntaxError> errors)
             throws IOException {
-        return doParse(new KGCLReader(kgcl), prefixManager, errors);
+        return doParse(new KGCLReader(kgcl), prefixManager, errors, null);
     }
 
-    private static List<Change> doParse(KGCLReader reader, PrefixManager prefixManager, List<KGCLSyntaxError> errors)
+    /**
+     * Parses KGCL from a file and collects syntax errors. This method allows the
+     * use of labels in place of identifiers.
+     * 
+     * @param kgcl          The file to parse.
+     * @param prefixManager A prefix manager to expand CURIEs into IRIs. May be
+     *                      {@code null}.
+     * @param errors        A list that will collect any syntax error encountered
+     *                      when parsing. If {@code null}, errors will be ignored.
+     * @param labelResolver A helper object to resolve labels into identifiers. May
+     *                      be {@code null}, in which case any use of a label where
+     *                      an identifier is normally expected would result in a
+     *                      syntax error.
+     * @return A KGCL changeset.
+     * @throws IOException If any non-KGCL I/O error occurs.
+     */
+    public static List<Change> parse(File kgcl, PrefixManager prefixManager, List<KGCLSyntaxError> errors,
+            IEntityLabelResolver labelResolver) throws IOException {
+        return doParse(new KGCLReader(kgcl), prefixManager, errors, labelResolver);
+    }
+
+    private static List<Change> doParse(KGCLReader reader, PrefixManager prefixManager, List<KGCLSyntaxError> errors,
+            IEntityLabelResolver labelResolver)
             throws IOException {
         reader.setPrefixManager(prefixManager);
+        reader.setLabelResolver(labelResolver);
 
         if ( !reader.read() ) {
             if ( errors != null ) {
