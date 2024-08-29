@@ -67,8 +67,9 @@ removeSubset : 'remove' node_id=id 'from' 'subset' subset_id=id;
 
 idlist    : id (',' id)*;
 
-id        : IRI    #IdAsIRI
-          | CURIE  #IdAsCURIE
+id        : IRI     #IdAsIRI
+          | CURIE   #IdAsCURIE
+          | string  #IdAsLabel
           ;
 
 nodeType  : 'class' | 'relation' | 'instance' | 'annotation property';

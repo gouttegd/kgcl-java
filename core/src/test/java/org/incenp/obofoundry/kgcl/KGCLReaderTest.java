@@ -21,6 +21,7 @@ package org.incenp.obofoundry.kgcl;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -254,6 +255,40 @@ class KGCLReaderTest {
         change.setNewValue("new label");
 
         testParse("rename EX:0001 from 'old\\' label' to 'new label'", change);
+    }
+
+    @Test
+    void testUsingLabelsAsIds() {
+        // No label resolver, bound to fail
+        testParseFail("rename 'old label' from 'old label' to 'new label'");
+
+        HashMap<String, String> idMap = new HashMap<String, String>();
+        idMap.put("label 1", "https://example.org/0001");
+        idMap.put("label 2", "https://example.org/0002");
+        idMap.put("label 3", "https://example.org/0003");
+        IEntityLabelResolver resolver = s -> idMap.get(s);
+
+        NodeRename c1 = new NodeRename();
+        c1.setAboutNode(util.getNode("0001"));
+        c1.setOldValue("old label");
+        c1.setNewValue("new label");
+
+        testParse(reader -> {
+            reader.setLabelResolver(resolver);
+            reader.read("rename 'label 1' from 'old label' to 'new label'");
+        }, c1);
+
+        NodeObsoletionWithNoDirectReplacement c2 = new NodeObsoletionWithNoDirectReplacement();
+        c2.setAboutNode(util.getNode("0001"));
+        c2.setHasNondirectReplacement(new ArrayList<Node>());
+        c2.getHasNondirectReplacement().add(util.getNode("0002"));
+        c2.getHasNondirectReplacement().add(util.getNode("0003"));
+
+        testParse(reader -> {
+            reader.setPrefixManager(util.getPrefixManager());
+            reader.setLabelResolver(resolver);
+            reader.read("obsolete 'label 1' with alternative EX:0002,'label 3'");
+        }, c2);
     }
 
     @Test

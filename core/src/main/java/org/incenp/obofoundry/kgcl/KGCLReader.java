@@ -65,6 +65,7 @@ import org.semanticweb.owlapi.util.DefaultPrefixManager;
 public class KGCLReader {
     private KGCLLexer lexer;
     private PrefixManager prefixManager;
+    private IEntityLabelResolver labelResolver;
     private ErrorListener errorListener = new ErrorListener();
     private List<Change> changeSet = new ArrayList<Change>();
     private boolean hasRead = false;
@@ -179,6 +180,23 @@ public class KGCLReader {
     }
 
     /**
+     * Sets the label resolver.
+     * <p>
+     * The label resolver will be used whenever a KGCL instruction refers to an
+     * entity by its label rather than by its identifier. It is the resolver’s
+     * responsibility to find the entity referenced by the label.
+     * <p>
+     * If not set or {@code null} (which is the case by default), the reader will be
+     * unable to resolve labels and any use of a label in place of an identifier
+     * will lead to an error.
+     * 
+     * @param resolver The resolver to use.
+     */
+    public void setLabelResolver(IEntityLabelResolver resolver) {
+        labelResolver = resolver;
+    }
+
+    /**
      * Parses the KGCL program from the underlying source. After this method returns
      * {@code true}, call the {@link #getChangeSet()} method to get the result.
      * <p>
@@ -235,6 +253,8 @@ public class KGCLReader {
         ParseTree tree = parser.changeset();
         if ( !hasErrors() ) {
             ParseTree2ChangeVisitor visitor = new ParseTree2ChangeVisitor(prefixManager, changeSet);
+            visitor.setLabelResolver(labelResolver);
+            visitor.addErrorListener(errorListener);
             visitor.visit(tree);
         }
 
@@ -289,7 +309,7 @@ public class KGCLReader {
         return errorListener.errors;
     }
 
-    private class ErrorListener extends BaseErrorListener {
+    private class ErrorListener extends BaseErrorListener implements IParseTreeErrorListener {
 
         private ArrayList<KGCLSyntaxError> errors = new ArrayList<KGCLSyntaxError>();
 
@@ -297,6 +317,11 @@ public class KGCLReader {
         public void syntaxError(Recognizer<?, ?> recognizer, Object symbol, int line, int column,
                 String msg, RecognitionException e) {
             errors.add(new KGCLSyntaxError(line, column, msg));
+        }
+
+        @Override
+        public void parseTreeError(int line, int column, String message) {
+            errors.add(new KGCLSyntaxError(line, column, message));
         }
     }
 }

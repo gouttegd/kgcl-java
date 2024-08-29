@@ -21,6 +21,7 @@ package org.incenp.obofoundry.kgcl;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.antlr.v4.runtime.Token;
 import org.incenp.obofoundry.kgcl.model.AddNodeToSubset;
 import org.incenp.obofoundry.kgcl.model.Change;
 import org.incenp.obofoundry.kgcl.model.ClassCreation;
@@ -67,7 +68,9 @@ import org.semanticweb.owlapi.model.PrefixManager;
 public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
 
     private PrefixManager prefixManager;
+    private IEntityLabelResolver labelResolver;
     private List<Change> changes;
+    private List<IParseTreeErrorListener> errorListeners = new ArrayList<IParseTreeErrorListener>();
     private String currentId;
 
     /**
@@ -97,6 +100,25 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
     public ParseTree2ChangeVisitor(PrefixManager prefixManager, List<Change> changes) {
         this.prefixManager = prefixManager;
         this.changes = changes;
+    }
+
+    /**
+     * Adds a listener for errors that may occur when processing the parse tree.
+     * 
+     * @param listener The listener to add.
+     */
+    public void addErrorListener(IParseTreeErrorListener listener) {
+        errorListeners.add(listener);
+    }
+
+    /**
+     * Sets the label resolver, to be used when an entity is referenced by its label
+     * rather than by its identifier.
+     * 
+     * @param resolver The resolver to use.
+     */
+    public void setLabelResolver(IEntityLabelResolver resolver) {
+        labelResolver = resolver;
     }
 
     /**
@@ -410,6 +432,18 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
         return null;
     }
 
+    @Override
+    public Void visitIdAsLabel(KGCLParser.IdAsLabelContext ctx) {
+        if ( labelResolver != null ) {
+            currentId = labelResolver.resolve(unquote(ctx.string().getText()));
+            if ( currentId != null ) {
+                return null;
+            }
+        }
+        onParseTreeError(ctx.getStart(), String.format("Unresolved label %s", ctx.string().getText()));
+        return null;
+    }
+
     private void setOldValue(TextContext ctx, NodeChange change) {
         change.setOldValue(unquote(ctx.string().getText()));
         if ( ctx.lang != null ) {
@@ -468,5 +502,11 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
         }
 
         return curie;
+    }
+
+    private void onParseTreeError(Token token, String message) {
+        for ( IParseTreeErrorListener listener : errorListeners ) {
+            listener.parseTreeError(token.getLine(), token.getCharPositionInLine(), message);
+        }
     }
 }
