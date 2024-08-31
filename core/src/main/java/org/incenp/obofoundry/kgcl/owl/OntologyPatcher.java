@@ -21,6 +21,7 @@ package org.incenp.obofoundry.kgcl.owl;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.incenp.obofoundry.kgcl.IPatcher;
 import org.incenp.obofoundry.kgcl.RejectedChange;
 import org.incenp.obofoundry.kgcl.RejectedChangeListener;
 import org.incenp.obofoundry.kgcl.model.Change;
@@ -51,7 +52,7 @@ import org.semanticweb.owlapi.reasoner.OWLReasoner;
  * }
  * </pre>
  */
-public class OntologyPatcher implements RejectedChangeListener {
+public class OntologyPatcher implements IPatcher, RejectedChangeListener {
 
     private OWLOntology ontology;
     private OWLReasoner reasoner;
@@ -87,13 +88,7 @@ public class OntologyPatcher implements RejectedChangeListener {
         }
     }
 
-    /**
-     * Applies a single change to the ontology.
-     * 
-     * @param change The change to apply.
-     * @return {@code true} if the change has been successfully applied, or
-     *         {@code false} if the change has been rejected.
-     */
+    @Override
     public boolean apply(Change change) {
         List<OWLOntologyChange> owlChanges = change.accept(getTranslator());
         if ( owlChanges.size() > 0 ) {
@@ -104,34 +99,7 @@ public class OntologyPatcher implements RejectedChangeListener {
         return false;
     }
 
-    /**
-     * Applies a changeset to the ontology. This method will try to apply all
-     * changes in the given list. If some changes cannot be applied, they will be
-     * ignored (call the {@link #getRejectedChanges()} method to get the concerned
-     * changes) and the remaining changes will be applied normally.
-     * <p>
-     * This method is equivalent to calling {@link #apply(List, boolean)} with the
-     * second parameter set to {@code false}.
-     * 
-     * @param changes The list of changes to apply.
-     * @return {@code true} if no changes were rejected, otherwise {@code false}.
-     */
-    public boolean apply(List<Change> changes) {
-        return apply(changes, false);
-    }
-
-    /**
-     * Applies a changeset to the ontology. This method allows to configure what
-     * should happen when the changeset contains some changes that cannot be
-     * applied.
-     * 
-     * @param changes        The list changes to apply.
-     * @param noPartialApply If {@code true}, changes will only be applied if all
-     *                       the changes in the list can be applied; if
-     *                       {@code false}, changes that can be applied will be
-     *                       applied, rejected changes will be ignored.
-     * @return {@code true} if no changes were rejected, otherwise {@code false}.
-     */
+    @Override
     public boolean apply(List<Change> changes, boolean noPartialApply) {
         ArrayList<OWLOntologyChange> owlChanges = new ArrayList<OWLOntologyChange>();
         int nRejected = rejectedChanges.size();
@@ -148,26 +116,12 @@ public class OntologyPatcher implements RejectedChangeListener {
         return rejectedChanges.size() == nRejected;
     }
 
-    /**
-     * Indicates whether changes have been rejected by this patcher.
-     * 
-     * @return {@code true} if at least one change has ever been rejected in the
-     *         lifetime of this object, otherwise {@code false}.
-     */
+    @Override
     public boolean hasRejectedChanges() {
         return !rejectedChanges.isEmpty();
     }
 
-    /**
-     * Gets the changes that have been rejected by this patcher.
-     * <p>
-     * A change may be “rejected” if the contents of the ontology does not match
-     * what is expected by the change. For example, a change that attempts to modify
-     * a class may be rejected if the class does not exist in the ontology.
-     * 
-     * @return A list of all the changes that have been rejected in the lifetime of
-     *         this patcher.
-     */
+    @Override
     public List<RejectedChange> getRejectedChanges() {
         return rejectedChanges;
     }

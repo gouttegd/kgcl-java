@@ -215,6 +215,21 @@ public class KGCLHelper {
             List<RejectedChange> rejects, boolean provisional) {
         OntologyPatcher patcher = new OntologyPatcher(ontology, reasoner);
         patcher.setProvisional(provisional);
+        apply(changeset, patcher, noPartialApply, rejects);
+    }
+
+    /**
+     * Applies a KGCL changeset using the provided patcher object.
+     * 
+     * @param changeset      The changeset to apply.
+     * @param patcher        The patcher for the knowledge graph to modify.
+     * @param noPartialApply If {@code true}, changes will only be applied if they
+     *                       can all be applied.
+     * @param rejects        A list that will collect the changes that cannot be
+     *                       applied. May be {@code null}.
+     */
+    public static void apply(List<Change> changeset, IPatcher patcher, boolean noPartialApply,
+            List<RejectedChange> rejects) {
         if ( !patcher.apply(changeset, noPartialApply) && rejects != null ) {
             rejects.addAll(patcher.getRejectedChanges());
         }
