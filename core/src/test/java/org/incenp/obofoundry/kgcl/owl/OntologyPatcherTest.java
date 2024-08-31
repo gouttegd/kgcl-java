@@ -16,14 +16,17 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.incenp.obofoundry.kgcl;
+package org.incenp.obofoundry.kgcl.owl;
 
 import java.io.File;
 import java.util.ArrayList;
 
+import org.incenp.obofoundry.kgcl.RejectedChange;
+import org.incenp.obofoundry.kgcl.TestUtils;
 import org.incenp.obofoundry.kgcl.model.Change;
 import org.incenp.obofoundry.kgcl.model.NodeObsoletion;
 import org.incenp.obofoundry.kgcl.model.RemoveSynonym;
+import org.incenp.obofoundry.kgcl.owl.OntologyPatcher;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

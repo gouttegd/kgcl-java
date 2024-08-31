@@ -19,6 +19,7 @@
 package org.incenp.obofoundry.kgcl;
 
 import org.incenp.obofoundry.kgcl.model.Change;
+import org.incenp.obofoundry.kgcl.owl.OWLTranslator;
 
 /**
  * Listener for “rejected change” events – when {@link OWLTranslator} cannot

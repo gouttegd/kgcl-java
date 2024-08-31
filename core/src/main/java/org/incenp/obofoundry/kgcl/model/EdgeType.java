@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.incenp.obofoundry.kgcl;
+package org.incenp.obofoundry.kgcl.model;
 
 /**
  * Represents the type of an edge between two nodes.

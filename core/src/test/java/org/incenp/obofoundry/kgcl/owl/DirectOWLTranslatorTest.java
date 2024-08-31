@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.incenp.obofoundry.kgcl;
+package org.incenp.obofoundry.kgcl.owl;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -24,6 +24,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 
+import org.incenp.obofoundry.kgcl.RejectedChangeListener;
+import org.incenp.obofoundry.kgcl.TestUtils;
 import org.incenp.obofoundry.kgcl.model.AddNodeToSubset;
 import org.incenp.obofoundry.kgcl.model.Change;
 import org.incenp.obofoundry.kgcl.model.ClassCreation;
@@ -55,6 +57,7 @@ import org.incenp.obofoundry.kgcl.model.RemoveTextDefinition;
 import org.incenp.obofoundry.kgcl.model.RemoveUnder;
 import org.incenp.obofoundry.kgcl.model.SynonymReplacement;
 import org.incenp.obofoundry.kgcl.model.TextDefinitionReplacement;
+import org.incenp.obofoundry.kgcl.owl.DirectOWLTranslator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

@@ -16,12 +16,14 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.incenp.obofoundry.kgcl;
+package org.incenp.obofoundry.kgcl.parser;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.antlr.v4.runtime.Token;
+import org.incenp.obofoundry.kgcl.IEntityLabelResolver;
+import org.incenp.obofoundry.kgcl.KGCLReader;
 import org.incenp.obofoundry.kgcl.model.AddNodeToSubset;
 import org.incenp.obofoundry.kgcl.model.Change;
 import org.incenp.obofoundry.kgcl.model.ClassCreation;

@@ -25,6 +25,8 @@ import java.time.ZonedDateTime;
 import java.util.List;
 
 import org.incenp.obofoundry.kgcl.model.Change;
+import org.incenp.obofoundry.kgcl.owl.OntologyPatcher;
+import org.incenp.obofoundry.kgcl.owl.ProvisionalOWLTranslator;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.PrefixManager;
 import org.semanticweb.owlapi.reasoner.OWLReasoner;

@@ -16,10 +16,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.incenp.obofoundry.kgcl;
+package org.incenp.obofoundry.kgcl.owl;
 
 import java.io.File;
 
+import org.incenp.obofoundry.kgcl.IEntityLabelResolver;
+import org.incenp.obofoundry.kgcl.owl.OntologyBasedLabelResolver;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

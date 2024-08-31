@@ -26,6 +26,7 @@ import java.util.List;
 import org.incenp.obofoundry.kgcl.model.Change;
 import org.incenp.obofoundry.kgcl.model.NodeObsoletion;
 import org.incenp.obofoundry.kgcl.model.RemoveSynonym;
+import org.incenp.obofoundry.kgcl.owl.OntologyBasedLabelResolver;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

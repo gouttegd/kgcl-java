@@ -16,11 +16,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.incenp.obofoundry.kgcl;
+package org.incenp.obofoundry.kgcl.owl;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import org.incenp.obofoundry.kgcl.RejectedChange;
+import org.incenp.obofoundry.kgcl.RejectedChangeListener;
 import org.incenp.obofoundry.kgcl.model.Change;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyChange;
