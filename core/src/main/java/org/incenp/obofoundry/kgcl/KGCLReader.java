@@ -227,7 +227,7 @@ public class KGCLReader {
         if ( lexer == null ) {
             throw new IllegalArgumentException("Missing input");
         }
-        return doParse(lexer);
+        return doParse(lexer, true);
     }
 
     /**
@@ -236,26 +236,50 @@ public class KGCLReader {
      * <p>
      * This method does not require that an input has been set and may be called
      * repeatedly on different inputs in the lifetime of the KGCLReader object.
+     * <p>
+     * When this method is called repeatedly to parse several strings, parsed
+     * changes are accumulated across calls and a single subsequent call to
+     * {@link #getChangeSet()} will return all the accumulated changes.
      * 
      * @param text The KGCL program to parse.
      * @return {@code true} if the program was successfully parsed, or {@code false}
      *         if KGCL syntax errors were found.
      */
     public boolean read(String text) {
+        return read(text, false);
+    }
+
+    /**
+     * Parses the KGCL program from the specified string. After this method returns
+     * {@code true}, call the {@link #getChangeSet()} method to get the result.
+     * <p>
+     * If the {@code reset} parameter is set to {@code true}, then any changes that
+     * have been parsed previously are cleared, so that any subsequent call to
+     * {@link #getChangeSet()} will only return the change(s) parsed by the current
+     * call.
+     * 
+     * @param text  The KGCL program to parse.
+     * @param reset If {@code true}, clear any previously parsed changes and errors.
+     * @return {@code true} if the program was successfully parsed, or {@code false}
+     *         if KGCL syntax errors were found.
+     */
+    public boolean read(String text, boolean reset) {
         KGCLLexer lexer = new KGCLLexer(CharStreams.fromString(text));
-        return doParse(lexer);
+        return doParse(lexer, reset);
     }
 
     /*
      * Helper method to do the actual parsing from the provided source.
      */
-    private boolean doParse(KGCLLexer lexer) {
-        if ( !errorListener.errors.isEmpty() ) {
+    private boolean doParse(KGCLLexer lexer, boolean reset) {
+        if ( !errorListener.errors.isEmpty() && reset ) {
             errorListener.errors.clear();
         }
-        if ( !changeSet.isEmpty() ) {
+        if ( !changeSet.isEmpty() && reset ) {
             changeSet.clear();
         }
+
+        int nErrors = errorListener.errors.size();
 
         lexer.removeErrorListeners();
         lexer.addErrorListener(errorListener);
@@ -266,7 +290,7 @@ public class KGCLReader {
         parser.addErrorListener(errorListener);
 
         ParseTree tree = parser.changeset();
-        if ( !hasErrors() ) {
+        if ( errorListener.errors.size() == nErrors ) {
             ParseTree2ChangeVisitor visitor = new ParseTree2ChangeVisitor(prefixManager, changeSet);
             visitor.setLabelResolver(labelResolver);
             visitor.addErrorListener(errorListener);
@@ -275,7 +299,7 @@ public class KGCLReader {
 
         hasRead = true;
 
-        return !hasErrors();
+        return errorListener.errors.size() == nErrors;
     }
 
     /**
