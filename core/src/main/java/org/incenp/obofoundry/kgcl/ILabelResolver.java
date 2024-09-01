@@ -21,7 +21,7 @@ package org.incenp.obofoundry.kgcl;
 /**
  * An object that can resolve labels into proper entity identifiers.
  */
-public interface IEntityLabelResolver {
+public interface ILabelResolver {
 
     /**
      * Finds the identifier corresponding to the given label.
@@ -32,4 +32,27 @@ public interface IEntityLabelResolver {
      */
     public String resolve(String label);
 
+    /**
+     * Registers a new label-to-identifier mapping.
+     * 
+     * @param label      The label to register.
+     * @param identifier Its corresponding identifier.
+     */
+    public void add(String label, String identifier);
+
+    /**
+     * Mints a new identifier for the given label.
+     * <p>
+     * This method is used when a KGCL “create” instruction does not include an
+     * identifier for the node to be created (e.g.,
+     * {@code create class 'my new class'}). It shall return a new identifier for
+     * the node to be created.
+     * <p>
+     * Any subsequent call to {@link #resolve(String)} with the same label shall
+     * return the same identifier.
+     * 
+     * @param label The label for which an identifier is requested.
+     * @return The newly minted identifier.
+     */
+    public String getNewId(String label);
 }

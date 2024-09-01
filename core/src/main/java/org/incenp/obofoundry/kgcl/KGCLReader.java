@@ -68,7 +68,7 @@ import org.semanticweb.owlapi.util.DefaultPrefixManager;
 public class KGCLReader {
     private KGCLLexer lexer;
     private PrefixManager prefixManager;
-    private IEntityLabelResolver labelResolver;
+    private ILabelResolver labelResolver;
     private ErrorListener errorListener = new ErrorListener();
     private List<Change> changeSet = new ArrayList<Change>();
     private boolean hasRead = false;
@@ -201,13 +201,18 @@ public class KGCLReader {
      * entity by its label rather than by its identifier. It is the resolver’s
      * responsibility to find the entity referenced by the label.
      * <p>
-     * If not set or {@code null} (which is the case by default), the reader will be
-     * unable to resolve labels and any use of a label in place of an identifier
-     * will lead to an error.
+     * If not set or {@code null} (which is the case by default), the reader will
+     * only be able to resolve labels (resulting in a parsing error) unless they
+     * have been used in a prior {@code create...} instruction, as in:
+     * 
+     * <pre>
+     * create class EX:0001 "my label"
+     * create exact synonym "my synonym" for "my label"
+     * </pre>
      * 
      * @param resolver The resolver to use.
      */
-    public void setLabelResolver(IEntityLabelResolver resolver) {
+    public void setLabelResolver(ILabelResolver resolver) {
         labelResolver = resolver;
     }
 
@@ -291,8 +296,7 @@ public class KGCLReader {
 
         ParseTree tree = parser.changeset();
         if ( errorListener.errors.size() == nErrors ) {
-            ParseTree2ChangeVisitor visitor = new ParseTree2ChangeVisitor(prefixManager, changeSet);
-            visitor.setLabelResolver(labelResolver);
+            ParseTree2ChangeVisitor visitor = new ParseTree2ChangeVisitor(prefixManager, getLabelResolver(), changeSet);
             visitor.addErrorListener(errorListener);
             visitor.visit(tree);
         }
@@ -346,6 +350,13 @@ public class KGCLReader {
      */
     public List<KGCLSyntaxError> getErrors() {
         return errorListener.errors;
+    }
+
+    private ILabelResolver getLabelResolver() {
+        if ( labelResolver == null ) {
+            labelResolver = new SimpleLabelResolver();
+        }
+        return labelResolver;
     }
 
     private class ErrorListener extends BaseErrorListener implements IParseTreeErrorListener {

@@ -21,7 +21,7 @@ package org.incenp.obofoundry.kgcl.owl;
 import java.util.HashMap;
 import java.util.HashSet;
 
-import org.incenp.obofoundry.kgcl.IEntityLabelResolver;
+import org.incenp.obofoundry.kgcl.SimpleLabelResolver;
 import org.semanticweb.owlapi.model.OWLAnnotationAssertionAxiom;
 import org.semanticweb.owlapi.model.OWLEntity;
 import org.semanticweb.owlapi.model.OWLOntology;
@@ -31,7 +31,8 @@ import org.semanticweb.owlapi.model.parameters.Imports;
  * An object to resolve labels into identifiers using the {@code rdfs:label}
  * annotations of an ontology’s entities.
  */
-public class OntologyBasedLabelResolver implements IEntityLabelResolver {
+public class OntologyBasedLabelResolver extends SimpleLabelResolver
+{
 
     private HashMap<String, String> idMap = new HashMap<String, String>();
     private OWLOntology ontology;
@@ -48,10 +49,20 @@ public class OntologyBasedLabelResolver implements IEntityLabelResolver {
 
     @Override
     public String resolve(String label) {
-        if ( idMap.isEmpty() ) {
-            buildIdMap();
+        // We first lookup in the parent's dictionary, in case the label has a newly
+        // minted ID. Such IDs takes precedence over the ontology's contents.
+        String resolved = super.resolve(label);
+        if ( resolved == null ) {
+            if ( idMap.isEmpty() ) {
+                // Rather than querying the ontology for each lookup, we build a one-time map of
+                // all labels. Since this requires iterating over the entire ontology, we do
+                // that lazily, so that we may in fact not have to do it at all if we are never
+                // asked to resolve an identifier.
+                buildIdMap();
+            }
+            resolved = idMap.get(label);
         }
-        return idMap.get(label);
+        return resolved;
     }
 
     private void buildIdMap() {

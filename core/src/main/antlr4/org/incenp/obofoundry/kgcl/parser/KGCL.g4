@@ -46,7 +46,7 @@ removeDefinition: 'remove' 'definition' 'for' id;
 
 changeDefinition: 'change' 'definition' 'of' id ('from' old_definition=text)? 'to' new_definition=text;
 
-newNode   : 'create' nodeType id label=text;
+newNode   : 'create' nodeType id? label=text;
 
 newEdge   : 'create' 'edge' subject_id=id predicate_id=id object_id=id;
 

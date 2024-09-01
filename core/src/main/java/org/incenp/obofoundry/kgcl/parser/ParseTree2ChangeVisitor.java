@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.antlr.v4.runtime.Token;
-import org.incenp.obofoundry.kgcl.IEntityLabelResolver;
+import org.incenp.obofoundry.kgcl.ILabelResolver;
 import org.incenp.obofoundry.kgcl.KGCLReader;
 import org.incenp.obofoundry.kgcl.model.AddNodeToSubset;
 import org.incenp.obofoundry.kgcl.model.Change;
@@ -54,8 +54,6 @@ import org.incenp.obofoundry.kgcl.model.RemoveSynonym;
 import org.incenp.obofoundry.kgcl.model.RemoveTextDefinition;
 import org.incenp.obofoundry.kgcl.model.SynonymReplacement;
 import org.incenp.obofoundry.kgcl.model.TextDefinitionReplacement;
-import org.incenp.obofoundry.kgcl.parser.KGCLBaseVisitor;
-import org.incenp.obofoundry.kgcl.parser.KGCLParser;
 import org.incenp.obofoundry.kgcl.parser.KGCLParser.IdContext;
 import org.incenp.obofoundry.kgcl.parser.KGCLParser.TextContext;
 import org.semanticweb.owlapi.model.PrefixManager;
@@ -70,26 +68,11 @@ import org.semanticweb.owlapi.model.PrefixManager;
 public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
 
     private PrefixManager prefixManager;
-    private IEntityLabelResolver labelResolver;
+    private ILabelResolver labelResolver;
     private List<Change> changes;
     private List<IParseTreeErrorListener> errorListeners = new ArrayList<IParseTreeErrorListener>();
     private String currentId;
     private boolean isBogus = false;
-
-    /**
-     * Creates a new visitor with the specified prefix manager.
-     * 
-     * @param prefixManager An OWL API prefix manager that will be used to convert
-     *                      short identifiers (“CURIEs”) into their corresponding
-     *                      full-length, canonical forms. May be {@code null}, in
-     *                      which case short identifiers will all be assumed to be
-     *                      OBO-style CURIEs in the
-     *                      {@code http://purl.obolibrary.org/obo/} namespace.
-     */
-    public ParseTree2ChangeVisitor(PrefixManager prefixManager) {
-        this.prefixManager = prefixManager;
-        changes = new ArrayList<Change>();
-    }
 
     /**
      * Creates a new visitor with the specified prefix manager and list to store the
@@ -97,11 +80,14 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
      * 
      * @param prefixManager An OWL API prefix manager to convert short identifiers
      *                      into their full-length forms. May be {@code null}.
+     * @param labelResolver The resolver to use to resolve labels into identifiers.
      * @param changes       The list where changes built from the parse tree will be
      *                      accumulated.
      */
-    public ParseTree2ChangeVisitor(PrefixManager prefixManager, List<Change> changes) {
+    public ParseTree2ChangeVisitor(PrefixManager prefixManager, ILabelResolver labelResolver,
+            List<Change> changes) {
         this.prefixManager = prefixManager;
+        this.labelResolver = labelResolver;
         this.changes = changes;
     }
 
@@ -112,26 +98,6 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
      */
     public void addErrorListener(IParseTreeErrorListener listener) {
         errorListeners.add(listener);
-    }
-
-    /**
-     * Sets the label resolver, to be used when an entity is referenced by its label
-     * rather than by its identifier.
-     * 
-     * @param resolver The resolver to use.
-     */
-    public void setLabelResolver(IEntityLabelResolver resolver) {
-        labelResolver = resolver;
-    }
-
-    /**
-     * Gets the changes obtained from converting the parse tree. Call this function
-     * after having visited the entire parse tree to get the entire set of changes.
-     * 
-     * @return The list of change objects.
-     */
-    public List<Change> getChangeSet() {
-        return changes;
     }
 
     @Override
@@ -298,7 +264,16 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
             break;
         }
 
-        change.setAboutNode(getNode(ctx.id()));
+        if ( ctx.id() != null ) {
+            change.setAboutNode(getNode(ctx.id()));
+            labelResolver.add(unquote(ctx.label.string().getText()), currentId);
+        } else {
+            String newId = labelResolver.getNewId(unquote(ctx.label.string().getText()));
+            Node aboutNode = new Node();
+            aboutNode.setId(newId);
+            change.setAboutNode(aboutNode);
+        }
+
         change.getAboutNode().setOwlType(type);
         setNewValue(ctx.label, change);
 
@@ -437,13 +412,13 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
 
     @Override
     public Void visitIdAsLabel(KGCLParser.IdAsLabelContext ctx) {
-        if ( labelResolver != null ) {
-            currentId = labelResolver.resolve(unquote(ctx.string().getText()));
-            if ( currentId != null ) {
-                return null;
-            }
+        String label = unquote(ctx.string().getText());
+
+        currentId = labelResolver.resolve(label);
+        if ( currentId == null ) {
+            onParseTreeError(ctx.getStart(), String.format("Unresolved label %s", label));
         }
-        onParseTreeError(ctx.getStart(), String.format("Unresolved label %s", ctx.string().getText()));
+
         return null;
     }
 

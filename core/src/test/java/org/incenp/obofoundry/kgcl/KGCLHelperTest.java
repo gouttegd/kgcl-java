@@ -80,7 +80,7 @@ public class KGCLHelperTest {
     void testUsingLabelsAsIds() {
         List<Change> changeset = null;
         List<KGCLSyntaxError> errors = new ArrayList<KGCLSyntaxError>();
-        IEntityLabelResolver resolver = new OntologyBasedLabelResolver(ontology);
+        SimpleLabelResolver resolver = new OntologyBasedLabelResolver(ontology);
 
         changeset = KGCLHelper.parse("obsolete 'LaReine'", prefixManager, errors, resolver);
         Assertions.assertEquals(1, changeset.size());

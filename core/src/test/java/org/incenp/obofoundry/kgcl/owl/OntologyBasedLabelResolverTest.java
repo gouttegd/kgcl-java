@@ -20,8 +20,7 @@ package org.incenp.obofoundry.kgcl.owl;
 
 import java.io.File;
 
-import org.incenp.obofoundry.kgcl.IEntityLabelResolver;
-import org.incenp.obofoundry.kgcl.owl.OntologyBasedLabelResolver;
+import org.incenp.obofoundry.kgcl.SimpleLabelResolver;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -46,7 +45,7 @@ public class OntologyBasedLabelResolverTest {
 
     @Test
     void testResolveLabels() {
-        IEntityLabelResolver resolver = new OntologyBasedLabelResolver(ontology);
+        SimpleLabelResolver resolver = new OntologyBasedLabelResolver(ontology);
 
         Assertions.assertEquals("http://www.co-ode.org/ontologies/pizza/pizza.owl#SultanaTopping",
                 resolver.resolve("SultanaTopping"));

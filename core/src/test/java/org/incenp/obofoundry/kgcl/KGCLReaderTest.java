@@ -117,6 +117,9 @@ class KGCLReaderTest {
         Assertions.assertEquals(1, reader.getChangeSet().size());
 
         reader.read("unobsolete EX:0001");
+        Assertions.assertEquals(2, reader.getChangeSet().size());
+
+        reader.read("obsolete EX:0003", true);
         Assertions.assertEquals(1, reader.getChangeSet().size());
     }
 
@@ -127,6 +130,9 @@ class KGCLReaderTest {
         Assertions.assertTrue(reader.getErrors().size() > 0);
 
         reader.read("obsolete EX:0001");
+        Assertions.assertTrue(reader.getErrors().size() > 0);
+
+        reader.read("obsolete EX:0002", true);
         Assertions.assertTrue(reader.getErrors().isEmpty());
     }
 
@@ -276,11 +282,10 @@ class KGCLReaderTest {
         // No label resolver, bound to fail
         testParseFail("rename 'old label' from 'old label' to 'new label'");
 
-        HashMap<String, String> idMap = new HashMap<String, String>();
-        idMap.put("label 1", "https://example.org/0001");
-        idMap.put("label 2", "https://example.org/0002");
-        idMap.put("label 3", "https://example.org/0003");
-        IEntityLabelResolver resolver = s -> idMap.get(s);
+        SimpleLabelResolver resolver = new SimpleLabelResolver();
+        resolver.add("label 1", "https://example.org/0001");
+        resolver.add("label 2", "https://example.org/0002");
+        resolver.add("label 3", "https://example.org/0003");
 
         NodeRename c1 = new NodeRename();
         c1.setAboutNode(util.getNode("0001"));
@@ -303,6 +308,32 @@ class KGCLReaderTest {
             reader.setLabelResolver(resolver);
             reader.read("obsolete 'label 1' with alternative EX:0002,'label 3'");
         }, c2);
+    }
+
+    @Test
+    void testCreateNodesWithoutExplicitIds() {
+        KGCLReader reader = new KGCLReader();
+        reader.read("create class 'my first class'");
+        reader.read("create class 'my second class'");
+        reader.read("create edge 'my first class' rdfs:subClassOf 'my second class'");
+        for ( KGCLSyntaxError error : reader.getErrors() ) {
+            System.err.printf("Error: %d, %d: %s\n", error.getLine(), error.getPosition(), error.getMessage());
+        }
+        Assertions.assertFalse(reader.hasErrors());
+
+        List<Change> changeset = reader.getChangeSet();
+        Assertions.assertInstanceOf(ClassCreation.class, changeset.get(0));
+        ClassCreation c1 = ClassCreation.class.cast(changeset.get(0));
+        Assertions.assertTrue(c1.getAboutNode().getId().startsWith(AutoIDAllocator.AUTOID_BASE_IRI));
+
+        Assertions.assertInstanceOf(ClassCreation.class, changeset.get(1));
+        ClassCreation c2 = ClassCreation.class.cast(changeset.get(1));
+        Assertions.assertTrue(c2.getAboutNode().getId().startsWith(AutoIDAllocator.AUTOID_BASE_IRI));
+
+        Assertions.assertInstanceOf(EdgeCreation.class, changeset.get(2));
+        EdgeCreation c3 = EdgeCreation.class.cast(changeset.get(2));
+        Assertions.assertEquals(c1.getAboutNode().getId(), c3.getSubject().getId());
+        Assertions.assertEquals(c2.getAboutNode().getId(), c3.getObject().getId());
     }
 
     @Test

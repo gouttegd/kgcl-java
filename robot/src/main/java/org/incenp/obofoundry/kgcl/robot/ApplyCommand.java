@@ -32,7 +32,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.incenp.obofoundry.kgcl.AutoIDAllocator;
 import org.incenp.obofoundry.kgcl.IAutoIDGenerator;
-import org.incenp.obofoundry.kgcl.IEntityLabelResolver;
+import org.incenp.obofoundry.kgcl.ILabelResolver;
 import org.incenp.obofoundry.kgcl.KGCLHelper;
 import org.incenp.obofoundry.kgcl.KGCLSyntaxError;
 import org.incenp.obofoundry.kgcl.KGCLWriter;
@@ -144,7 +144,7 @@ public class ApplyCommand implements Command {
         if ( ontologyFormat.isPrefixOWLOntologyFormat() ) {
             prefixManager.copyPrefixesFrom(ontologyFormat.asPrefixOWLOntologyFormat());
         }
-        IEntityLabelResolver labelResolver = new OntologyBasedLabelResolver(ontology);
+        ILabelResolver labelResolver = new OntologyBasedLabelResolver(ontology);
 
         List<Change> changeset = new ArrayList<Change>();
         List<KGCLSyntaxError> errors = new ArrayList<KGCLSyntaxError>();

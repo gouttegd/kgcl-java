@@ -149,8 +149,8 @@ reader.read();
   The KGCL-DSL syntax also allows referencing nodes using their labels
   rather than their identifiers. For that to be possible, the
   <<<KGCLReader>>> object must be provided with an implementation of the
-  {{{./apidocs/org/incenp/obofoundry/kgcl/IEntityLabelResolver.html}IEntityLabelResolver}}
-  interface so that the labels can be resolved into proper identifiers.
+  {{{./apidocs/org/incenp/obofoundry/kgcl/ILabelResolver.html}LabelResolver}}
+  object so that the labels can be resolved into proper identifiers.
   The library provides an implementation that can resolve labels based
   on a OWL ontology:
   
