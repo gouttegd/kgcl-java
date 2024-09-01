@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.incenp</groupId>
     <artifactId>kgcl</artifactId>
-    <version>0.4.1-SNAPSHOT</version>
+    <version>0.5.0</version>
   </parent>
   <artifactId>kgcl-core</artifactId>
 
@@ -13,7 +13,7 @@
   <url>https://incenp.org/dvlpt/kgcl-java/library.html</url>
   <scm>
     <url>https://github.com/gouttegd/kgcl-java</url>
-    <tag>HEAD</tag>
+    <tag>kgcl-0.5.0</tag>
   </scm>
 
   <dependencies>
