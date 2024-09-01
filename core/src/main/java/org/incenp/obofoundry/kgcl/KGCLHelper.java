@@ -45,10 +45,9 @@ public class KGCLHelper {
      * @param prefixManager A prefix manager to expand CURIEs into IRIs. May be
      *                      {@code null}.
      * @return A KGCL changeset.
-     * @throws IOException If any non-KGCL I/O error occurs.
      */
-    public static List<Change> parse(String kgcl, PrefixManager prefixManager) throws IOException {
-        return doParse(new KGCLReader(new StringReader(kgcl)), prefixManager, null, null);
+    public static List<Change> parse(String kgcl, PrefixManager prefixManager) {
+        return doParse(kgcl, prefixManager, null, null);
     }
 
     /**
@@ -60,11 +59,9 @@ public class KGCLHelper {
      * @param errors        A list that will collect any syntax error encountered
      *                      when parsing. If {@code null}, errors will be ignored.
      * @return A KGCL changeset.
-     * @throws IOException If any non-KGCL I/O error occurs.
      */
-    public static List<Change> parse(String kgcl, PrefixManager prefixManager, List<KGCLSyntaxError> errors)
-            throws IOException {
-        return doParse(new KGCLReader(new StringReader(kgcl)), prefixManager, errors, null);
+    public static List<Change> parse(String kgcl, PrefixManager prefixManager, List<KGCLSyntaxError> errors) {
+        return doParse(kgcl, prefixManager, errors, null);
     }
 
     /**
@@ -81,11 +78,10 @@ public class KGCLHelper {
      *                      an identifier is normally expected would result in a
      *                      syntax error.
      * @return A KGCL changeset.
-     * @throws IOException If any non-KGCL I/O error occurs.
      */
     public static List<Change> parse(String kgcl, PrefixManager prefixManager, List<KGCLSyntaxError> errors,
-            IEntityLabelResolver labelResolver) throws IOException {
-        return doParse(new KGCLReader(new StringReader(kgcl)), prefixManager, errors, labelResolver);
+            IEntityLabelResolver labelResolver) {
+        return doParse(kgcl, prefixManager, errors, labelResolver);
     }
 
     /**
@@ -100,13 +96,30 @@ public class KGCLHelper {
      *                      an identifier is normally expected would result in an
      *                      error.
      * @return A KGCL changeset.
-     * @throws IOException If any non-KGCL I/O error occurs.
      */
     public static List<Change> parse(String kgcl, Map<String, String> prefixMap, List<KGCLSyntaxError> errors,
-            IEntityLabelResolver labelResolver) throws IOException {
-        PrefixManager prefixManager = new DefaultPrefixManager();
-        prefixManager.copyPrefixesFrom(prefixMap);
-        return doParse(new KGCLReader(new StringReader(kgcl)), prefixManager, errors, labelResolver);
+            IEntityLabelResolver labelResolver) {
+        PrefixManager prefixManager = null;
+        if ( prefixMap != null && !prefixMap.isEmpty() ) {
+            prefixManager = new DefaultPrefixManager();
+            prefixManager.copyPrefixesFrom(prefixMap);
+        }
+        return doParse(kgcl, prefixManager, errors, labelResolver);
+    }
+
+    private static List<Change> doParse(String kgcl, PrefixManager prefixManager, List<KGCLSyntaxError> errors,
+            IEntityLabelResolver labelResolver) {
+        List<Change> changeset = null;
+
+        if ( kgcl != null ) {
+            try {
+                changeset = doParse(new KGCLReader(new StringReader(kgcl)), prefixManager, errors, labelResolver);
+            } catch ( IOException ioe ) {
+                // Cannot happen if kgcl is not null, we can safely ignore
+            }
+        }
+
+        return changeset;
     }
 
     /**
@@ -175,14 +188,16 @@ public class KGCLHelper {
      */
     public static List<Change> parse(File kgcl, Map<String, String> prefixMap, List<KGCLSyntaxError> errors,
             IEntityLabelResolver labelResolver) throws IOException {
-        PrefixManager prefixManager = new DefaultPrefixManager();
-        prefixManager.copyPrefixesFrom(prefixMap);
+        PrefixManager prefixManager = null;
+        if ( prefixMap != null && !prefixMap.isEmpty() ) {
+            prefixManager = new DefaultPrefixManager();
+            prefixManager.copyPrefixesFrom(prefixMap);
+        }
         return doParse(new KGCLReader(kgcl), prefixManager, errors, labelResolver);
     }
 
     private static List<Change> doParse(KGCLReader reader, PrefixManager prefixManager, List<KGCLSyntaxError> errors,
-            IEntityLabelResolver labelResolver)
-            throws IOException {
+            IEntityLabelResolver labelResolver) {
         reader.setPrefixManager(prefixManager);
         reader.setLabelResolver(labelResolver);
 

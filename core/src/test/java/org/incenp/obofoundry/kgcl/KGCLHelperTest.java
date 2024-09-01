@@ -19,7 +19,6 @@
 package org.incenp.obofoundry.kgcl;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -58,37 +57,20 @@ public class KGCLHelperTest {
 
     @Test
     void testStringParsing() {
-        List<Change> changeset = null;
-        try {
-            changeset = KGCLHelper.parse("obsolete pizza:LaReine", prefixManager);
-        } catch ( IOException e ) {
-            Assertions.fail(e);
-        }
-
+        List<Change> changeset = KGCLHelper.parse("obsolete pizza:LaReine", prefixManager);
         Assertions.assertEquals(1, changeset.size());
     }
 
     @Test
     void testStringParsingWithSyntaxError() {
-        List<Change> changeset = null;
-        try {
-            changeset = KGCLHelper.parse("not kgcl", prefixManager);
-        } catch ( IOException e ) {
-            Assertions.fail(e);
-        }
-
+        List<Change> changeset = KGCLHelper.parse("not kgcl", prefixManager);
         Assertions.assertTrue(changeset.isEmpty());
     }
 
     @Test
     void testStringParsingWithErrorCollection() {
         ArrayList<KGCLSyntaxError> errors = new ArrayList<KGCLSyntaxError>();
-        List<Change> changeset = null;
-        try {
-            changeset = KGCLHelper.parse("not kgcl", prefixManager, errors);
-        } catch ( IOException e ) {
-            Assertions.fail(e);
-        }
+        List<Change> changeset = KGCLHelper.parse("not kgcl", prefixManager, errors);
 
         Assertions.assertTrue(changeset.isEmpty());
         Assertions.assertFalse(errors.isEmpty());
@@ -100,19 +82,11 @@ public class KGCLHelperTest {
         List<KGCLSyntaxError> errors = new ArrayList<KGCLSyntaxError>();
         IEntityLabelResolver resolver = new OntologyBasedLabelResolver(ontology);
 
-        try {
-            changeset = KGCLHelper.parse("obsolete 'LaReine'", prefixManager, errors, resolver);
-        } catch ( IOException e ) {
-            Assertions.fail(e);
-        }
+        changeset = KGCLHelper.parse("obsolete 'LaReine'", prefixManager, errors, resolver);
         Assertions.assertEquals(1, changeset.size());
         Assertions.assertTrue(errors.isEmpty());
 
-        try {
-            changeset = KGCLHelper.parse("obsolete 'bogus label'", prefixManager, errors, resolver);
-        } catch ( IOException e ) {
-            Assertions.fail(e);
-        }
+        changeset = KGCLHelper.parse("obsolete 'bogus label'", prefixManager, errors, resolver);
         Assertions.assertTrue(changeset.isEmpty());
         Assertions.assertEquals(1, errors.size());
     }
@@ -123,12 +97,7 @@ public class KGCLHelperTest {
         HashMap<String, String> prefixMap = new HashMap<String, String>();
         prefixMap.put("EXA", TestUtils.EXAMPLE_BASE);
 
-        try {
-            changeset = KGCLHelper.parse("obsolete EXA:0001", prefixMap, null, null);
-        } catch ( IOException e ) {
-            Assertions.fail(e);
-        }
-
+        changeset = KGCLHelper.parse("obsolete EXA:0001", prefixMap, null, null);
         NodeObsoletion change = new NodeObsoletion();
         change.setAboutNode(new TestUtils().getNode("0001"));
         Assertions.assertEquals(change, changeset.get(0));

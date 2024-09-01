@@ -184,8 +184,8 @@ public class KGCLReader {
      * This is equivalent to calling {@link #setPrefixManager(PrefixManager)} with a
      * PrefixManager object initialised with the provided map.
      * 
-     * @param prefixes The map of prefix names to prefixes to use to resolve short
-     *                 identifiers.
+     * @param map The map of prefix names to prefixes to use to resolve short
+     *            identifiers.
      */
     public void setPrefixMap(Map<String, String> map) {
         if ( prefixManager == null ) {
