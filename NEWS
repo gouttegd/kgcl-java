@@ -1,3 +1,11 @@
+Changes in kgcl-java-0.5.0
+--------------------------
+
+    * Allow using labels rather than IDs to refer to nodes.
+    * Allow using a custom prefix map rather than a OWLAPI PrefixManager.
+    * Move OWL-related classes to the org.incenp.obofoundry.kgcl.owl package.
+
+
 Changes in kgcl-java-0.4.0
 --------------------------
 
