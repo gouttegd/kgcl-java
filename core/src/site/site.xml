@@ -2,7 +2,11 @@
 <project xmlns="http://maven.apache.org/DECORATION/1.8.0"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/DECORATION 1.8.0
-                      http://maven.apache.org/xsd/decoration-1.8.0.xsd">
+                      http://maven.apache.org/xsd/decoration-1.8.0.xsd"
+  name="KGCL-Java">
+  <bannerLeft>
+    <name>KGCL-Java</name>
+  </bannerLeft>
   <body>
     <menu name="KGCL-Java">
       <item name="About" href="index.html" />
@@ -14,6 +18,6 @@
       <item name="API Documentation" href="apidocs/index.html" />
     </menu>
     <menu ref="reports" />
-    <footer><![CDATA[Copyright © 2023 Damien Goutte-Gattat]]></footer>
+    <footer><![CDATA[Copyright © 2024 Damien Goutte-Gattat]]></footer>
   </body>
 </project>
