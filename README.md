@@ -10,17 +10,20 @@ INCATools implementation.
 
 Design
 ------
-The code is organized in three distinct packages.
+The code is organized in four distinct packages.
 
 The `org.incenp.obofoundry.kgcl` package is intended to provide a
-reasonably high-level API to parse KGCL instructions and apply the
-changes to an OWL ontology.
+reasonably high-level API to serialise, deserialise, and manipulate KGCL
+objects.
 
 The `org.incenp.obofoundry.kgcl.model` package provides the classes that
 make up the object model for KGCL. Those classes are directly derived
 from the LinkML schema that formally describes KGCL (they are generated
 from a [custom LinkML-based generator](linkml/custom-javagen.py)). Those
 classes may be used by those who want to manipulate KGCL objects.
+
+The `org.incenp.obofoundry.kgcl.owl` package provides classes to apply
+KGCL-described changes to a OWL ontology using the OWLAPI.
 
 The `org.incenp.obofoundry.kgcl.parser` package contains an
 [ANTLR](https://www.antlr.org/)-generated parser to convert KGCL
@@ -55,15 +58,15 @@ if ( reader.read() ) {
 The reader will throw the standard exceptions (`FileNotFoundException`,
 `IOException`) if some non-KGCL-related I/O errors occur.
 
-Before attempting to read, you can pass a OWL API `PrefixManager` to the
-reader, which will use it to expand CURIEs in the KGCL file. As a
-convenience, if you have a `OWLOntology` object that was obtained from a
-format that supports prefixes, you can pass that object directly as the
-prefix manager:
+Before attempting to read, you can pass a OWLAPI `PrefixManager` to the
+reader, which will use it to expand CURIEs in the KGCL file. For
+example, assuming you have an ontology in a file format that supports
+prefixes:
 
 ```java
-OWLOntology o = OWLManager.createOWLOntologyManager().loadOntologyFrom...;
-reader.setPrefixManager(o);
+OWLOntologyManager mgr = OWLManager.createOWLOntologyManager();
+OWLOntology o = mgr.loadOntologyFrom...;
+reader.setPrefixManager(mgr.getOntologyFormat(o).asPrefixOWLOntologyFormat());
 ```
 
 ### Writing a KGCL file
@@ -87,13 +90,13 @@ As for parsing, you can pass a OWL API `PrefixManager` to the writer to
 condense identifiers into short, “CURIEfied” identifiers.
 
 ### Applying the changes to a OWL ontology
-Use the `org.incenp.obofoundry.kgcl.OntologyPatcher` to apply changes to
+Use the `org.incenp.obofoundry.kgcl.owl.OntologyPatcher` to apply changes to
 an ontology:
 
 ```java
-import org.incenp.obofoundry.kgcl.OntologyPatcher;
 import org.incenp.obofoundry.kgcl.RejectedChange;
 import org.incenp.obofoundry.kgcl.model.Change;
+import org.incenp.obofoundry.kgcl.owl.OntologyPatcher;
 import org.semanticweb.owlapi.model.OWLOntology;
 import java.util.List;
 

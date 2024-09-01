@@ -31,16 +31,17 @@ import org.semanticweb.owlapi.reasoner.OWLReasoner;
 
 /**
  * A class to apply KGCL-described changes to a OWL API ontology. This class is
- * intended to be at a slightly higher level than {@link DirectOWLTranslator} and
- * as such is the preferred way of modifying an ontology with KGCL.
+ * intended to be at a slightly higher level than {@link DirectOWLTranslator}
+ * and as such is the preferred way of modifying an ontology with KGCL.
  * <p>
  * Typical usage:
  * 
  * <pre>
  * List&lt;Change&gt; changeSet = ... ;
  * OWLOntology ontology = ... ;
+ * OWLReasoner reasoner = ... ;
  * 
- * OntologyPatcher patcher = new OntologyPatcher(ontology);
+ * OntologyPatcher patcher = new OntologyPatcher(ontology, reasoner);
  * if ( patcher.apply(changeSet) ) {
  *     // All changes were successfully applied
  *     ontology.saveOntology(...);
