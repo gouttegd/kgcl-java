@@ -138,9 +138,13 @@ reader.read();
   using a <<<PrefixManager>>> at the parsing stage to automatically
   resolve all shortened identifiers is <strongly> recommended.
   
+  Alternatively, rather than a <<<PrefixManager>>> object, the reader
+  may be provided with a map of prefix names to prefixes, using the
+  <<<setPrefixMap()>>> method.
+  
   When serialising, the <<<KGCLWriter>>> object may likewise be
-  provided with a <<<PrefixManager>>> so that identifiers may be
-  written in shortened form.
+  provided with a <<<PrefixManager>>> or a prefix map so that
+  identifiers may be written in shortened form.
   
   The KGCL-DSL syntax also allows referencing nodes using their labels
   rather than their identifiers. For that to be possible, the

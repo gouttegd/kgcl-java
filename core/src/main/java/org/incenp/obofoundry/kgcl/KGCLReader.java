@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.antlr.v4.runtime.BaseErrorListener;
 import org.antlr.v4.runtime.CharStreams;
@@ -139,16 +140,12 @@ public class KGCLReader {
      * The prefix manager must be set before the {@link #read()} is called,
      * otherwise it will have no effect.
      * <p>
-     * If no prefix manager is set, the underlying KGCL parser will treat any CURIE
-     * as if it was a “OBO” CURIE. That is, a short identifier of the form
-     * {@code PREFIX:XXXX} will be expanded into
-     * {@code http://purl.obolibrary.org/obo/PREFIX_XXXX}. Relying on this default
-     * behaviour is not recommended: using an explicit prefix manager should be
-     * preferred.
+     * If no prefix manager is set, the underlying KGCL parser will leave any CURIE
+     * it finds unexpanded. It will then be the caller’s responsibility to expand
+     * the CURIEs in the resulting KGCL changes.
      * 
-     * @param manager The OWL API prefix manager to use (may be {@code null}, in
-     *                which case the parser will fall back to the default OBO
-     *                behaviour).
+     * @param manager The OWL API prefix manager to use (may be {@code null} to
+     *                leave the CURIEs in their unexpanded form).
      */
     public void setPrefixManager(PrefixManager manager) {
         prefixManager = manager;
@@ -179,6 +176,22 @@ public class KGCLReader {
                 prefixManager = new DefaultPrefixManager();
             }
         }
+    }
+
+    /**
+     * Sets the prefix map to use to resolve short identifiers.
+     * <p>
+     * This is equivalent to calling {@link #setPrefixManager(PrefixManager)} with a
+     * PrefixManager object initialised with the provided map.
+     * 
+     * @param prefixes The map of prefix names to prefixes to use to resolve short
+     *                 identifiers.
+     */
+    public void setPrefixMap(Map<String, String> map) {
+        if ( prefixManager == null ) {
+            prefixManager = new DefaultPrefixManager();
+        }
+        prefixManager.copyPrefixesFrom(map);
     }
 
     /**

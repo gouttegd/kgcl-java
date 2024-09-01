@@ -21,6 +21,7 @@ package org.incenp.obofoundry.kgcl;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.incenp.obofoundry.kgcl.model.Change;
@@ -114,6 +115,23 @@ public class KGCLHelperTest {
         }
         Assertions.assertTrue(changeset.isEmpty());
         Assertions.assertEquals(1, errors.size());
+    }
+
+    @Test
+    void testUsingCustomPrefixMap() {
+        List<Change> changeset = null;
+        HashMap<String, String> prefixMap = new HashMap<String, String>();
+        prefixMap.put("EXA", TestUtils.EXAMPLE_BASE);
+
+        try {
+            changeset = KGCLHelper.parse("obsolete EXA:0001", prefixMap, null, null);
+        } catch ( IOException e ) {
+            Assertions.fail(e);
+        }
+
+        NodeObsoletion change = new NodeObsoletion();
+        change.setAboutNode(new TestUtils().getNode("0001"));
+        Assertions.assertEquals(change, changeset.get(0));
     }
 
     @Test

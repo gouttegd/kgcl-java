@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.incenp.obofoundry.kgcl.model.Change;
 import org.incenp.obofoundry.kgcl.model.ClassCreation;
@@ -108,6 +109,20 @@ public class KGCLWriterTest {
         } catch ( OWLOntologyCreationException e ) {
             Assertions.fail(e);
         }
+    }
+
+    @Test
+    void testWriteWithCustomPrefixMap() {
+        NodeObsoletion change = new NodeObsoletion();
+        change.setAboutNode(util.getNode("0001"));
+
+        HashMap<String, String> prefixMap = new HashMap<String, String>();
+        prefixMap.put("EXA", TestUtils.EXAMPLE_BASE);
+
+        testSimpleWrite(w -> {
+            w.setPrefixMap(prefixMap);
+            w.write(change);
+        }, "obsolete EXA:0001\n");
     }
 
     /*

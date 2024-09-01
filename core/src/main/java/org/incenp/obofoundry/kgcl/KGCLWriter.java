@@ -26,6 +26,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.List;
+import java.util.Map;
 
 import org.incenp.obofoundry.kgcl.model.Change;
 import org.semanticweb.owlapi.model.OWLDocumentFormat;
@@ -99,7 +100,7 @@ public class KGCLWriter {
     }
 
     /**
-     * Sets the pefix manager from the specified ontology. This is a convenience
+     * Sets the prefix manager from the specified ontology. This is a convenience
      * method that automatically gets the prefix manager from a OWL API
      * {@code OWLOntology} object and sets it as the prefix manager for the writer.
      * 
@@ -122,6 +123,21 @@ public class KGCLWriter {
                 prefixManager = new DefaultPrefixManager();
             }
         }
+    }
+
+    /**
+     * Sets the prefix map to use to compact identifiers.
+     * <p>
+     * This is equivalent to calling {@link #setPrefixManager(PrefixManager)} with a
+     * PrefixManager object initialised with the provided map.
+     * 
+     * @param map The map of prefix names to prefixes to use to compact identifiers.
+     */
+    public void setPrefixMap(Map<String, String> map) {
+        if ( prefixManager == null ) {
+            prefixManager = new DefaultPrefixManager();
+        }
+        prefixManager.copyPrefixesFrom(map);
     }
 
     /**

@@ -204,6 +204,20 @@ class KGCLReaderTest {
     }
 
     @Test
+    void testUsingCustomPrefixMap() {
+        NodeObsoletion change = new NodeObsoletion();
+        change.setAboutNode(util.getNode("0001"));
+
+        HashMap<String, String> prefixMap = new HashMap<String, String>();
+        prefixMap.put("EXA", TestUtils.EXAMPLE_BASE);
+
+        testParse(r -> {
+            r.setPrefixMap(prefixMap);
+            r.read("obsolete EXA:0001");
+        }, change);
+    }
+
+    @Test
     void testRenameChange() {
         NodeRename change = new NodeRename();
         change.setAboutNode(util.getNode("0001"));

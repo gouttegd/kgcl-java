@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Map;
 
 import org.incenp.obofoundry.kgcl.model.Change;
 import org.incenp.obofoundry.kgcl.owl.OntologyPatcher;
@@ -30,6 +31,7 @@ import org.incenp.obofoundry.kgcl.owl.ProvisionalOWLTranslator;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.PrefixManager;
 import org.semanticweb.owlapi.reasoner.OWLReasoner;
+import org.semanticweb.owlapi.util.DefaultPrefixManager;
 
 /**
  * A class providing static helper methods to work with KGCL.
@@ -87,6 +89,27 @@ public class KGCLHelper {
     }
 
     /**
+     * Parses KGCL from a string and collects syntax errors.
+     * 
+     * @param kgcl          The KGCL instructions to parse.
+     * @param prefixMap     A map of prefix names to prefix IRIs.
+     * @param errors        A list that will collect any syntax error encountered
+     *                      when parsing. If {@code null}, errors will be ignored.
+     * @param labelResolver A helper object to resolve labels into identifiers. May
+     *                      be {@code null}, in which case any use of a label where
+     *                      an identifier is normally expected would result in an
+     *                      error.
+     * @return A KGCL changeset.
+     * @throws IOException If any non-KGCL I/O error occurs.
+     */
+    public static List<Change> parse(String kgcl, Map<String, String> prefixMap, List<KGCLSyntaxError> errors,
+            IEntityLabelResolver labelResolver) throws IOException {
+        PrefixManager prefixManager = new DefaultPrefixManager();
+        prefixManager.copyPrefixesFrom(prefixMap);
+        return doParse(new KGCLReader(new StringReader(kgcl)), prefixManager, errors, labelResolver);
+    }
+
+    /**
      * Parses KGCL from a file.
      * 
      * @param kgcl          The file to parse.
@@ -133,6 +156,27 @@ public class KGCLHelper {
      */
     public static List<Change> parse(File kgcl, PrefixManager prefixManager, List<KGCLSyntaxError> errors,
             IEntityLabelResolver labelResolver) throws IOException {
+        return doParse(new KGCLReader(kgcl), prefixManager, errors, labelResolver);
+    }
+
+    /**
+     * Parses KGCL from a file and collects syntax errors.
+     * 
+     * @param kgcl          The file to parse.
+     * @param prefixMap     A map of prefix names to prefix IRIs.
+     * @param errors        A list that will collect any syntax error encountered
+     *                      when parsing. If {@code null}, errors will be ignored
+     * @param labelResolver A helper object to resolve labels into identifiers. May
+     *                      be {@code null}, in which case any use of a label where
+     *                      an identifier is normally expected would result in a
+     *                      syntax error.
+     * @return A KGCL changeset.
+     * @throws IOException If any non-KGCL I/O error occurs.
+     */
+    public static List<Change> parse(File kgcl, Map<String, String> prefixMap, List<KGCLSyntaxError> errors,
+            IEntityLabelResolver labelResolver) throws IOException {
+        PrefixManager prefixManager = new DefaultPrefixManager();
+        prefixManager.copyPrefixesFrom(prefixMap);
         return doParse(new KGCLReader(kgcl), prefixManager, errors, labelResolver);
     }
 
