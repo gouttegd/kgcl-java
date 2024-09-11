@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 import org.incenp.obofoundry.kgcl.SimpleLabelResolver;
+import org.obolibrary.obo2owl.Obo2OWLConstants;
 import org.semanticweb.owlapi.model.OWLAnnotationAssertionAxiom;
 import org.semanticweb.owlapi.model.OWLEntity;
 import org.semanticweb.owlapi.model.OWLOntology;
@@ -71,13 +72,18 @@ public class OntologyBasedLabelResolver extends SimpleLabelResolver
         for ( OWLEntity entity : ontology.getSignature(Imports.INCLUDED) ) {
             String iri = entity.getIRI().toString();
             for ( OWLAnnotationAssertionAxiom ax : ontology.getAnnotationAssertionAxioms(entity.getIRI()) ) {
-                if ( ax.getProperty().isLabel() && ax.getValue().isLiteral() ) {
-                    String label = ax.getValue().asLiteral().get().getLiteral();
-                    String existing = idMap.get(label);
-                    if ( existing == null ) {
-                        idMap.put(label, iri);
-                    } else if ( !existing.equals(iri) ) {
-                        ambiguousLabels.add(label);
+                // We check the provided "label" against both rdfs:label and oboInOwl:shorthand
+                // annotations. FIXME: Should we also check against oboInOwl:hasExactSynonym?
+                if ( ax.getProperty().isLabel() || ax.getProperty().getIRI()
+                        .equals(Obo2OWLConstants.Obo2OWLVocabulary.IRI_OIO_shorthand.getIRI()) ) {
+                    if ( ax.getValue().isLiteral() ) {
+                        String label = ax.getValue().asLiteral().get().getLiteral();
+                        String existing = idMap.get(label);
+                        if ( existing == null ) {
+                            idMap.put(label, iri);
+                        } else if ( !existing.equals(iri) ) {
+                            ambiguousLabels.add(label);
+                        }
                     }
                 }
             }

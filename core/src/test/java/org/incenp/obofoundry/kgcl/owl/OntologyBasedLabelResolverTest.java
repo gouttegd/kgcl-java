@@ -24,7 +24,10 @@ import org.incenp.obofoundry.kgcl.SimpleLabelResolver;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.obolibrary.obo2owl.Obo2OWLConstants;
 import org.semanticweb.owlapi.apibinding.OWLManager;
+import org.semanticweb.owlapi.model.IRI;
+import org.semanticweb.owlapi.model.OWLDataFactory;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
@@ -53,5 +56,22 @@ public class OntologyBasedLabelResolverTest {
                 resolver.resolve("LaReine"));
 
         Assertions.assertNull(resolver.resolve("Unknown label"));
+    }
+
+    @Test
+    void testResolveOBOShorthands() {
+        // The Pizza ontology does not use OBO shorthands, so we inject one.
+        OWLOntologyManager mgr = ontology.getOWLOntologyManager();
+        OWLDataFactory factory = mgr.getOWLDataFactory();
+        mgr.addAxiom(ontology,
+                factory.getOWLAnnotationAssertionAxiom(
+                        factory.getOWLAnnotationProperty(Obo2OWLConstants.Obo2OWLVocabulary.IRI_OIO_shorthand.getIRI()),
+                        IRI.create("http://www.co-ode.org/ontologies/pizza/pizza.owl#hasBase"),
+                        factory.getOWLLiteral("has_base")));
+
+        SimpleLabelResolver resolver = new OntologyBasedLabelResolver(ontology);
+
+        Assertions.assertEquals("http://www.co-ode.org/ontologies/pizza/pizza.owl#hasBase",
+                resolver.resolve("has_base"));
     }
 }
