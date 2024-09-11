@@ -27,6 +27,7 @@ import org.semanticweb.owlapi.model.OWLAnnotationAssertionAxiom;
 import org.semanticweb.owlapi.model.OWLEntity;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.parameters.Imports;
+import org.semanticweb.owlapi.vocab.OWLRDFVocabulary;
 
 /**
  * An object to resolve labels into identifiers using the {@code rdfs:label}
@@ -63,6 +64,22 @@ public class OntologyBasedLabelResolver extends SimpleLabelResolver
             }
             resolved = idMap.get(label);
         }
+
+        // We accept "is_a" as a shortcut for "rdfs:subClassOf". We check for it only
+        // after everything else, to avoid masking another class or relation in the
+        // ontology that would have a "is_a" label (admittedly such a label would be a
+        // very bad idea, but just in case).
+        // FIXME: Ideally, "is_a" should be resolved into "rdfs:subClassOf" when it is
+        // used between classes, and into "rdfs:subPropertyOf" when it is used between
+        // properties. But providing the resolver with the necessary context to do that
+        // would complicate things too much for arguably little gain (it is assumed that
+        // most uses of "is_a" will be between classes). So, "is_a" can only be used as
+        // a shortcut when dealing with classes. For subsumption relations between
+        // properties, "rdfs:subPropertyOf" should be used explicitly.
+        if ( resolved == null && label.equals("is_a") ) {
+            resolved = OWLRDFVocabulary.RDFS_SUBCLASS_OF.getIRI().toString();
+        }
+
         return resolved;
     }
 

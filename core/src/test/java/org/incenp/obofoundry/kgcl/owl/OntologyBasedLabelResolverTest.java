@@ -31,6 +31,7 @@ import org.semanticweb.owlapi.model.OWLDataFactory;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
+import org.semanticweb.owlapi.vocab.OWLRDFVocabulary;
 
 public class OntologyBasedLabelResolverTest {
 
@@ -73,5 +74,24 @@ public class OntologyBasedLabelResolverTest {
 
         Assertions.assertEquals("http://www.co-ode.org/ontologies/pizza/pizza.owl#hasBase",
                 resolver.resolve("has_base"));
+    }
+
+    @Test
+    void testResolveSpecialShorthands() {
+        // Check that "is_a" resolves into rdfs:subClassOf
+        SimpleLabelResolver resolver = new OntologyBasedLabelResolver(ontology);
+        Assertions.assertEquals(OWLRDFVocabulary.RDFS_SUBCLASS_OF.getIRI().toString(), resolver.resolve("is_a"));
+
+        // Unless a class with a "is_a" label exists in the ontology
+        OWLOntologyManager mgr = ontology.getOWLOntologyManager();
+        OWLDataFactory factory = mgr.getOWLDataFactory();
+        IRI dummy = IRI.create("http://www.co-ode.org/ontologies/pizza/pizza.owl#dummy");
+        mgr.addAxiom(ontology, factory.getOWLDeclarationAxiom(factory.getOWLClass(dummy)));
+        mgr.addAxiom(ontology,
+                factory.getOWLAnnotationAssertionAxiom(
+                        factory.getOWLAnnotationProperty(OWLRDFVocabulary.RDFS_LABEL.getIRI()), dummy,
+                        factory.getOWLLiteral("is_a")));
+        resolver = new OntologyBasedLabelResolver(ontology);
+        Assertions.assertEquals(dummy.toString(), resolver.resolve("is_a"));
     }
 }
