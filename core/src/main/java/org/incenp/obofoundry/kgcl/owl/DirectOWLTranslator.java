@@ -632,17 +632,17 @@ public class DirectOWLTranslator extends OWLTranslator {
     @Override
     public List<OWLOntologyChange> visit(EdgeCreation v) {
         // TODO: Support subject and object being something else than OWL classes
-        IRI subjectIRI = findClass(v, v.getSubject().getId());
+        IRI subjectIRI = findClass(v, v.getAboutEdge().getSubject().getId());
         if ( subjectIRI == null ) {
             return empty;
         }
 
-        IRI predicateIRI = IRI.create(v.getPredicate().getId());
-        IRI objectIRI = IRI.create(v.getObject().getId());
+        IRI predicateIRI = IRI.create(v.getAboutEdge().getPredicate().getId());
+        IRI objectIRI = IRI.create(v.getAboutEdge().getObject().getId());
         OWLAxiom edgeAxiom = null;
         EdgeType edgeType = getEdgeType(predicateIRI);
         if ( edgeType == null ) {
-            onReject(v, "Edge predicate <%s> not found", v.getPredicate().getId());
+            onReject(v, "Edge predicate <%s> not found", v.getAboutEdge().getPredicate().getId());
             return empty;
         }
 
@@ -668,9 +668,10 @@ public class DirectOWLTranslator extends OWLTranslator {
 
     @Override
     public List<OWLOntologyChange> visit(EdgeDeletion v) {
-        IRI subjectIRI = findClass(v, v.getSubject().getId());
-        IRI objectIRI = findClass(v, v.getObject().getId());
-        IRI predicateIRI = v.getPredicate() != null ? IRI.create(v.getPredicate().getId()) : null;
+        IRI subjectIRI = findClass(v, v.getAboutEdge().getSubject().getId());
+        IRI objectIRI = findClass(v, v.getAboutEdge().getObject().getId());
+        IRI predicateIRI = v.getAboutEdge().getPredicate() != null ? IRI.create(v.getAboutEdge().getPredicate().getId())
+                : null;
 
         if ( subjectIRI == null || objectIRI == null ) {
             return empty;
@@ -697,10 +698,10 @@ public class DirectOWLTranslator extends OWLTranslator {
          * explicitly set to rdfs:subClassOf, so in case it has not been set we do so
          * here.
          */
-        if ( v.getPredicate() == null ) {
+        if ( v.getAboutEdge().getPredicate() == null ) {
             Node predicate = new Node();
             predicate.setId(OWLRDFVocabulary.RDFS_SUBCLASS_OF.toString());
-            v.setPredicate(predicate);
+            v.getAboutEdge().setPredicate(predicate);
         }
 
         return visit((EdgeCreation) v);
@@ -715,10 +716,10 @@ public class DirectOWLTranslator extends OWLTranslator {
          * memory. In this case it's unclear whether the predicate should be explicitly
          * set to rdfs:subClassOf, so in case it has not been set we do so here.
          */
-        if ( v.getPredicate() == null ) {
+        if ( v.getAboutEdge().getPredicate() == null ) {
             Node predicate = new Node();
             predicate.setId(OWLRDFVocabulary.RDFS_SUBCLASS_OF.toString());
-            v.setPredicate(predicate);
+            v.getAboutEdge().setPredicate(predicate);
         }
 
         return visit((EdgeDeletion) v);

@@ -29,6 +29,7 @@ import org.incenp.obofoundry.kgcl.TestUtils;
 import org.incenp.obofoundry.kgcl.model.AddNodeToSubset;
 import org.incenp.obofoundry.kgcl.model.Change;
 import org.incenp.obofoundry.kgcl.model.ClassCreation;
+import org.incenp.obofoundry.kgcl.model.Edge;
 import org.incenp.obofoundry.kgcl.model.EdgeCreation;
 import org.incenp.obofoundry.kgcl.model.EdgeDeletion;
 import org.incenp.obofoundry.kgcl.model.NewSynonym;
@@ -771,8 +772,9 @@ public class DirectOWLTranslatorTest implements RejectedChangeListener {
     @Test
     void testCreateSubClassOfEdge() {
         PlaceUnder change = new PlaceUnder();
-        change.setSubject(util.getNode("LaReine"));
-        change.setObject(util.getNode("UnclosedPizza"));
+        change.setAboutEdge(new Edge());
+        change.getAboutEdge().setSubject(util.getNode("LaReine"));
+        change.getAboutEdge().setObject(util.getNode("UnclosedPizza"));
 
         testChange(change,
                 new AddAxiom(ontology, factory.getOWLSubClassOfAxiom(getKlass("LaReine"), getKlass("UnclosedPizza"))));
@@ -781,9 +783,10 @@ public class DirectOWLTranslatorTest implements RejectedChangeListener {
     @Test
     void testCreateExistentialRestrictionEdge() {
         EdgeCreation change = new EdgeCreation();
-        change.setSubject(util.getNode("LaReine"));
-        change.setPredicate(util.getNode("hasBase"));
-        change.setObject(util.getNode("DeepPanBase"));
+        change.setAboutEdge(new Edge());
+        change.getAboutEdge().setSubject(util.getNode("LaReine"));
+        change.getAboutEdge().setPredicate(util.getNode("hasBase"));
+        change.getAboutEdge().setObject(util.getNode("DeepPanBase"));
 
         testChange(change, new AddAxiom(ontology, factory.getOWLSubClassOfAxiom(getKlass("LaReine"),
                 factory.getOWLObjectSomeValuesFrom(getObjectProperty("hasBase"), getKlass("DeepPanBase")))));
@@ -792,9 +795,10 @@ public class DirectOWLTranslatorTest implements RejectedChangeListener {
     @Test
     void testAnnotationEdge() {
         EdgeCreation change = new EdgeCreation();
-        change.setSubject(util.getNode("LaReine"));
-        change.setPredicate(util.getForeignNode(OWLRDFVocabulary.RDFS_SEE_ALSO.toString()));
-        change.setObject(util.getNode("Rosa"));
+        change.setAboutEdge(new Edge());
+        change.getAboutEdge().setSubject(util.getNode("LaReine"));
+        change.getAboutEdge().setPredicate(util.getForeignNode(OWLRDFVocabulary.RDFS_SEE_ALSO.toString()));
+        change.getAboutEdge().setObject(util.getNode("Rosa"));
 
         testChange(change,
                 new AddAxiom(ontology,
@@ -806,9 +810,10 @@ public class DirectOWLTranslatorTest implements RejectedChangeListener {
     @Test
     void testCreateExistentialRestrictionEdgeWithMissingProperty() {
         EdgeCreation change = new EdgeCreation();
-        change.setSubject(util.getNode("LaReine"));
-        change.setPredicate(util.getNode("has_base"));
-        change.setObject(util.getNode("DeepPanBase"));
+        change.setAboutEdge(new Edge());
+        change.getAboutEdge().setSubject(util.getNode("LaReine"));
+        change.getAboutEdge().setPredicate(util.getNode("has_base"));
+        change.getAboutEdge().setObject(util.getNode("DeepPanBase"));
 
         testChange(change, null, "Edge predicate <" + PIZZA_BASE + "has_base> not found");
     }
@@ -816,8 +821,9 @@ public class DirectOWLTranslatorTest implements RejectedChangeListener {
     @Test
     void testDeleteSubClassOfEdge() {
         RemoveUnder change = new RemoveUnder();
-        change.setSubject(util.getNode("LaReine"));
-        change.setObject(util.getNode("NamedPizza"));
+        change.setAboutEdge(new Edge());
+        change.getAboutEdge().setSubject(util.getNode("LaReine"));
+        change.getAboutEdge().setObject(util.getNode("NamedPizza"));
 
         testChange(change,
                 new RemoveAxiom(ontology, factory.getOWLSubClassOfAxiom(getKlass("LaReine"), getKlass("NamedPizza"))));
@@ -826,9 +832,10 @@ public class DirectOWLTranslatorTest implements RejectedChangeListener {
     @Test
     void testDeleteExistentialRestrictionEdge() {
         EdgeDeletion change = new EdgeDeletion();
-        change.setSubject(util.getNode("UnclosedPizza"));
-        change.setPredicate(util.getNode("hasTopping"));
-        change.setObject(util.getNode("MozzarellaTopping"));
+        change.setAboutEdge(new Edge());
+        change.getAboutEdge().setSubject(util.getNode("UnclosedPizza"));
+        change.getAboutEdge().setPredicate(util.getNode("hasTopping"));
+        change.getAboutEdge().setObject(util.getNode("MozzarellaTopping"));
 
         testChange(change, new RemoveAxiom(ontology, factory.getOWLSubClassOfAxiom(getKlass("UnclosedPizza"),
                 factory.getOWLObjectSomeValuesFrom(getObjectProperty("hasTopping"), getKlass("MozzarellaTopping")))));
@@ -844,9 +851,10 @@ public class DirectOWLTranslatorTest implements RejectedChangeListener {
         ontology.getOWLOntologyManager().addAxiom(ontology, newEdge);
 
         EdgeDeletion change = new EdgeDeletion();
-        change.setSubject(util.getNode("LaReine"));
-        change.setPredicate(util.getForeignNode(OWLRDFVocabulary.RDFS_SEE_ALSO.toString()));
-        change.setObject(util.getNode("Rosa"));
+        change.setAboutEdge(new Edge());
+        change.getAboutEdge().setSubject(util.getNode("LaReine"));
+        change.getAboutEdge().setPredicate(util.getForeignNode(OWLRDFVocabulary.RDFS_SEE_ALSO.toString()));
+        change.getAboutEdge().setObject(util.getNode("Rosa"));
 
         testChange(change, new RemoveAxiom(ontology, newEdge));
     }
@@ -854,9 +862,10 @@ public class DirectOWLTranslatorTest implements RejectedChangeListener {
     @Test
     void testDeleteMissingExistentialRestrictionEdge() {
         EdgeDeletion change = new EdgeDeletion();
-        change.setSubject(util.getNode("LaReine"));
-        change.setPredicate(util.getNode("hasTopping"));
-        change.setObject(util.getNode("ParmesanTopping"));
+        change.setAboutEdge(new Edge());
+        change.getAboutEdge().setSubject(util.getNode("LaReine"));
+        change.getAboutEdge().setPredicate(util.getNode("hasTopping"));
+        change.getAboutEdge().setObject(util.getNode("ParmesanTopping"));
 
         testChange(change, null,
                 "No edge found between <" + PIZZA_BASE + "LaReine> and <" + PIZZA_BASE + "ParmesanTopping>");
@@ -1177,9 +1186,10 @@ public class DirectOWLTranslatorTest implements RejectedChangeListener {
         nc.getAboutNode().setOwlType(OwlType.OBJECT_PROPERTY);
         changes.add(nc);
         EdgeCreation ec = new EdgeCreation();
-        ec.setSubject(util.getNode("LaReine"));
-        ec.setPredicate(util.getNode("hasRival"));
-        ec.setObject(util.getNode("Margherita"));
+        ec.setAboutEdge(new Edge());
+        ec.getAboutEdge().setSubject(util.getNode("LaReine"));
+        ec.getAboutEdge().setPredicate(util.getNode("hasRival"));
+        ec.getAboutEdge().setObject(util.getNode("Margherita"));
         changes.add(ec);
 
         ArrayList<OWLOntologyChange> expected = new ArrayList<OWLOntologyChange>();

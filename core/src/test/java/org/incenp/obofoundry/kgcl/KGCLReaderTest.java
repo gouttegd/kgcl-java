@@ -28,6 +28,7 @@ import java.util.function.Consumer;
 import org.incenp.obofoundry.kgcl.model.AddNodeToSubset;
 import org.incenp.obofoundry.kgcl.model.Change;
 import org.incenp.obofoundry.kgcl.model.ClassCreation;
+import org.incenp.obofoundry.kgcl.model.Edge;
 import org.incenp.obofoundry.kgcl.model.EdgeCreation;
 import org.incenp.obofoundry.kgcl.model.EdgeDeletion;
 import org.incenp.obofoundry.kgcl.model.NewSynonym;
@@ -94,9 +95,10 @@ class KGCLReaderTest {
         c4.setNewValue("xyz");
 
         EdgeCreation c5 = new EdgeCreation();
-        c5.setSubject(util.getNode("0004"));
-        c5.setPredicate(util.getForeignNode(OWLRDFVocabulary.RDFS_SUBCLASS_OF.toString()));
-        c5.setObject(util.getNode("0003"));
+        c5.setAboutEdge(new Edge());
+        c5.getAboutEdge().setSubject(util.getNode("0004"));
+        c5.getAboutEdge().setPredicate(util.getForeignNode(OWLRDFVocabulary.RDFS_SUBCLASS_OF.toString()));
+        c5.getAboutEdge().setObject(util.getNode("0003"));
 
         Change[] expected = { c1, c2, c3, c4, c5 };
         for (int i = 0; i < 5; i++) {
@@ -332,8 +334,8 @@ class KGCLReaderTest {
 
         Assertions.assertInstanceOf(EdgeCreation.class, changeset.get(2));
         EdgeCreation c3 = EdgeCreation.class.cast(changeset.get(2));
-        Assertions.assertEquals(c1.getAboutNode().getId(), c3.getSubject().getId());
-        Assertions.assertEquals(c2.getAboutNode().getId(), c3.getObject().getId());
+        Assertions.assertEquals(c1.getAboutNode().getId(), c3.getAboutEdge().getSubject().getId());
+        Assertions.assertEquals(c2.getAboutNode().getId(), c3.getAboutEdge().getObject().getId());
     }
 
     @Test
@@ -490,9 +492,10 @@ class KGCLReaderTest {
     @Test
     void testNewEdgeChange() {
         EdgeCreation change = new EdgeCreation();
-        change.setSubject(util.getNode("0001"));
-        change.setPredicate(util.getNode("is_related_to"));
-        change.setObject(util.getNode("0002"));
+        change.setAboutEdge(new Edge());
+        change.getAboutEdge().setSubject(util.getNode("0001"));
+        change.getAboutEdge().setPredicate(util.getNode("is_related_to"));
+        change.getAboutEdge().setObject(util.getNode("0002"));
 
         testParse("create edge EX:0001 EX:is_related_to EX:0002", change);
     }
@@ -500,9 +503,10 @@ class KGCLReaderTest {
     @Test
     void testDeleteEdgeChange() {
         EdgeDeletion change = new EdgeDeletion();
-        change.setSubject(util.getNode("0001"));
-        change.setPredicate(util.getNode("is_related_to"));
-        change.setObject(util.getNode("0002"));
+        change.setAboutEdge(new Edge());
+        change.getAboutEdge().setSubject(util.getNode("0001"));
+        change.getAboutEdge().setPredicate(util.getNode("is_related_to"));
+        change.getAboutEdge().setObject(util.getNode("0002"));
 
         testParse("delete edge EX:0001 EX:is_related_to EX:0002", change);
     }

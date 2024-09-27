@@ -314,26 +314,27 @@ public class KGCLTextTranslator extends ChangeVisitorBase<String> {
 
     @Override
     public String visit(EdgeCreation v) {
-        return String.format("create edge %s %s %s", renderNode(v.getSubject()), renderNode(v.getPredicate()),
-                renderNode(v.getObject()));
+        return String.format("create edge %s %s %s", renderNode(v.getAboutEdge().getSubject()),
+                renderNode(v.getAboutEdge().getPredicate()),
+                renderNode(v.getAboutEdge().getObject()));
     }
 
     @Override
     public String visit(EdgeDeletion v) {
-        return String.format("delete edge %s %s %s", renderNode(v.getSubject()), renderNode(v.getPredicate()),
-                renderNode(v.getObject()));
+        return String.format("delete edge %s %s %s", renderNode(v.getAboutEdge().getSubject()),
+                renderNode(v.getAboutEdge().getPredicate()), renderNode(v.getAboutEdge().getObject()));
     }
 
     @Override
     public String visit(PlaceUnder v) {
-        return String.format("create edge %s rdfs:subClassOf %s", renderNode(v.getSubject()),
-                renderNode(v.getObject()));
+        return String.format("create edge %s rdfs:subClassOf %s", renderNode(v.getAboutEdge().getSubject()),
+                renderNode(v.getAboutEdge().getObject()));
     }
 
     @Override
     public String visit(RemoveUnder v) {
-        return String.format("delete edge %s rdfs:subClassOf %s", renderNode(v.getSubject()),
-                renderNode(v.getObject()));
+        return String.format("delete edge %s rdfs:subClassOf %s", renderNode(v.getAboutEdge().getSubject()),
+                renderNode(v.getAboutEdge().getObject()));
     }
 
     @Override

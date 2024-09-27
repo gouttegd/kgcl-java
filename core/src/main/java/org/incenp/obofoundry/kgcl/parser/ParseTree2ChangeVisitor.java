@@ -285,9 +285,11 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
     @Override
     public Void visitNewEdge(KGCLParser.NewEdgeContext ctx) {
         EdgeCreation change = new EdgeCreation();
-        change.setSubject(getNode(ctx.subject_id));
-        change.setPredicate(getNode(ctx.predicate_id));
-        change.setObject(getNode(ctx.object_id));
+        Edge edge = new Edge();
+        edge.setSubject(getNode(ctx.subject_id));
+        edge.setPredicate(getNode(ctx.predicate_id));
+        edge.setObject(getNode(ctx.object_id));
+        change.setAboutEdge(edge);
         maybeAddChange(change);
 
         return null;
@@ -296,9 +298,11 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
     @Override
     public Void visitDeleteEdge(KGCLParser.DeleteEdgeContext ctx) {
         EdgeDeletion change = new EdgeDeletion();
-        change.setSubject(getNode(ctx.subject_id));
-        change.setPredicate(getNode(ctx.predicate_id));
-        change.setObject(getNode(ctx.object_id));
+        Edge edge = new Edge();
+        edge.setSubject(getNode(ctx.subject_id));
+        edge.setPredicate(getNode(ctx.predicate_id));
+        edge.setObject(getNode(ctx.object_id));
+        change.setAboutEdge(edge);
         maybeAddChange(change);
 
         return null;

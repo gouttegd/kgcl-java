@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import org.incenp.obofoundry.kgcl.model.AddNodeToSubset;
 import org.incenp.obofoundry.kgcl.model.Change;
 import org.incenp.obofoundry.kgcl.model.ClassCreation;
+import org.incenp.obofoundry.kgcl.model.Edge;
 import org.incenp.obofoundry.kgcl.model.EdgeCreation;
 import org.incenp.obofoundry.kgcl.model.EdgeDeletion;
 import org.incenp.obofoundry.kgcl.model.NewSynonym;
@@ -225,9 +226,10 @@ public class KGCLTextTranslatorTest {
     @Test
     void testRenderEdgeCreation() {
         EdgeCreation change = new EdgeCreation();
-        change.setSubject(util.getNode("0001"));
-        change.setPredicate(util.getNode("is_related_to"));
-        change.setObject(util.getNode("0002"));
+        change.setAboutEdge(new Edge());
+        change.getAboutEdge().setSubject(util.getNode("0001"));
+        change.getAboutEdge().setPredicate(util.getNode("is_related_to"));
+        change.getAboutEdge().setObject(util.getNode("0002"));
 
         render(change, "create edge EX:0001 EX:is_related_to EX:0002");
     }
@@ -235,9 +237,10 @@ public class KGCLTextTranslatorTest {
     @Test
     void testRenderEdgeDeletion() {
         EdgeDeletion change = new EdgeDeletion();
-        change.setSubject(util.getNode("0001"));
-        change.setPredicate(util.getNode("is_related_to"));
-        change.setObject(util.getNode("0002"));
+        change.setAboutEdge(new Edge());
+        change.getAboutEdge().setSubject(util.getNode("0001"));
+        change.getAboutEdge().setPredicate(util.getNode("is_related_to"));
+        change.getAboutEdge().setObject(util.getNode("0002"));
 
         render(change, "delete edge EX:0001 EX:is_related_to EX:0002");
     }
@@ -245,8 +248,9 @@ public class KGCLTextTranslatorTest {
     @Test
     void testRendePlaceUnder() {
         PlaceUnder change = new PlaceUnder();
-        change.setSubject(util.getNode("0001"));
-        change.setObject(util.getNode("0002"));
+        change.setAboutEdge(new Edge());
+        change.getAboutEdge().setSubject(util.getNode("0001"));
+        change.getAboutEdge().setObject(util.getNode("0002"));
 
         render(change, "create edge EX:0001 rdfs:subClassOf EX:0002");
     }
@@ -254,8 +258,9 @@ public class KGCLTextTranslatorTest {
     @Test
     void testRenderRemoveUnder() {
         RemoveUnder change = new RemoveUnder();
-        change.setSubject(util.getNode("0001"));
-        change.setObject(util.getNode("0002"));
+        change.setAboutEdge(new Edge());
+        change.getAboutEdge().setSubject(util.getNode("0001"));
+        change.getAboutEdge().setObject(util.getNode("0002"));
 
         render(change, "delete edge EX:0001 rdfs:subClassOf EX:0002");
     }

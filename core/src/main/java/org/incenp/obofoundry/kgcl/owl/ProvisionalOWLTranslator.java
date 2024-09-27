@@ -126,7 +126,7 @@ public class ProvisionalOWLTranslator extends OWLTranslator {
 
     @Override
     public List<OWLOntologyChange> visit(EdgeCreation v) {
-        IRI nodeIRI = IRI.create(v.getSubject().getId());
+        IRI nodeIRI = IRI.create(v.getAboutEdge().getSubject().getId());
         if ( !ontology.containsEntityInSignature(nodeIRI) ) {
             onReject(v, "Node <%s> not found in signature", nodeIRI.toString());
             return empty;
@@ -135,8 +135,10 @@ public class ProvisionalOWLTranslator extends OWLTranslator {
         ArrayList<OWLOntologyChange> changes = new ArrayList<OWLOntologyChange>();
         HashSet<OWLAnnotation> annots = new HashSet<OWLAnnotation>();
 
-        annots.add(factory.getOWLAnnotation(getKGCLProperty("predicate"), IRI.create(v.getPredicate().getId())));
-        annots.add(factory.getOWLAnnotation(getKGCLProperty("object"), IRI.create(v.getObject().getId())));
+        annots.add(factory.getOWLAnnotation(getKGCLProperty("predicate"),
+                IRI.create(v.getAboutEdge().getPredicate().getId())));
+        annots.add(
+                factory.getOWLAnnotation(getKGCLProperty("object"), IRI.create(v.getAboutEdge().getObject().getId())));
         addMetadata(v, annots);
 
         changes.add(new AddAxiom(ontology, factory.getOWLAnnotationAssertionAxiom(pendingChangeProperty, nodeIRI,
@@ -147,10 +149,10 @@ public class ProvisionalOWLTranslator extends OWLTranslator {
 
     @Override
     public List<OWLOntologyChange> visit(PlaceUnder v) {
-        if ( v.getPredicate() == null ) {
+        if ( v.getAboutEdge().getPredicate() == null ) {
             Node predicate = new Node();
             predicate.setId(OWLRDFVocabulary.RDFS_SUBCLASS_OF.toString());
-            v.setPredicate(predicate);
+            v.getAboutEdge().setPredicate(predicate);
         }
 
         return visit((EdgeCreation) v);
