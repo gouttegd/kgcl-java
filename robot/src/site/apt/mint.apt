@@ -1,4 +1,8 @@
-ROBOT mint command
+    ----------------
+    The mint command
+    ----------------
+
+The <mint> command
 
   The <<<mint>>> command allows replacing temporary identifiers with
   automatically generated permanent identifiers.

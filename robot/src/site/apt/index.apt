@@ -1,12 +1,16 @@
-ROBOT command
+    -------------------------
+    The KGCL plugin for ROBOT
+    -------------------------
+
+The KGCL plugin for ROBOT
 
   KGCL-Java provides {{{http://robot.obolibrary.org/}ROBOT}} commands to
   use KGCL within a ROBOT pipeline.
   
 * Enabling the KGCL commands in ROBOT
 
-  ROBOT 1.9.5 has built-in support for pluggable commands. To enable the
-  commands provided by this project in ROBOT, place the
+  ROBOT >= 1.9.5 has built-in support for pluggable commands. To enable
+  the commands provided by this project in ROBOT, place the
   <<<kgcl-robot-plugin-X.Y.Z.jar>>> file in a directory where ROBOT
   searches for plugins:
   
@@ -39,8 +43,11 @@ ROBOT command
 
   Currently, this project provides two commands:
   
-  * {{{./robot-apply.html}apply}} to inject KGCL-specified changes into
-    an ontology;
+  * {{{./apply.html}apply}} to inject KGCL-specified changes into an
+    ontology;
     
-  * {{{./robot-mint.html}mint}} to replace temporary identifiers in an
+  * {{{./mint.html}mint}} to replace temporary identifiers in an
     ontology by newly minted permanent identifiers.
+    
+  []
+

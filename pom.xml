@@ -46,6 +46,10 @@
       <id>ossrh</id>
       <url>https://oss.sonatype.org/content/repositories/snapshots</url>
     </snapshotRepository>
+    <site>
+      <id>incenp</id>
+      <url>https://incenp.org/dvlpt/kgcl-java/</url>
+    </site>
   </distributionManagement>
 
   <dependencies>
@@ -169,13 +173,27 @@
   <reporting>
     <plugins>
       <plugin>
+        <artifactId>maven-project-info-reports-plugin</artifactId>
+        <version>3.7.0</version>
+        <reportSets>
+          <reportSet></reportSet>
+        </reportSets>
+      </plugin>
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
         <version>3.10.0</version>
         <reportSets>
           <reportSet>
+            <id>aggregate</id>
+            <inherited>false</inherited>
             <reports>
-              <report>javadoc</report>
+              <report>aggregate</report>
+            </reports>
+          </reportSet>
+          <reportSet>
+            <id>default</id>
+            <reports>
             </reports>
           </reportSet>
         </reportSets>

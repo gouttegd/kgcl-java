@@ -4,8 +4,11 @@
   xsi:schemaLocation="http://maven.apache.org/DECORATION 1.8.0
                       http://maven.apache.org/xsd/decoration-1.8.0.xsd">
   <body>
-    <menu name="KGCL Library">
+    <menu name="ROBOT plugin">
       <item name="Introduction" href="index.html" />
+      <item name="Applying KGCL changes" href="apply.html" />
+      <item name="Minting identifiers" href="mint.html" />
     </menu>
   </body>
 </project>
+    

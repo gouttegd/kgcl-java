@@ -1,4 +1,8 @@
-ROBOT apply command
+    -----------------
+    The apply command
+    -----------------
+
+The <apply> command
 
   The <<<apply>>> command provided by the KGCL plugin allows injecting
   KGCL-specified changes into an ontology as part of a ROBOT pipeline.
