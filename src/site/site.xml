@@ -10,6 +10,12 @@
       <item name="ROBOT plugin" href="kgcl-robot/index.html" />
       <item name="API Documentation" href="apidocs/index.html" />
     </menu>
+    <menu name="Links" inherit="bottom">
+      <item name="Issue tracker" href="https://github.com/gouttegd/kgcl-java/issues" />
+      <item name="Current release downloads" href="https://github.com/gouttegd/kgcl-java/releases/tag/kgcl-java-${this.version}/">
+        <item name="ROBOT plugin" href="https://github.com/gouttegd/kgcl-java/releases/download/kgcl-java-${this.version}/kgcl-robot-plugin-${this.version}.jar" />
+      </item>
+    </menu>
     <footer><![CDATA[Copyright © 2024 Damien Goutte-Gattat]]></footer>
   </body>
   <skin>
