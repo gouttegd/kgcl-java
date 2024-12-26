@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.incenp</groupId>
     <artifactId>kgcl</artifactId>
-    <version>0.5.1-SNAPSHOT</version>
+    <version>0.5.1</version>
   </parent>
   <artifactId>kgcl-robot</artifactId>
 
@@ -13,7 +13,7 @@
   <url>https://incenp.org/dvlpt/kgcl-java/robot.html</url>
   <scm>
     <url>https://github.com/gouttegd/kgcl-java</url>
-    <tag>HEAD</tag>
+    <tag>kgcl-java-0.5.1</tag>
   </scm>
 
   <dependencies>
