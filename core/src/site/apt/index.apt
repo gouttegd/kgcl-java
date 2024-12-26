@@ -6,25 +6,28 @@ The KGCL Java library
 
   The Java library is organized in four distinct packages.
   
-  The <<<org.incenp.obofoundry.kgcl>>> package is intended to provide a
-  reasonably high-level API to manipulate KGCL.
+  * The <<<org.incenp.obofoundry.kgcl>>> package is intended to provide
+    a reasonably high-level API to manipulate KGCL.
   
-  The <<<org.incenp.obofoundry.kgcl.owl>>> provides classes to apply
-  KGCL-described changes to a OWL ontology, using the OWLAPI library.
+  * The <<<org.incenp.obofoundry.kgcl.owl>>> provides classes to apply
+    KGCL-described changes to a OWL ontology, using the OWLAPI library.
   
-  The <<<org.incenp.obofoundry.kgcl.model>>> package provides the
-  classes that make up the object model for KGCL. Those classes are
-  directly derived from the LinkML schema that formally describes KGCL.
-  They may be used by those who want to manipulate KGCL objects
-  directly. When using the high-level API, the only class in this
-  package that client code should need to directly use is <<<Change>>>.
+  * The <<<org.incenp.obofoundry.kgcl.model>>> package provides the
+    classes that make up the object model for KGCL. Those classes are
+    directly derived from the LinkML schema that formally describes
+    KGCL. They may be used by those who want to manipulate KGCL objects
+    directly. When using the high-level API, the only class in this
+    package that client code should need to directly use is
+    <<<Change>>>.
   
-  The <<<org.incenp.obofoundry.kgcl.parser>>> package contains a
-  {{{https://www.antlr.org}ANTLR}}-generated parser to deserialise a
-  KGCL changeset from the KGCL language. The classes there may be used
-  by those who want to parse KGCL and manipulate the parse tree
-  themselves (knowledge of the ANTLR runtime is required). The
-  high-level API abstracts those classes away completely.
+  * The <<<org.incenp.obofoundry.kgcl.parser>>> package contains a
+    {{{https://www.antlr.org}ANTLR}}-generated parser to deserialise a
+    KGCL changeset from the KGCL language. The classes there may be used
+    by those who want to parse KGCL and manipulate the parse tree
+    themselves (knowledge of the ANTLR runtime is required). The
+    high-level API abstracts those classes away completely.
+
+  []
   
   See the {{{../apidocs/index.html}API documentation}} for details. This
   page gives a brief overview of the most important, client code-facing

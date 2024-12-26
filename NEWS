@@ -1,3 +1,11 @@
+Changes in kgcl-java-0.5.1
+--------------------------
+
+    * Resolve quoted IDs against “OBO shorthands” (e.g. recognise
+      "part_of" as BFO:0000050).
+    * Allow "is_a" as a shorthand for rdfs:subClassOf.
+
+
 Changes in kgcl-java-0.5.0
 --------------------------
 
