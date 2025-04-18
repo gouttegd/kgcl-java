@@ -22,7 +22,7 @@ import java.io.File;
 import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
-import org.incenp.obofoundry.idrange.IDRangePolicyException;
+import org.incenp.obofoundry.dicer.InvalidIDRangePolicyException;
 import org.incenp.obofoundry.kgcl.IAutoIDGenerator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -32,7 +32,7 @@ import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 
 public class IDRangeHelperTest {
 
-    private final static String testFile = "../core/src/test/resources/idranges.owl";
+    private final static String testFile = "src/test/resources/idranges.owl";
 
     @Test
     void testFindOneIDRangeFile() throws IOException {
@@ -67,7 +67,7 @@ public class IDRangeHelperTest {
             IAutoIDGenerator gen = IDRangeHelper.getIDGenerator(getOntology(), testFile, "Alice", defaults, false);
             String nextID = gen.nextID();
             Assertions.assertEquals("https://example.org/0001", nextID);
-        } catch ( IDRangePolicyException e ) {
+        } catch ( Exception e ) {
             Assertions.fail("Unexpected exception", e);
         }
     }
@@ -75,7 +75,7 @@ public class IDRangeHelperTest {
     @Test
     void testFailIfRequestedRangeDoesNotExist() {
         String[] defaults = new String[] { "Bob", "Charlie" };
-        Assertions.assertThrows(IDRangePolicyException.class,
+        Assertions.assertThrows(InvalidIDRangePolicyException.class,
                 () -> IDRangeHelper.getIDGenerator(getOntology(), testFile, "Charlie", defaults, false),
                 "Requested range not found in ID range file");
     }
@@ -87,7 +87,7 @@ public class IDRangeHelperTest {
             IAutoIDGenerator gen = IDRangeHelper.getIDGenerator(getOntology(), testFile, null, defaults, false);
             String nextID = gen.nextID();
             Assertions.assertEquals("https://example.org/0501", nextID);
-        } catch ( IDRangePolicyException e ) {
+        } catch ( Exception e ) {
             Assertions.fail("Unexpected exception", e);
         }
     }
@@ -95,7 +95,7 @@ public class IDRangeHelperTest {
     @Test
     void testFailIfNoRangeFound() {
         String[] defaults = new String[] { "Charlie", "Daphne" };
-        Assertions.assertThrows(IDRangePolicyException.class,
+        Assertions.assertThrows(InvalidIDRangePolicyException.class,
                 () -> IDRangeHelper.getIDGenerator(getOntology(), testFile, null, defaults, false),
                 "No suitable range found in ID range file");
     }
@@ -103,7 +103,7 @@ public class IDRangeHelperTest {
     @Test
     void testMaybeFailUponErrorIfRangeFileExplicitlyRequested() {
         String[] defaults = new String[] { "Bob", "Charlie" };
-        Assertions.assertThrows(IDRangePolicyException.class,
+        Assertions.assertThrows(InvalidIDRangePolicyException.class,
                 () -> IDRangeHelper.maybeGetIDGenerator(getOntology(), testFile, "Charlie", defaults, false),
                 "Requested range not found in ID range file");
     }
@@ -117,7 +117,7 @@ public class IDRangeHelperTest {
         try {
             IAutoIDGenerator gen = IDRangeHelper.maybeGetIDGenerator(getOntology(), null, "Charlie", defaults, false);
             Assertions.assertNull(gen);
-        } catch ( IDRangePolicyException e ) {
+        } catch ( Exception e ) {
             Assertions.fail("Unexpected exception", e);
         }
     }

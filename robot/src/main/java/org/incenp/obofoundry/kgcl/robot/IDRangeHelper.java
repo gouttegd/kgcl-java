@@ -20,11 +20,12 @@ package org.incenp.obofoundry.kgcl.robot;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.io.IOException;
 
-import org.incenp.obofoundry.idrange.IDRange;
-import org.incenp.obofoundry.idrange.IDRangePolicyException;
-import org.incenp.obofoundry.idrange.IDRangePolicyParser;
-import org.incenp.obofoundry.idrange.IIDRangePolicy;
+import org.incenp.obofoundry.dicer.IDRange;
+import org.incenp.obofoundry.dicer.IDRangePolicy;
+import org.incenp.obofoundry.dicer.IDRangePolicyReader;
+import org.incenp.obofoundry.dicer.InvalidIDRangePolicyException;
 import org.incenp.obofoundry.kgcl.IAutoIDGenerator;
 import org.incenp.obofoundry.kgcl.RandomizedIDGenerator;
 import org.incenp.obofoundry.kgcl.SequentialIDGenerator;
@@ -77,32 +78,35 @@ public class IDRangeHelper {
      *                  random within the target range; otherwise, IDs will be
      *                  picked sequentially.
      * @return A newly initialised ID generator.
-     * @throws IDRangePolicyException If the range file cannot be read for any
-     *                                reason, if the requested {@code rangeName}
-     *                                cannot be found, or if none of the default
-     *                                ranges can be found.
+     * @throws InvalidIDRangePolicyException If the file is not a valid ID range
+     *                                       policy file, if the requested
+     *                                       {@code rangeName} cannot be found, or
+     *                                       if none of the default ranges can be
+     *                                       found.
+     * @throws IOException                   If the range file cannot be read for
+     *                                       any reason.
      */
     public static IAutoIDGenerator getIDGenerator(OWLOntology ontology, String rangeFile, String rangeName,
-            String[] altNames, boolean random) throws IDRangePolicyException {
+            String[] altNames, boolean random) throws IOException, InvalidIDRangePolicyException {
 
-        IDRangePolicyParser parser = new IDRangePolicyParser(rangeFile);
-        IIDRangePolicy policy = parser.parse();
+        IDRangePolicyReader reader = new IDRangePolicyReader();
+        IDRangePolicy policy = reader.read(rangeFile);
         IDRange range = null;
 
         if ( rangeName != null ) {
-            range = policy.getRange(rangeName);
+            range = policy.getRangeFor(rangeName);
             if ( range == null ) {
-                throw new IDRangePolicyException("Requested range not found in ID range file");
+                throw new InvalidIDRangePolicyException("Requested range not found in ID range file");
             }
         }
 
         int i = 0;
         while ( range == null && altNames != null && i < altNames.length ) {
-            range = policy.getRange(altNames[i++]);
+            range = policy.getRangeFor(altNames[i++]);
         }
 
         if ( range == null ) {
-            throw new IDRangePolicyException("No suitable range found in ID range file");
+            throw new InvalidIDRangePolicyException("No suitable range found in ID range file");
         }
 
         String format = String.format("%s%%0%dd", policy.getPrefix(), policy.getWidth());
@@ -136,14 +140,16 @@ public class IDRangeHelper {
      *                  picked sequentially.
      * @return A newly initialised ID generator or {@code null} if no range file has
      *         been specified and no suitable default file was found.
-     * @throws IDRangePolicyException Only if {@code rangeFile} is not {@code null}:
-     *                                iIf the range file cannot be read for any
-     *                                reason, if the requested {@code rangeName}
-     *                                cannot be found, or if none of the default
-     *                                ranges can be found.
+     * @throws InvalidIDRangePolicyException If the file is not a valid ID range
+     *                                       policy file, if the requested
+     *                                       {@code rangeName} cannot be found, or
+     *                                       if none of the default ranges can be
+     *                                       found.
+     * @throws IOException                   If the range file cannot be read for
+     *                                       any reason
      */
     public static IAutoIDGenerator maybeGetIDGenerator(OWLOntology ontology, String rangeFile, String rangeName,
-            String[] altNames, boolean random) throws IDRangePolicyException {
+            String[] altNames, boolean random) throws IOException, InvalidIDRangePolicyException {
         boolean silent = false;
         IAutoIDGenerator generator = null;
 
@@ -157,7 +163,7 @@ public class IDRangeHelper {
 
         try {
             generator = getIDGenerator(ontology, rangeFile, rangeName, altNames, random);
-        } catch ( IDRangePolicyException e ) {
+        } catch ( InvalidIDRangePolicyException e ) {
             if ( !silent ) {
                 throw e;
             }

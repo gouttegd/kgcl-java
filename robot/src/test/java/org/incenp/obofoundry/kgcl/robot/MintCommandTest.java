@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 
 public class MintCommandTest {
 
-    private final static String idRangeFile = "../core/src/test/resources/idranges.owl";
+    private final static String idRangeFile = "src/test/resources/idranges.owl";
 
     @Test
     void testReallocateWithExplicitRange() {

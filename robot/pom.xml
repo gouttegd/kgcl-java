@@ -23,6 +23,11 @@
       <version>${project.parent.version}</version>
     </dependency>
     <dependency>
+      <groupId>org.incenp</groupId>
+      <artifactId>dicer-lib</artifactId>
+      <version>0.1.0</version>
+    </dependency>
+    <dependency>
       <groupId>org.obolibrary.robot</groupId>
       <artifactId>robot-command</artifactId>
       <version>1.9.6</version>
@@ -74,6 +79,7 @@
               <artifactSet>
                 <includes>
                   <include>org.incenp:kgcl-core</include>
+                  <include>org.incenp:dicer-lib</include>
                   <include>org.projectlombok:lombok</include>
                   <include>org.antlr:antlr4-runtime</include>
                 </includes>
