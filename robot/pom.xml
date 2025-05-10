@@ -23,11 +23,6 @@
       <version>${project.parent.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.incenp</groupId>
-      <artifactId>dicer-lib</artifactId>
-      <version>0.1.0</version>
-    </dependency>
-    <dependency>
       <groupId>org.obolibrary.robot</groupId>
       <artifactId>robot-command</artifactId>
       <version>1.9.7</version>

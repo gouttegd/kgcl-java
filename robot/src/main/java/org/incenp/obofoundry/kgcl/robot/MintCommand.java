@@ -24,8 +24,11 @@ import java.util.HashSet;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.apache.commons.compress.utils.Sets;
-import org.incenp.obofoundry.kgcl.IAutoIDGenerator;
-import org.incenp.obofoundry.kgcl.SequentialIDGenerator;
+import org.incenp.obofoundry.dicer.IAutoIDGenerator;
+import org.incenp.obofoundry.dicer.IDPolicyHelper;
+import org.incenp.obofoundry.dicer.IDRange;
+import org.incenp.obofoundry.dicer.OWLExistenceChecker;
+import org.incenp.obofoundry.dicer.SequentialIDGenerator;
 import org.obolibrary.robot.Command;
 import org.obolibrary.robot.CommandLineHelper;
 import org.obolibrary.robot.CommandState;
@@ -138,12 +141,7 @@ public class MintCommand implements Command {
         for ( OWLEntity entity : ontology.getSignature() ) {
             String origIRI = entity.getIRI().toString();
             if ( origIRI.startsWith(tempPrefix) ) {
-                String newIRI = generator.nextID();
-                if ( newIRI == null ) {
-                    throw new Exception("Cannot mint new ID");
-                }
-
-                ids.put(origIRI, newIRI);
+                ids.put(origIRI, generator.nextID());
 
                 if ( keepDeprecated ) {
                     // Keep aside the original declaration axioms and labels
@@ -196,7 +194,8 @@ public class MintCommand implements Command {
         return state;
     }
 
-    private IAutoIDGenerator getAutoIDGenerator(CommandLine line, OWLOntology ontology) throws Exception {
+    private IAutoIDGenerator getAutoIDGenerator(CommandLine line, OWLOntology ontology)
+            throws Exception {
         if ( line.hasOption("minted-id-prefix") ) {
             /*
              * Manual mode; generate IDs in a range that is explicitly specified on the
@@ -209,7 +208,7 @@ public class MintCommand implements Command {
             int upper = line.hasOption("max-id") ? Integer.parseInt(line.getOptionValue("max-id")) : lower + 1000;
             int width = line.hasOption("pad-width") ? Integer.parseInt(line.getOptionValue("pad-width")) : 7;
             String format = String.format("%s%%0%dd", line.getOptionValue("minted-id-prefix"), width);
-            return new SequentialIDGenerator(ontology, format, lower, upper);
+            return new SequentialIDGenerator(format, lower, upper, new OWLExistenceChecker(ontology));
         } else {
             /*
              * Range-file mode; similar, but the range is obtained from a file of ID ranges.
@@ -217,7 +216,9 @@ public class MintCommand implements Command {
             String rangeFile = line.getOptionValue("id-range-file");
             String requestedName = line.getOptionValue("id-range-name");
             String[] defaultNames = new String[] { "auto-minter" };
-            return IDRangeHelper.maybeGetIDGenerator(ontology, rangeFile, requestedName, defaultNames, false);
+
+            IDRange range = IDPolicyHelper.getRange(requestedName, defaultNames, rangeFile);
+            return new SequentialIDGenerator(range, new OWLExistenceChecker(ontology));
         }
     }
 

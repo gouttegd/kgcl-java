@@ -23,6 +23,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.incenp.obofoundry.dicer.IAutoIDGenerator;
+import org.incenp.obofoundry.dicer.IDNotFoundException;
 import org.incenp.obofoundry.kgcl.model.Change;
 import org.incenp.obofoundry.kgcl.model.Edge;
 import org.incenp.obofoundry.kgcl.model.EdgeCreation;
@@ -90,7 +92,10 @@ public class AutoIDAllocator extends ChangeVisitorBase<Void> {
         String autoID = idMap.get(id);
         if ( autoID == null ) {
             if ( idGenerator != null ) {
-                autoID = idGenerator.nextID();
+                try {
+                    autoID = idGenerator.nextID();
+                } catch ( IDNotFoundException e ) {
+                }
             }
             if ( autoID == null ) {
                 unallocatedIDs.add(id);

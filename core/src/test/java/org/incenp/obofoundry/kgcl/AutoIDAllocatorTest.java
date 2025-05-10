@@ -21,6 +21,7 @@ package org.incenp.obofoundry.kgcl;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.incenp.obofoundry.dicer.IAutoIDGenerator;
 import org.incenp.obofoundry.kgcl.model.Change;
 import org.incenp.obofoundry.kgcl.model.Edge;
 import org.incenp.obofoundry.kgcl.model.NodeMove;

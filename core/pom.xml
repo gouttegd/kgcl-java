@@ -28,6 +28,11 @@
       <version>4.5.29</version>
     </dependency>
     <dependency>
+      <groupId>org.incenp</groupId>
+      <artifactId>dicer-lib</artifactId>
+      <version>0.2.0</version>
+    </dependency>
+    <dependency>
       <groupId>au.csiro</groupId>
       <artifactId>elk-owlapi4</artifactId>
       <version>0.5.0</version>

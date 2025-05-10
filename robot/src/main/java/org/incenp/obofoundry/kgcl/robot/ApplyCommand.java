@@ -30,13 +30,17 @@ import java.util.UUID;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
+import org.incenp.obofoundry.dicer.IAutoIDGenerator;
+import org.incenp.obofoundry.dicer.IDException;
+import org.incenp.obofoundry.dicer.IDRange;
+import org.incenp.obofoundry.dicer.IDPolicyHelper;
+import org.incenp.obofoundry.dicer.OWLExistenceChecker;
+import org.incenp.obofoundry.dicer.RandomizedIDGenerator;
 import org.incenp.obofoundry.kgcl.AutoIDAllocator;
-import org.incenp.obofoundry.kgcl.IAutoIDGenerator;
 import org.incenp.obofoundry.kgcl.ILabelResolver;
 import org.incenp.obofoundry.kgcl.KGCLHelper;
 import org.incenp.obofoundry.kgcl.KGCLSyntaxError;
 import org.incenp.obofoundry.kgcl.KGCLWriter;
-import org.incenp.obofoundry.kgcl.RandomizedIDGenerator;
 import org.incenp.obofoundry.kgcl.RejectedChange;
 import org.incenp.obofoundry.kgcl.model.Change;
 import org.incenp.obofoundry.kgcl.model.NodeChange;
@@ -237,7 +241,8 @@ public class ApplyCommand implements Command {
         }
     }
 
-    private IAutoIDGenerator getAutoIDGenerator(CommandLine line, OWLOntology ontology) throws Exception {
+    private IAutoIDGenerator getAutoIDGenerator(CommandLine line, OWLOntology ontology)
+            throws Exception {
         IAutoIDGenerator generator = null;
 
         if ( line.hasOption("auto-id-prefix") ) {
@@ -253,7 +258,7 @@ public class ApplyCommand implements Command {
                     : lower + 1000;
             int width = line.hasOption("auto-id-width") ? Integer.parseInt(line.getOptionValue("auto-id-width")) : 7;
             String format = String.format("%s%%0%dd", line.getOptionValue("auto-id-prefix"), width);
-            generator = new RandomizedIDGenerator(ontology, format, lower, upper);
+            generator = new RandomizedIDGenerator(format, lower, upper, new OWLExistenceChecker(ontology));
         } else if ( line.hasOption("auto-id-temp-prefix") ) {
             /*
              * Temporary ID mode; generate temporary IDs that should later be replaced by
@@ -270,7 +275,16 @@ public class ApplyCommand implements Command {
             String requestedName = line.getOptionValue("auto-id-range-name");
             String[] defaultNames = new String[] { "kgcl", "KGCL", "ontobot", "Ontobot" };
 
-            generator = IDRangeHelper.maybeGetIDGenerator(ontology, rangeFile, requestedName, defaultNames, true);
+            try {
+                IDRange range = IDPolicyHelper.getRange(requestedName, defaultNames, rangeFile);
+                generator = new RandomizedIDGenerator(range, new OWLExistenceChecker(ontology));
+            } catch ( IOException | IDException e ) {
+                // Only error out if user has explicitly requested range-file mode, otherwise
+                // silently ignore.
+                if ( rangeFile != null || requestedName != null ) {
+                    throw e;
+                }
+            }
         }
 
         return generator;
