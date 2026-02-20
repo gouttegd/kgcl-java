@@ -19,6 +19,7 @@ import org.incenp.linkml.core.annotations.Converter;
 import org.incenp.linkml.core.annotations.Identifier;
 import org.incenp.linkml.core.annotations.Inlining;
 import org.incenp.linkml.core.annotations.SlotName;
+import org.incenp.linkml.core.annotations.TypeDesignator;
 import org.incenp.linkml.core.CurieConverter;
 import org.incenp.linkml.core.InliningMode;
 
@@ -31,6 +32,9 @@ public class {{ cls.name }} {% if cls.is_a -%} extends {{ cls.is_a }} {%- endif 
 {%- for f in cls.fields %}
     {%- if f.source_slot.identifier %}
     @Identifier
+    {%- endif %}
+    {%- if f.source_slot.designates_type %}
+    @TypeDesignator
     {%- endif %}
     {%- if f.source_slot.name != f.name %}
     @SlotName("{{ f.source_slot.name }}")

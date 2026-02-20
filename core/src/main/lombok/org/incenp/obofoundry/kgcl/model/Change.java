@@ -10,6 +10,7 @@ import org.incenp.linkml.core.annotations.Converter;
 import org.incenp.linkml.core.annotations.Identifier;
 import org.incenp.linkml.core.annotations.Inlining;
 import org.incenp.linkml.core.annotations.SlotName;
+import org.incenp.linkml.core.annotations.TypeDesignator;
 import org.incenp.linkml.core.CurieConverter;
 import org.incenp.linkml.core.InliningMode;
 
@@ -22,6 +23,7 @@ public class Change extends ChangeLanguageElement {
     @Identifier
     @Converter(CurieConverter.class)
     private String id;
+    @TypeDesignator
     private String type;
     @SlotName("was_generated_by")
     private Activity wasGeneratedBy;
