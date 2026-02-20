@@ -18,6 +18,11 @@
 
   <dependencies>
     <dependency>
+      <groupId>org.incenp</groupId>
+      <artifactId>linkml-core</artifactId>
+      <version>0.1.0-SNAPSHOT</version>
+    </dependency>
+    <dependency>
       <groupId>org.antlr</groupId>
       <artifactId>antlr4-runtime</artifactId>
       <version>4.13.2</version>
