@@ -168,6 +168,7 @@ classes:
       either the datatype or language changes
   LanguageTagChange:
     is_a: DatatypeOrLanguageTagChange
+    mixin: true
     slot_usage:
       old_value:
         multivalued: false
@@ -177,6 +178,7 @@ classes:
         range: LanguageTag
   DatatypeChange:
     is_a: DatatypeOrLanguageTagChange
+    mixin: true
   AllowsAutomaticReplacementOfEdges:
     is_a: Obsoletion
     mixin: true
