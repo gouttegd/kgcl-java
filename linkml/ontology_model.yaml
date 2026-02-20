@@ -109,7 +109,7 @@ classes:
     is_a: Node
 slots:
   owl_type:
-    range: OwlTypeEnum
+    range: OwlType
   name: {}
   subject:
     range: Node
@@ -137,7 +137,7 @@ slots:
     multivalued: true
     inlined: true
 enums:
-  OwlTypeEnum:
+  OwlType:
     permissible_values:
       CLASS:
         meaning: owl:Class
@@ -145,6 +145,8 @@ enums:
         meaning: owl:ObjectProperty
       NAMED_INDIVIDUAL:
         meaning: owl:NamedIndividual
+      ANNOTATION_PROPERTY:
+        meaning: owl:AnnotationProperty
   SynonymScopeEnum:
     permissible_values:
       related:
