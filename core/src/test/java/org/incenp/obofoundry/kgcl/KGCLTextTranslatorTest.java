@@ -207,7 +207,7 @@ public class KGCLTextTranslatorTest {
     void testRenderIndividualCreation() {
         NodeCreation change = new NodeCreation();
         change.setAboutNode(defaultNode);
-        change.getAboutNode().setOwlType(OwlType.NAMED_INVIDIDUAL);
+        change.getAboutNode().setOwlType(OwlType.NAMED_INDIVIDUAL);
         change.setNewValue("new label");
 
         render(change, "create instance EX:0001 \"new label\"");

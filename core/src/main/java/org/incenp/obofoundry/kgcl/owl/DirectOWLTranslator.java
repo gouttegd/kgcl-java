@@ -576,7 +576,7 @@ public class DirectOWLTranslator extends OWLTranslator {
                 addedClasses.add(nodeIRI);
             }
             break;
-        case NAMED_INVIDIDUAL:
+        case NAMED_INDIVIDUAL:
             if ( ontology.containsIndividualInSignature(nodeIRI) ) {
                 onReject(v, "Invididual <%s> already exists", nodeIRI.toString());
             } else {

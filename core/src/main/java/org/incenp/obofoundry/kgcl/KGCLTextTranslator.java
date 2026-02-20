@@ -292,7 +292,22 @@ public class KGCLTextTranslator extends ChangeVisitorBase<String> {
 
     @Override
     public String visit(NodeCreation v) {
-        return String.format("create %s %s %s", v.getAboutNode().getOwlType(), renderNode(v.getAboutNode()),
+        String nodeType = null;
+        switch ( v.getAboutNode().getOwlType() ) {
+        case ANNOTATION_PROPERTY:
+            nodeType = "annotation property";
+            break;
+        case CLASS:
+            nodeType = "class";
+            break;
+        case NAMED_INDIVIDUAL:
+            nodeType = "instance";
+            break;
+        case OBJECT_PROPERTY:
+            nodeType = "relation";
+            break;
+        }
+        return String.format("create %s %s %s", nodeType, renderNode(v.getAboutNode()),
                 renderNewValue(v));
     }
 
