@@ -9,9 +9,18 @@ from jinja2 import Template
 class_template = """\
 package org.incenp.obofoundry.kgcl.model;
 
+import java.time.ZonedDateTime;
 import java.util.List;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import org.incenp.linkml.core.annotations.Converter;
+import org.incenp.linkml.core.annotations.Identifier;
+import org.incenp.linkml.core.annotations.Inlining;
+import org.incenp.linkml.core.annotations.SlotName;
+import org.incenp.linkml.core.CurieConverter;
+import org.incenp.linkml.core.InliningMode;
 
 /**
  * {{ cls.description|e }}
@@ -20,8 +29,23 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper={% if gen.parent_has_slots(cls) %}true{% else %}false{% endif %})
 public class {{ cls.name }} {% if cls.is_a -%} extends {{ cls.is_a }} {%- endif %} {
 {%- for f in cls.fields %}
-    private {% if f.source_slot.range == 'owl_type' %}OwlType
-            {%- else %}{{ f.range }}{% endif %} {{ f.name }};
+    {%- if f.source_slot.identifier %}
+    @Identifier
+    {%- endif %}
+    {%- if f.source_slot.name != f.name %}
+    @SlotName("{{ f.source_slot.name }}")
+    {%- endif %}
+    {%- if f.source_slot.inlined %}
+    {%- if f.source_slot.inlined_as_list %}
+    @Inlining(InliningMode.LIST)
+    {%- else %}
+    @Inlining(InliningMode.DICT)
+    {%- endif %}
+    {%- endif %}
+    {%- if f.source_slot.range == "uriorcurie" %}
+    @Converter(CurieConverter.class)
+    {%- endif %}
+    private {{ f.range }} {{ f.name }};
 {%- endfor -%}
 
 {% if cls.name == "Change" or gen.has_ancestor(cls, "Change") %}
@@ -67,8 +91,15 @@ class CustomJavaGenerator(JavaGenerator):
         template_obj = Template(class_template)
         oodocs = self.create_documents()
         for oodoc in oodocs:
-            cls = oodoc.classes[0]
-            code = template_obj.render(doc=oodoc, cls=cls, gen=self)
+            if oodoc.classes:
+                cls = oodoc.classes[0]
+                if cls.mixin:
+                    continue
+                code = template_obj.render(doc=oodoc, cls=cls, gen=self)
+            else:
+                # Use default enum template
+                enum_templ = self.template_cache.get_template(oodoc.name, "enum")
+                code = enum_templ.render(doc=oodoc, enum=oodoc.enums[0], gen=self)
 
             path = os.path.join(directory, f"{oodoc.name}.java")
             with open(path, "w", encoding="UTF-8") as stream:
@@ -123,12 +154,15 @@ class CustomJavaGenerator(JavaGenerator):
         return _descendants
 
 
-@click.argument("yamlfile", type=click.Path(exists=True, dir_okay=False))
 @click.option("--output-directory", default="output", show_default=True)
 @click.command()
-def cli(yamlfile, output_directory=None):
-    gen = CustomJavaGenerator(yamlfile)
-    gen.serialize(output_directory, [("IChangeVisitor.java", visitor_template)])
+def cli(output_directory=None):
+    for schema in ["basics", "ontology_model", "prov", "kgcl"]:
+        gen = CustomJavaGenerator(schema + ".yaml", true_enums=True, package="org.incenp.obofoundry.kgcl.model")
+        extra_templates = []
+        if schema == "kgcl":
+            extra_templates.append(("IChangeVisitor.java", visitor_template))
+        gen.serialize(output_directory, extra_templates)
 
 if __name__ == "__main__":
     cli()
