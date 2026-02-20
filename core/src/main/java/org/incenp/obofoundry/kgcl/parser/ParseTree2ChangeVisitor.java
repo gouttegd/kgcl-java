@@ -249,7 +249,23 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
     @Override
     public Void visitNewNode(KGCLParser.NewNodeContext ctx) {
         NodeCreation change = null;
-        OwlType type = OwlType.fromString(ctx.nodeType().getText());
+        OwlType type = null;
+        switch (ctx.nodeType().getText()) {
+        case "class":
+            type = OwlType.CLASS;
+            break;
+        case "relation":
+            type = OwlType.OBJECT_PROPERTY;
+            break;
+
+        case "instance":
+            type = OwlType.NAMED_INDIVIDUAL;
+            break;
+
+        case "annotation property":
+            type = OwlType.ANNOTATION_PROPERTY;
+            break;
+        }
 
         switch ( type ) {
         case CLASS:

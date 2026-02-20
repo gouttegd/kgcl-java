@@ -473,7 +473,7 @@ class KGCLReaderTest {
     void testNewIndividualChange() {
         NodeCreation change = new NodeCreation();
         change.setAboutNode(util.getNode("0001"));
-        change.getAboutNode().setOwlType(OwlType.NAMED_INVIDIDUAL);
+        change.getAboutNode().setOwlType(OwlType.NAMED_INDIVIDUAL);
         change.setNewValue("new label");
 
         testParse("create instance EX:0001 'new label'", change);
