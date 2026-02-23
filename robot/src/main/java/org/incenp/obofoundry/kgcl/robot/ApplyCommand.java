@@ -32,8 +32,8 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.incenp.obofoundry.dicer.IAutoIDGenerator;
 import org.incenp.obofoundry.dicer.IDException;
-import org.incenp.obofoundry.dicer.IDRange;
 import org.incenp.obofoundry.dicer.IDPolicyHelper;
+import org.incenp.obofoundry.dicer.IDRange;
 import org.incenp.obofoundry.dicer.OWLExistenceChecker;
 import org.incenp.obofoundry.dicer.RandomizedIDGenerator;
 import org.incenp.obofoundry.kgcl.AutoIDAllocator;
@@ -74,6 +74,7 @@ public class ApplyCommand implements Command {
         options.addOption("c", "create", false, "create a new ontology with the changes");
         options.addOption("k", "kgcl", true, "apply a single change");
         options.addOption("K", "kgcl-file", true, "apply all changes in specified file");
+        options.addOption("Y", "kgcl-yaml", true, "apply all changes in the specified YAML file");
         options.addOption(null, "no-partial-apply", false, "apply all changes or none at all");
         options.addOption("R", "reject-file", true, "write rejected change in specified file");
         options.addOption(null, "no-reject-file", false, "do no write rejected change to a file");
@@ -161,6 +162,12 @@ public class ApplyCommand implements Command {
             for ( String kgclFile : line.getOptionValues('K') ) {
                 File f = new File(kgclFile);
                 changeset.addAll(KGCLHelper.parse(f, prefixManager, errors, labelResolver));
+            }
+        }
+        if ( line.hasOption('Y') ) {
+            for ( String yamlFile : line.getOptionValues('Y') ) {
+                File f = new File(yamlFile);
+                changeset.addAll(KGCLHelper.parseYAML(f, prefixManager));
             }
         }
 
