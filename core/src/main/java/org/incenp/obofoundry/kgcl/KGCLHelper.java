@@ -22,9 +22,12 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.incenp.linkml.core.ConverterContext;
+import org.incenp.linkml.core.LinkMLRuntimeException;
 import org.incenp.obofoundry.kgcl.model.Change;
 import org.incenp.obofoundry.kgcl.owl.OntologyPatcher;
 import org.incenp.obofoundry.kgcl.owl.ProvisionalOWLTranslator;
@@ -32,6 +35,9 @@ import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.PrefixManager;
 import org.semanticweb.owlapi.reasoner.OWLReasoner;
 import org.semanticweb.owlapi.util.DefaultPrefixManager;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
 /**
  * A class providing static helper methods to work with KGCL.
@@ -208,6 +214,59 @@ public class KGCLHelper {
         }
 
         return reader.getChangeSet();
+    }
+
+    /**
+     * Parses a changeset serialised in YAML form.
+     * 
+     * @param kgcl      The YAML file from which to read the changeset. That file is
+     *                  expected to contain a <em>list</em> of KGCL change objects.
+     * @param prefixMap A map of prefix names to prefix IRIs. May be {@code null}.
+     * @return A KGCL changeset.
+     * @throws IOException If any error occurs. Note that, contrary to the methods
+     *                     that read from the KGCL controlled natural language, here
+     *                     this includes post-I/O errors caused by invalid KGCL
+     *                     contents within the source file.
+     */
+    public static List<Change> parseYAML(File kgcl, Map<String, String> prefixMap) throws IOException {
+        List<Change> changeset = new ArrayList<>();
+
+        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+        @SuppressWarnings("unchecked")
+        List<Object> rawChanges = mapper.readValue(kgcl, List.class);
+
+        ConverterContext ctx = new ConverterContext();
+        if ( prefixMap != null ) {
+            prefixMap.forEach(ctx::addPrefix);
+        }
+        try {
+            for ( Object rawChange : rawChanges ) {
+                changeset.add((Change) ctx.getConverter(Change.class).convert(rawChange, ctx));
+            }
+            ctx.finalizeAssignments();
+        } catch ( LinkMLRuntimeException e ) {
+            throw new IOException("Cannot read KGCL file: invalid content", e);
+        }
+
+        return changeset;
+    }
+
+    /**
+     * Parses a changeset serialised in YAML form.
+     * 
+     * @param kgcl          The YAML file from which to read the changeset. That
+     *                      file is expected to contain a <em>list</em> of KGCL
+     *                      change objects.
+     * @param prefixManager A prefix manager to expand CURIEs into IRIs. May be
+     *                      {@code null}.
+     * @return A KGCL changeset.
+     * @throws IOException If any error occurs. Note that, contrary to the methods
+     *                     that read from the KGCL controlled natural language, here
+     *                     this includes post-I/O errors caused by invalid KGCL
+     *                     contents within the source file.
+     */
+    public static List<Change> parseYAML(File kgcl, PrefixManager prefixManager) throws IOException {
+        return parseYAML(kgcl, prefixManager != null ? prefixManager.getPrefixName2PrefixMap() : null);
     }
 
     /**
