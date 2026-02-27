@@ -8,11 +8,10 @@ import lombok.EqualsAndHashCode;
 
 import org.incenp.linkml.core.annotations.Converter;
 import org.incenp.linkml.core.annotations.Identifier;
-import org.incenp.linkml.core.annotations.Inlining;
+import org.incenp.linkml.core.annotations.Inlined;
 import org.incenp.linkml.core.annotations.SlotName;
 import org.incenp.linkml.core.annotations.TypeDesignator;
 import org.incenp.linkml.core.CurieConverter;
-import org.incenp.linkml.core.InliningMode;
 
 /**
  * A node synonym change where the predicate of a synonym is changed. Background: synonyms can be represented by a variety of predicates. For example, many OBO ontologies make use of predicates such as oio:hasExactSynonym, oio:hasRelatedSynonym, etc

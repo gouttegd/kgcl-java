@@ -8,11 +8,10 @@ import lombok.EqualsAndHashCode;
 
 import org.incenp.linkml.core.annotations.Converter;
 import org.incenp.linkml.core.annotations.Identifier;
-import org.incenp.linkml.core.annotations.Inlining;
+import org.incenp.linkml.core.annotations.Inlined;
 import org.incenp.linkml.core.annotations.SlotName;
 import org.incenp.linkml.core.annotations.TypeDesignator;
 import org.incenp.linkml.core.CurieConverter;
-import org.incenp.linkml.core.InliningMode;
 
 /**
  * A session consists of a set of change sets bundled with the activities that generated those change sets
@@ -21,7 +20,7 @@ import org.incenp.linkml.core.InliningMode;
 @EqualsAndHashCode(callSuper=false)
 public class Session extends ChangeLanguageElement {
     @SlotName("change_set")
-    @Inlining(InliningMode.LIST)
+    @Inlined(asList = true)
     private List<Change> changeSet;
     @SlotName("activity_set")
     private List<Activity> activitySet;}

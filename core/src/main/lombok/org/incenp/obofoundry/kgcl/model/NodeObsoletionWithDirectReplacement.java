@@ -8,11 +8,10 @@ import lombok.EqualsAndHashCode;
 
 import org.incenp.linkml.core.annotations.Converter;
 import org.incenp.linkml.core.annotations.Identifier;
-import org.incenp.linkml.core.annotations.Inlining;
+import org.incenp.linkml.core.annotations.Inlined;
 import org.incenp.linkml.core.annotations.SlotName;
 import org.incenp.linkml.core.annotations.TypeDesignator;
 import org.incenp.linkml.core.CurieConverter;
-import org.incenp.linkml.core.InliningMode;
 
 /**
  * An obsoletion change in which information from the obsoleted node is selectively copied to a single target, and edges can automatically be rewired to point to the target node

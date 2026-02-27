@@ -8,11 +8,10 @@ import lombok.EqualsAndHashCode;
 
 import org.incenp.linkml.core.annotations.Converter;
 import org.incenp.linkml.core.annotations.Identifier;
-import org.incenp.linkml.core.annotations.Inlining;
+import org.incenp.linkml.core.annotations.Inlined;
 import org.incenp.linkml.core.annotations.SlotName;
 import org.incenp.linkml.core.annotations.TypeDesignator;
 import org.incenp.linkml.core.CurieConverter;
-import org.incenp.linkml.core.InliningMode;
 
 /**
  * Any change perform on an ontology or knowledge graph
@@ -42,7 +41,7 @@ public class Change extends ChangeLanguageElement {
     @SlotName("change_description")
     private String changeDescription;
     @SlotName("associated_change_set")
-    @Inlining(InliningMode.LIST)
+    @Inlined(asList = true)
     private List<Change> associatedChangeSet;
     public <T> T accept(IChangeVisitor<T> v) {
         return v.visit(this);
