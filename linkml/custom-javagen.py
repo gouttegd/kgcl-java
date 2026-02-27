@@ -17,17 +17,22 @@ import lombok.EqualsAndHashCode;
 
 import org.incenp.linkml.core.annotations.Converter;
 import org.incenp.linkml.core.annotations.Identifier;
-import org.incenp.linkml.core.annotations.Inlining;
+import org.incenp.linkml.core.annotations.Inlined;
 import org.incenp.linkml.core.annotations.SlotName;
 import org.incenp.linkml.core.annotations.TypeDesignator;
 import org.incenp.linkml.core.CurieConverter;
-import org.incenp.linkml.core.InliningMode;
+{%- if cls.name == "SimpleChange" %}
+import org.incenp.obofoundry.kgcl.SimpleChangeConverter;
+{%- endif %}
 
 /**
  * {{ cls.description|e }}
  */
 @Data
 @EqualsAndHashCode(callSuper={% if gen.parent_has_slots(cls) %}true{% else %}false{% endif %})
+{%- if cls.name == "SimpleChange" %}
+@Converter(SimpleChangeConverter.class)
+{%- endif %}
 public class {{ cls.name }} {% if cls.is_a -%} extends {{ cls.is_a }} {%- endif %} {
 {%- for f in cls.fields %}
     {%- if f.source_slot.identifier %}
@@ -41,9 +46,9 @@ public class {{ cls.name }} {% if cls.is_a -%} extends {{ cls.is_a }} {%- endif 
     {%- endif %}
     {%- if f.source_slot.inlined %}
     {%- if f.source_slot.inlined_as_list %}
-    @Inlining(InliningMode.LIST)
+    @Inlined(asList = true)
     {%- else %}
-    @Inlining(InliningMode.DICT)
+    @Inlining
     {%- endif %}
     {%- endif %}
     {%- if f.source_slot.range == "uriorcurie" %}
