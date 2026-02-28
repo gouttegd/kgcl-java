@@ -10,11 +10,13 @@ The <apply> command
 * Usage
 
   The <<<apply>>> command takes a single KGCL instruction specified with
-  the <<<-k>>> (or <<<--kgcl>>>) option, or a KGCL file (with one
+  the <<<-k>>> (or <<<--kgcl>>>) option, a KGCL file (with one
   instruction per line) specified with the <<<-K>>> (or
-  <<<--kgcl-file>>>) option. Both options can be used repeatedly, to
-  specify more than one change (with <<<-k>>>) or changes from more than
-  one file (with <<<-K>>>). It applies the change(s) to the current
+  <<<--kgcl-file>>>) option, or a KGCL YAML file (containing a list of
+  KGCL change objects) specifiedwith the <<<-Y>>> (or <<<--kgcl-yaml>>>)
+  option. All three options can be used repeatedly, to specify more than
+  one change (with <<<-k>>>) or changes from more than one file (with
+  <<<-K>>> or <<<-Y>>>). It applies the change(s) to the current
   ontology loaded in ROBOT.
   
   For example, the following command will apply the changes described in

@@ -35,11 +35,12 @@ The KGCL Java library
   
 * Serialising / deserialising KGCL objects
 
-  Currently, the only KGCL serialisation format supported is the
-  “KGCL-DSL” format. Support for JSON/YAML formats may be added in the
-  future.
+  The library supports both the ”KGCL-DSL” format and the ”KGCL-YAML”
+  format.
 
-** Deserialising KGCL-DSL
+** KGCL-DSL
+
+*** Deserialising KGCL-DSL
   
   Use the {{{./apidocs/org/incenp/obofoundry/kgcl/KGCLReader.html}KGCLReader}}
   class to deserialise a changeset from a KGCL-DSL file:
@@ -88,7 +89,7 @@ if ( ! reader.hasErrors() ) {
 }
 +-----------------------------------------------------------------------
 
-** Serialising KGCL-DSL
+*** Serialising KGCL-DSL
 
   Use the {{{./apidocs/org/incenp/obofoundry/kgcl/KGCLWriter.html}KGCLwriter}}
   class to serialise a KGCL change(set) into a KGCL-DSL file:
@@ -120,7 +121,7 @@ KGCLTextTranslator translator = new KGCLTextTranslator();
 String kgcl = change.accept(translator);
 +-----------------------------------------------------------------------
 
-** Identifying nodes using shortened identifiers or labels
+*** Identifying nodes using shortened identifiers or labels
 
   If the KGCL instructions to parse reference nodes using shortened
   identifiers (a.k.a “CURIEs”, such as <<<EX:0001>>>), the
@@ -169,6 +170,56 @@ OWLOntology ont = ...; // the ontology to apply the changes to
 KGCLReader reader = new KGCLReader("my-changeset.kgcl");
 reader.setLabelResolver(new OntologyBasedLabelResolver(ont));
 +-----------------------------------------------------------------------
+
+** KGCL-YAML
+
+  Support for the YAML serialisation format is provided through the
+  LinkML-Java runtime library and its <<<YAMLLoader>>> object.
+  
+  To read a list of changes from a YAML file:
+  
++-----------------------------------------------------------------------
+import java.io.File;
+import java.util.List;
+import org.incenp.linkml.core.YAMLLoader;
+import org.incenp.obofoundry.kgcl.model.Change;
+
+YAMLLoader loader = new YAMLLoader();
+try {
+    List<Change> changeset = loader.loadObjects(new File("my-changeset.yaml"), Change.class);
+} catch ( IOException ioe ) {
+    // A non-KGCL-specific I/O error occurred
+} catch ( LinkMLRuntimeException e ) {
+    // Invalid KGCL data in the YAML file
+}
++-----------------------------------------------------------------------
+
+  Note that, contrary to reading from a KGCL-DSL file, reading from a
+  YAML file currently does not allow to get a list of all the errors
+  that may exist in the file: the loading operation is aborted at the
+  first error encountered.
+  
+  If the KGCL data in the file is written used shortened identifiers,
+  you may provide the prefix declarations to the loader as follows:
+  
++-----------------------------------------------------------------------
+loader.getContext().addPrefix("pfx", "https://example.org/");
++-----------------------------------------------------------------------
+
+  The loader will then automatically resolve all the shortened
+  identifiers encountered in any subsequent call to <<<loadObjects()>>>.
+  
+  To write a KGCL changeset to a YAML file, simply use the loader’s
+  <<<dumpObjects()>>> method:
+  
++-----------------------------------------------------------------------
+List<Change> changeset = ...; // the changeset to serialise
+loader.dumpObjects(new File("my-changeset.yaml"), changeset);
++-----------------------------------------------------------------------
+
+  If the loader object has been provided with prefix declarations as
+  mentioned above, they will be used to automatically shorten the
+  identifiers in the YAML output.
 
 * Arbitrary manipulations of KGCL change objects
 

@@ -89,6 +89,32 @@ The writer will throw standard I/O exceptions upon I/O errors.
 As for parsing, you can pass a OWL API `PrefixManager` to the writer to
 condense identifiers into short, “CURIEfied” identifiers.
 
+### Reading/writing KGCL changes from/to YAML
+Use the `org.incenp.linkml.core.YAMLLoader` object from the LinkML-Java
+runtime:
+
+```java
+import org.incenp.linkml.core.YAMLLoader;
+import org.incenp.linkml.core.LinkMLRuntimeException;
+import org.incenp.obofoundry.kgcl.model.Change;
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+
+YAMLLoader loader = new YAMLLoader();
+try {
+    // Reading
+    List<Change> changes = loader.loadObjects(new File("file1.yaml"), Change.class);
+
+    // Writing
+    loader.dumpObjects(new File("file1.yaml"), changes);
+} catch ( IOException e ) {
+    // Any IO error (including non-KGCL-specific YAML error)
+} catch ( LinkMLRuntimeException e ) {
+    // Invalid KGCL data
+}
+```
+
 ### Applying the changes to a OWL ontology
 Use the `org.incenp.obofoundry.kgcl.owl.OntologyPatcher` to apply changes to
 an ontology:
@@ -131,9 +157,11 @@ version of ROBOT, where the `apply` command is available as a built-in
 command (in addition to all the standard commands).
 
 The `apply` command takes a single KGCL instruction in its `-k` (or
-`--kgcl`) option, or a KGCL file (with one instruction per line) in its
-`-K` (or `--kgcl-file`) option, and apply the requested changes to the
-current ontology. Both options can be used repeatedly.
+`--kgcl`) option, a KGCL file (with one instruction per line) in its
+`-K` (or `--kgcl-file`) option, or a KGCL YAML file (containing a list
+of KGCL change objects) in its `-Y` (or `--kgcl-yaml`) option, and apply
+the requested changes to the current ontology. All three options can be
+used repeatedly.
 
 ```sh
 robot apply -i input.ofn -K changes.kgcl -o output.ofn
@@ -146,35 +174,6 @@ the original KGCL file, with a ".rej" extension appended.
 
 If the `--no-partial-apply` option is used, then the command will refuse
 to apply any changes if at least one change cannot be applied.
-
-Todo
-----
-KGCL implementation chart (_parsed_ means the library can recognize the
-instruction and convert it to its object representation; _applied_ means
-the library can apply the change to an ontology):
-
-| Change type         | Parsed | Applied |
-| ------------------- | -------| ------- |
-| rename              | yes    | yes     |
-| create class        | yes    | yes     |
-| obsolete            | yes    | yes     |
-| delete              | yes    | yes     |
-| move                | yes    | yes     |
-| unobsolete          | yes    | yes     |
-| deepen              | yes    | yes     |
-| shallow             | yes    | yes     |
-| change relationship | yes    | yes     |
-| change annotation   | yes    | yes     |
-| create edge         | yes    | yes     |
-| delete edge         | yes    | yes     |
-| create synonym      | yes    | yes     |
-| remove synonym      | yes    | yes     |
-| change synonym      | yes    | yes     |
-| remove from subset  | yes    | yes     |
-| add to subset       | yes    | yes     |
-| add definition      | yes    | yes     |
-| change definition   | yes    | yes     |
-| remove definition   | yes    | yes     |
 
 Homepage and repository
 -----------------------
