@@ -1,0 +1,3 @@
+- id: CHANGE:001
+  type: NodeObsoletion
+  about_node: pizza:SultanaTopping

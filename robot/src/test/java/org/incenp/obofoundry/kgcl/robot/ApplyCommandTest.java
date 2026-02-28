@@ -45,6 +45,12 @@ public class ApplyCommandTest {
     }
 
     @Test
+    void testApplyChangeFromYAMLFile() {
+        runCommand("pizza.ofn", "pizza-no-sultana-topping.ofn", "--kgcl-yaml",
+                "src/test/resources/obsolete-sultana-topping.yaml");
+    }
+
+    @Test
     void testApplyChangeFromFileAndCommandLine() {
         runCommand("pizza.ofn", "pizza-no-sultana-topping-no-reine.ofn", "--kgcl-file",
                 "src/test/resources/obsolete-sultana-topping.kgcl", "--kgcl", "obsolete pizza:LaReine");

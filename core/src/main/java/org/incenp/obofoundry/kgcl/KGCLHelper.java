@@ -22,12 +22,11 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.incenp.linkml.core.ConverterContext;
 import org.incenp.linkml.core.LinkMLRuntimeException;
+import org.incenp.linkml.core.YAMLLoader;
 import org.incenp.obofoundry.kgcl.model.Change;
 import org.incenp.obofoundry.kgcl.owl.OntologyPatcher;
 import org.incenp.obofoundry.kgcl.owl.ProvisionalOWLTranslator;
@@ -35,9 +34,6 @@ import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.PrefixManager;
 import org.semanticweb.owlapi.reasoner.OWLReasoner;
 import org.semanticweb.owlapi.util.DefaultPrefixManager;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
 /**
  * A class providing static helper methods to work with KGCL.
@@ -229,26 +225,15 @@ public class KGCLHelper {
      *                     contents within the source file.
      */
     public static List<Change> parseYAML(File kgcl, Map<String, String> prefixMap) throws IOException {
-        List<Change> changeset = new ArrayList<>();
-
-        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-        @SuppressWarnings("unchecked")
-        List<Object> rawChanges = mapper.readValue(kgcl, List.class);
-
-        ConverterContext ctx = new ConverterContext();
+        YAMLLoader loader = new YAMLLoader();
         if ( prefixMap != null ) {
-            prefixMap.forEach(ctx::addPrefix);
+            prefixMap.forEach(loader.getContext()::addPrefix);
         }
         try {
-            for ( Object rawChange : rawChanges ) {
-                changeset.add((Change) ctx.getConverter(Change.class).convert(rawChange, ctx));
-            }
-            ctx.finalizeAssignments();
+            return loader.loadObjects(kgcl, Change.class);
         } catch ( LinkMLRuntimeException e ) {
             throw new IOException("Cannot read KGCL file: invalid content", e);
         }
-
-        return changeset;
     }
 
     /**

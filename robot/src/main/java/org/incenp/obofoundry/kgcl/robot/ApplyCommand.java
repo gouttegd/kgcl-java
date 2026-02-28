@@ -30,6 +30,7 @@ import java.util.UUID;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
+import org.incenp.linkml.core.YAMLLoader;
 import org.incenp.obofoundry.dicer.IAutoIDGenerator;
 import org.incenp.obofoundry.dicer.IDException;
 import org.incenp.obofoundry.dicer.IDPolicyHelper;
@@ -165,9 +166,10 @@ public class ApplyCommand implements Command {
             }
         }
         if ( line.hasOption('Y') ) {
+            YAMLLoader loader = new YAMLLoader();
+            prefixManager.getPrefixName2PrefixMap().forEach(loader.getContext()::addPrefix);
             for ( String yamlFile : line.getOptionValues('Y') ) {
-                File f = new File(yamlFile);
-                changeset.addAll(KGCLHelper.parseYAML(f, prefixManager));
+                changeset.addAll(loader.loadObjects(new File(yamlFile), Change.class));
             }
         }
 
