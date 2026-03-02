@@ -8,6 +8,6 @@ authors:
 license: GPL-3.0-or-later
 url: "https://incenp.org/dvlpt/kgcl-java/"
 repository-code: "https://github.com/gouttegd/kgcl-java"
-version: 0.5.1
-date-released: "2024-12-26"
-doi: 10.5281/zenodo.14559645
+version: 0.6.0
+date-released: "2026-03-02"
+doi: 10.5281/zenodo.18841258
