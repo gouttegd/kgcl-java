@@ -20,7 +20,7 @@
     <dependency>
       <groupId>org.incenp</groupId>
       <artifactId>linkml-core</artifactId>
-      <version>0.1.0-SNAPSHOT</version>
+      <version>0.1.0</version>
     </dependency>
     <dependency>
       <groupId>org.antlr</groupId>
@@ -35,7 +35,7 @@
     <dependency>
       <groupId>org.incenp</groupId>
       <artifactId>dicer-lib</artifactId>
-      <version>0.2.0</version>
+      <version>0.2.1</version>
     </dependency>
     <dependency>
       <groupId>au.csiro</groupId>
@@ -59,7 +59,7 @@
           <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.38</version>
+            <version>1.18.42</version>
           </dependency>
         </dependencies>
         <executions>
