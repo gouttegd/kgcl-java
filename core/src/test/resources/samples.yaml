@@ -100,7 +100,7 @@
   about_node: GO:0005635
 
 - id: CHANGE:017
-  type: NodeTextDefinitionChange
+  type: TextDefinitionReplacement
   new_value: this is dummy description
   about_node: GO:0005635
 
