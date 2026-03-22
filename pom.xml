@@ -142,6 +142,9 @@
             <goals>
               <goal>jar</goal>
             </goals>
+            <configuration>
+              <excludePackageNames>org.incenp.obofoundry.kgcl.model</excludePackageNames>
+            </configuration>
           </execution>
         </executions>
       </plugin>
@@ -220,6 +223,9 @@
             </reports>
           </reportSet>
         </reportSets>
+        <configuration>
+          <excludePackageNames>org.incenp.obofoundry.kgcl.model</excludePackageNames>
+        </configuration>
       </plugin>
     </plugins>
   </reporting>

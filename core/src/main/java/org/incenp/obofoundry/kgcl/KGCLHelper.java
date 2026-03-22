@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.incenp.linkml.core.LinkMLRuntimeException;
-import org.incenp.linkml.core.YAMLLoader;
+import org.incenp.linkml.core.ObjectLoader;
 import org.incenp.obofoundry.kgcl.model.Change;
 import org.incenp.obofoundry.kgcl.owl.OntologyPatcher;
 import org.incenp.obofoundry.kgcl.owl.ProvisionalOWLTranslator;
@@ -225,7 +225,7 @@ public class KGCLHelper {
      *                     contents within the source file.
      */
     public static List<Change> parseYAML(File kgcl, Map<String, String> prefixMap) throws IOException {
-        YAMLLoader loader = new YAMLLoader();
+        ObjectLoader loader = new ObjectLoader();
         if ( prefixMap != null ) {
             prefixMap.forEach(loader.getContext()::addPrefix);
         }
