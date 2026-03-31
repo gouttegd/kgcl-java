@@ -30,7 +30,7 @@ import java.util.UUID;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
-import org.incenp.linkml.core.ObjectLoader;
+import org.incenp.linkml.ext.ObjectLoader;
 import org.incenp.obofoundry.dicer.IAutoIDGenerator;
 import org.incenp.obofoundry.dicer.IDException;
 import org.incenp.obofoundry.dicer.IDPolicyHelper;

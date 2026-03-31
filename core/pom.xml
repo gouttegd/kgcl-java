@@ -19,8 +19,8 @@
   <dependencies>
     <dependency>
       <groupId>org.incenp</groupId>
-      <artifactId>linkml-core</artifactId>
-      <version>0.1.2</version>
+      <artifactId>linkml-ext</artifactId>
+      <version>0.2.0</version>
     </dependency>
     <dependency>
       <groupId>org.antlr</groupId>

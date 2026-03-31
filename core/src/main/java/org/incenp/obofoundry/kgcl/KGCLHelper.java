@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.incenp.linkml.core.LinkMLRuntimeException;
-import org.incenp.linkml.core.ObjectLoader;
+import org.incenp.linkml.ext.ObjectLoader;
 import org.incenp.obofoundry.kgcl.model.Change;
 import org.incenp.obofoundry.kgcl.owl.OntologyPatcher;
 import org.incenp.obofoundry.kgcl.owl.ProvisionalOWLTranslator;
