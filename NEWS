@@ -1,3 +1,9 @@
+Changes in kgcl-java-0.6.1
+--------------------------
+
+    * `kgcl:mint`: Do not ignore imports when checking for existing IDs.
+
+
 Changes in kgcl-java-0.6.0
 --------------------------
 
