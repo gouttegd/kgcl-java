@@ -159,8 +159,6 @@ classes:
     slot_usage:
       about:
         description: The element that is obsoleted by this change.
-      has_undo:
-        range: Obsoletion
   DatatypeOrLanguageTagChange:
     is_a: ChangeMixin
     mixin: true
@@ -190,9 +188,6 @@ classes:
     description: Opposite operation of obsoletion. Rarely performed.
     see_also:
     - http://wiki.geneontology.org/index.php/Restoring_an_Obsolete_Ontology_Term
-    slot_usage:
-      has_undo:
-        range: Obsoletion
   Deletion:
     is_a: ChangeMixin
     mixin: true
@@ -204,9 +199,6 @@ classes:
     is_a: ChangeMixin
     mixin: true
     description: Creation of an element.
-    slot_usage:
-      has_undo:
-        range: Deletion
   SubsetMembershipChange:
     is_a: ChangeMixin
     mixin: true
@@ -228,8 +220,6 @@ classes:
     slot_usage:
       in_subset:
         description: subset that the element is being removed from
-      has_undo:
-        range: AddToSubset
   EdgeChange:
     abstract: true
     aliases:
@@ -268,6 +258,8 @@ classes:
     slot_usage:
       change_description:
         string_serialization: create edge {edge.subject} {edge.predicate} {edge.object}
+      has_undo:
+        range: EdgeDeletion
     see_also:
     - http://wiki.geneontology.org/index.php/Guidelines_for_creating_relationships_between_terms
   PlaceUnder:
@@ -619,6 +611,8 @@ classes:
         description: The node that is removed from the subset
       in_subset:
         description: The subset from which the node is to be removed
+      has_undo:
+        range: AddNodeToSubset
   NodeObsoletion:
     aliases:
     - node deprecation
@@ -644,6 +638,8 @@ classes:
           change set is not considered a part of the obsoletion, as obsoletion is
           considered atomic/simple. Instead this is a reference to a change set that
           may exist elsewhere'
+      has_undo:
+        range: NodeUnobsoletion
     see_also:
     - http://wiki.geneontology.org/index.php/Obsoleting_an_Existing_Ontology_Term
   NodeUnobsoletion:
@@ -662,6 +658,8 @@ classes:
     slot_usage:
       change_description:
         string_serialization: unobsoleting {about_node}
+      has_undo:
+        range: NodeObsoletion
     see_also:
     - http://wiki.geneontology.org/index.php/Restoring_an_Obsolete_Ontology_Term
   NodeCreation:
@@ -678,6 +676,8 @@ classes:
     slot_usage:
       change_description:
         string_serialization: creating node {id} {label} with {annotation set}
+      has_undo:
+        range: NodeDeletion
     todos:
     - allow this for the creation of an instance from a class. This may include metaclasses
       (templates)
