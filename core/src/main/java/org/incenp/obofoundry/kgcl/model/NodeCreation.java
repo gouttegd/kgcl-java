@@ -82,6 +82,23 @@ public class NodeCreation extends NodeChange {
         return this.about;
     }
 
+    @Override
+    public NodeDeletion getHasUndo() {
+        return (NodeDeletion) super.getHasUndo();
+    }
+
+    public void setHasUndo(NodeDeletion value) {
+        super.setHasUndo(value);
+    }
+
+    @Override
+    public void setHasUndo(Change value) {
+        if ( !(value instanceof NodeDeletion) ) {
+            throw new IllegalArgumentException("Invalid hasUndo value");
+        }
+        super.setHasUndo(value);
+    }
+
     public <T> T accept(IChangeVisitor<T> v) {
         return v.visit(this);
     }

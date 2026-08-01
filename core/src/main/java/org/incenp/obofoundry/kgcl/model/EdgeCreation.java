@@ -104,6 +104,23 @@ public class EdgeCreation extends EdgeChange {
         return this.about;
     }
 
+    @Override
+    public EdgeDeletion getHasUndo() {
+        return (EdgeDeletion) super.getHasUndo();
+    }
+
+    public void setHasUndo(EdgeDeletion value) {
+        super.setHasUndo(value);
+    }
+
+    @Override
+    public void setHasUndo(Change value) {
+        if ( !(value instanceof EdgeDeletion) ) {
+            throw new IllegalArgumentException("Invalid hasUndo value");
+        }
+        super.setHasUndo(value);
+    }
+
     public <T> T accept(IChangeVisitor<T> v) {
         return v.visit(this);
     }

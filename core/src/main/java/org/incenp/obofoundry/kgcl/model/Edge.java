@@ -105,6 +105,7 @@ public class Edge extends OntologyElement {
         return this.annotationSet;
     }
 
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

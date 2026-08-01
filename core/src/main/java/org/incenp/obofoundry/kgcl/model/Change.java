@@ -25,6 +25,7 @@ import org.incenp.obofoundry.kgcl.SimpleChangeConverter;
 public abstract class Change extends ChangeLanguageElement {
 
     @Identifier
+    @Required
     @Converter(CurieConverter.class)
     @LinkURI("https://w3id.org/kgcl/basics/id")
     private String id;

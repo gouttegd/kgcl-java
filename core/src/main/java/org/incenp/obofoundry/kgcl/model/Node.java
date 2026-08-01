@@ -25,6 +25,7 @@ import org.incenp.obofoundry.kgcl.SimpleChangeConverter;
 public class Node extends OntologyElement {
 
     @Identifier
+    @Required
     @Converter(CurieConverter.class)
     @LinkURI("https://w3id.org/kgcl/basics/id")
     private String id;
@@ -71,6 +72,7 @@ public class Node extends OntologyElement {
     public OwlType getOwlType() {
         return this.owlType;
     }
+
 
     @Override
     public String toString() {

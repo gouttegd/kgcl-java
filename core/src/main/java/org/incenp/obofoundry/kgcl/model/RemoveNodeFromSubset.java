@@ -47,6 +47,23 @@ public class RemoveNodeFromSubset extends NodeChange {
         return this.about;
     }
 
+    @Override
+    public AddNodeToSubset getHasUndo() {
+        return (AddNodeToSubset) super.getHasUndo();
+    }
+
+    public void setHasUndo(AddNodeToSubset value) {
+        super.setHasUndo(value);
+    }
+
+    @Override
+    public void setHasUndo(Change value) {
+        if ( !(value instanceof AddNodeToSubset) ) {
+            throw new IllegalArgumentException("Invalid hasUndo value");
+        }
+        super.setHasUndo(value);
+    }
+
     public <T> T accept(IChangeVisitor<T> v) {
         return v.visit(this);
     }

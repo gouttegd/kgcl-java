@@ -66,6 +66,23 @@ public class NodeUnobsoletion extends NodeChange {
         return this.about;
     }
 
+    @Override
+    public NodeObsoletion getHasUndo() {
+        return (NodeObsoletion) super.getHasUndo();
+    }
+
+    public void setHasUndo(NodeObsoletion value) {
+        super.setHasUndo(value);
+    }
+
+    @Override
+    public void setHasUndo(Change value) {
+        if ( !(value instanceof NodeObsoletion) ) {
+            throw new IllegalArgumentException("Invalid hasUndo value");
+        }
+        super.setHasUndo(value);
+    }
+
     public <T> T accept(IChangeVisitor<T> v) {
         return v.visit(this);
     }

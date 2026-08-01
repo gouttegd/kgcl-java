@@ -27,21 +27,34 @@ public abstract class ComplexChange extends Change {
     @SlotName("change_set")
     @Inlined(asList = true)
     @LinkURI("http://w3id.org/kgcl/change_set")
-    private List<Change> changeSet;
+    private List<? extends Change> changeSet;
 
-    public void setChangeSet(List<Change> changeSet) {
+    public void setChangeSet(List<? extends Change> changeSet) {
         this.changeSet = changeSet;
     }
 
-    public List<Change> getChangeSet() {
+    public List<? extends Change> getChangeSet() {
         return this.changeSet;
     }
 
-    public List<Change> getChangeSet(boolean set) {
+    public List<? extends Change> getChangeSet(boolean set) {
         if ( this.changeSet == null && set ) {
-            this.changeSet = new ArrayList<>();
+            this.changeSet = new ArrayList<Change>();
         }
         return this.changeSet;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T extends Change> List<T> getChangeSet(Class<T> t) {
+        return (List<T>) this.changeSet;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T extends Change> List<T> getChangeSet(Class<T> t, boolean create) {
+        if ( this.changeSet == null && create ) {
+            this.changeSet = new ArrayList<T>();
+        }
+        return (List<T>) this.changeSet;
     }
 
     public <T> T accept(IChangeVisitor<T> v) {

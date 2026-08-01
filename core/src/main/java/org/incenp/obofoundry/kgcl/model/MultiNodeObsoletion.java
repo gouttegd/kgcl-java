@@ -24,6 +24,45 @@ import org.incenp.obofoundry.kgcl.SimpleChangeConverter;
 @LinkURI("http://w3id.org/kgcl/MultiNodeObsoletion")
 public class MultiNodeObsoletion extends ComplexChange {
 
+    @Override
+    @SuppressWarnings("unchecked")
+    public List<NodeObsoletion> getChangeSet() {
+        return (List<NodeObsoletion>) super.getChangeSet();
+    }
+
+    @Override
+    public List<NodeObsoletion> getChangeSet(boolean create) {
+        return super.getChangeSet(NodeObsoletion.class, create);
+    }
+
+    @Override
+    public <T extends Change> List<T> getChangeSet(Class<T> t) {
+        if ( !NodeObsoletion.class.isAssignableFrom(t) ) {
+            throw new IllegalArgumentException("Invalid type parameter");
+        }
+        return super.getChangeSet(t);
+    }
+
+    @Override
+    public <T extends Change> List<T> getChangeSet(Class<T> t, boolean create) {
+        if ( !NodeObsoletion.class.isAssignableFrom(t) ) {
+            throw new IllegalArgumentException("Invalid type parameter");
+        }
+        return super.getChangeSet(t, create);
+    }
+
+    @Override
+    public void setChangeSet(List<? extends Change> value) {
+        if ( value != null ) {
+            for ( Change item : value ) {
+                if ( !(item instanceof NodeObsoletion) ) {
+                    throw new IllegalArgumentException("Invalid changeSet value");
+                }
+            }
+        }
+        super.setChangeSet(value);
+    }
+
     public <T> T accept(IChangeVisitor<T> v) {
         return v.visit(this);
     }

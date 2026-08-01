@@ -24,6 +24,7 @@ import org.incenp.obofoundry.kgcl.SimpleChangeConverter;
 @LinkURI("http://w3id.org/kgcl/om/LogicalDefinition")
 public class LogicalDefinition extends OntologyElement {
 
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

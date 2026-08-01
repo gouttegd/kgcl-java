@@ -25,6 +25,7 @@ import org.incenp.obofoundry.kgcl.SimpleChangeConverter;
 public class Activity extends ProvElement {
 
     @Identifier
+    @Required
     @Converter(CurieConverter.class)
     @LinkURI("https://w3id.org/kgcl/basics/id")
     private String id;
@@ -106,6 +107,7 @@ public class Activity extends ProvElement {
     public String getDescription() {
         return this.description;
     }
+
 
     @Override
     public String toString() {
