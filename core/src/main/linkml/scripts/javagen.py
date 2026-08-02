@@ -5,22 +5,45 @@ from pathlib import Path
 from linkml.generators.javagen import JavaGenerator
 
 
-@click.option("--output-directory", show_default=True,
-              default=Path("core/src/main/java/org/incenp/obofoundry/kgcl/model"))
-@click.option("--linkml-directory", show_default=True,
+def cleanup_dir(directory: Path) -> None:
+    if directory.exists():
+        for file in directory.iterdir():
+            file.unlink()
+        directory.rmdir()
+
+
+@click.option("--output-directory",
+              type=click.Path(dir_okay=True, file_okay=False),
+              default=Path("core/src/main/java"))
+@click.option("--linkml-directory",
               type=click.Path(exists=True, dir_okay=True, file_okay=False),
-              default=Path("core/src/main/linkml"))
+              default=Path("core/src/main/linkml/schemas"))
 @click.command()
 def cli(output_directory, linkml_directory):
-    for schema in ["basics", "ontology_model", "prov", "kgcl"]:
-        gen = JavaGenerator(linkml_directory / "schemas" / (schema + ".yaml"),
+
+    cleaned_up_dirs = {}
+
+    for schema in linkml_directory.glob("**/*.yaml"):
+        package_dir = schema.relative_to(linkml_directory).parent
+        output_dir = output_directory / package_dir
+        if output_dir not in cleaned_up_dirs:
+            cleanup_dir(output_dir)
+            cleaned_up_dirs[output_dir] = 1
+        output_dir.mkdir(parents=True, exist_ok=True)
+
+        package_name = package_dir.as_posix().replace("/", ".")
+        gen = JavaGenerator(schema,
                             true_enums=True,
-                            package="org.incenp.obofoundry.kgcl.model",
-                            template_dir=linkml_directory / "templates")
+                            use_aliases=True,
+                            package=package_name,
+                            template_dir=Path("core/src/main/linkml/templates"))
         visitors = []
-        if schema == "kgcl":
+        if schema.name == "kgcl.yaml":
             visitors = ["Change"]
-        gen.serialize(output_directory, visitors=visitors, template_variant="org.incenp.linkml")
+        gen.serialize(output_dir,
+                      visitors=visitors,
+                      template_variant="org.incenp.linkml")
+
 
 if __name__ == "__main__":
     cli()
