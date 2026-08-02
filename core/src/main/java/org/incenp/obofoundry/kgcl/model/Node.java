@@ -73,7 +73,6 @@ public class Node extends OntologyElement {
         return this.owlType;
     }
 
-
     @Override
     public String toString() {
         return "Node(id=" + this.getId() + ")";

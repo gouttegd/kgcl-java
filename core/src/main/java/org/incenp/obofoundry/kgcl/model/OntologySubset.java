@@ -24,7 +24,6 @@ import org.incenp.obofoundry.kgcl.SimpleChangeConverter;
 @LinkURI("http://w3id.org/kgcl/om/OntologySubset")
 public class OntologySubset extends Node {
 
-
     @Override
     public String toString() {
         return "OntologySubset(id=" + this.getId() + ")";

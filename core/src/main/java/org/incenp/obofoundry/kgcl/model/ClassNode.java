@@ -24,7 +24,6 @@ import org.incenp.obofoundry.kgcl.SimpleChangeConverter;
 @LinkURI("owl:Class")
 public class ClassNode extends Node {
 
-
     @Override
     public String toString() {
         return "ClassNode(id=" + this.getId() + ")";

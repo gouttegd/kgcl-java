@@ -46,7 +46,6 @@ public class PropertyValue extends OntologyElement {
         return this.filler;
     }
 
-
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

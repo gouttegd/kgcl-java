@@ -24,7 +24,6 @@ import org.incenp.obofoundry.kgcl.SimpleChangeConverter;
 @LinkURI("owl:NamedIndividual")
 public class InstanceNode extends Node {
 
-
     @Override
     public String toString() {
         return "InstanceNode(id=" + this.getId() + ")";

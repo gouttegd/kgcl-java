@@ -60,7 +60,6 @@ public class Annotation extends PropertyValue {
         return this.fillerType;
     }
 
-
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
