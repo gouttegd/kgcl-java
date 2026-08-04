@@ -278,8 +278,9 @@ public{%if cls.abstract %} abstract{% endif %} class {{ cls.name }}{% if cls.is_
     public <T> T accept(I{{ gen.get_class_name(visitor) }}Visitor<T> v) {
         return v.visit(this);
     }
+{# #}
 {%-   endif %}
-{% endfor %}
+{%- endfor %}
 
 {#- The overridden methods from Object. #}
     @Override
