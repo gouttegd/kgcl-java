@@ -24,7 +24,6 @@ import org.incenp.obofoundry.kgcl.SimpleChangeConverter;
 @LinkURI("http://w3id.org/kgcl/TextualDiff")
 public class TextualDiff extends ChangeLanguageElement {
 
-
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

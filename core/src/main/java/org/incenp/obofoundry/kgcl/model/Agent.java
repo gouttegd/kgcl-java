@@ -62,7 +62,6 @@ public class Agent extends ProvElement {
         return this.wasInformedBy;
     }
 
-
     @Override
     public String toString() {
         return "Agent(id=" + this.getId() + ")";

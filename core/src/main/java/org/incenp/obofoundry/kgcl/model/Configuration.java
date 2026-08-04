@@ -152,7 +152,6 @@ public class Configuration extends ChangeLanguageElement {
         return this.obsoleteSubclassOfShadowProperty;
     }
 
-
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

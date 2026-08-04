@@ -24,7 +24,6 @@ import org.incenp.obofoundry.kgcl.SimpleChangeConverter;
 @LinkURI("http://www.w3.org/ns/prov#ProvElement")
 public abstract class ProvElement {
 
-
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

@@ -71,7 +71,6 @@ public class ChangeMixin {
         return this.newValue;
     }
 
-
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

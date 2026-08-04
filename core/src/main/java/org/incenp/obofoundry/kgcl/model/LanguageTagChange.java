@@ -24,7 +24,6 @@ import org.incenp.obofoundry.kgcl.SimpleChangeConverter;
 @LinkURI("http://w3id.org/kgcl/LanguageTagChange")
 public class LanguageTagChange extends DatatypeOrLanguageTagChange {
 
-
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

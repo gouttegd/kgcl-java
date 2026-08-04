@@ -36,7 +36,6 @@ public class SubsetMembershipChange extends ChangeMixin {
         return this.inSubset;
     }
 
-
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

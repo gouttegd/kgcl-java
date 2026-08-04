@@ -108,7 +108,6 @@ public class Activity extends ProvElement {
         return this.description;
     }
 
-
     @Override
     public String toString() {
         return "Activity(id=" + this.getId() + ")";
