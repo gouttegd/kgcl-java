@@ -66,10 +66,10 @@ public class SynonymPredicateChange extends NodeSynonymChange {
 
         final Object this$hasTextualDiff = this.getHasTextualDiff();
         final Object other$hasTextualDiff = other.getHasTextualDiff();
-        if ( this$hasTextualDiff == null ? other$hasTextualDiff != null : !this$hasTextualDiff.equals(other$hasTextualDiff)) return false;
+        if ( this$hasTextualDiff == null ? other$hasTextualDiff != null : !this$hasTextualDiff.equals(other$hasTextualDiff) ) return false;
         final Object this$target = this.getTarget();
         final Object other$target = other.getTarget();
-        if ( this$target == null ? other$target != null : !this$target.equals(other$target)) return false;
+        if ( this$target == null ? other$target != null : !this$target.equals(other$target) ) return false;
         return true;
     }
 

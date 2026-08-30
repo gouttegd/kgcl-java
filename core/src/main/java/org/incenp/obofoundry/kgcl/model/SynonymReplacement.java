@@ -66,10 +66,10 @@ public class SynonymReplacement extends NodeSynonymChange {
 
         final Object this$qualifier = this.getQualifier();
         final Object other$qualifier = other.getQualifier();
-        if ( this$qualifier == null ? other$qualifier != null : !this$qualifier.equals(other$qualifier)) return false;
+        if ( this$qualifier == null ? other$qualifier != null : !this$qualifier.equals(other$qualifier) ) return false;
         final Object this$hasTextualDiff = this.getHasTextualDiff();
         final Object other$hasTextualDiff = other.getHasTextualDiff();
-        if ( this$hasTextualDiff == null ? other$hasTextualDiff != null : !this$hasTextualDiff.equals(other$hasTextualDiff)) return false;
+        if ( this$hasTextualDiff == null ? other$hasTextualDiff != null : !this$hasTextualDiff.equals(other$hasTextualDiff) ) return false;
         return true;
     }
 

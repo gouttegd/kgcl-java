@@ -55,7 +55,7 @@ public class NodeRename extends NodeChange {
 
         final Object this$hasTextualDiff = this.getHasTextualDiff();
         final Object other$hasTextualDiff = other.getHasTextualDiff();
-        if ( this$hasTextualDiff == null ? other$hasTextualDiff != null : !this$hasTextualDiff.equals(other$hasTextualDiff)) return false;
+        if ( this$hasTextualDiff == null ? other$hasTextualDiff != null : !this$hasTextualDiff.equals(other$hasTextualDiff) ) return false;
         return true;
     }
 

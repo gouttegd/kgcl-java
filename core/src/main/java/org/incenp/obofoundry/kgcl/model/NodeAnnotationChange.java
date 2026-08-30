@@ -67,10 +67,10 @@ public class NodeAnnotationChange extends NodeChange {
 
         final Object this$annotationProperty = this.getAnnotationProperty();
         final Object other$annotationProperty = other.getAnnotationProperty();
-        if ( this$annotationProperty == null ? other$annotationProperty != null : !this$annotationProperty.equals(other$annotationProperty)) return false;
+        if ( this$annotationProperty == null ? other$annotationProperty != null : !this$annotationProperty.equals(other$annotationProperty) ) return false;
         final Object this$annotationPropertyType = this.getAnnotationPropertyType();
         final Object other$annotationPropertyType = other.getAnnotationPropertyType();
-        if ( this$annotationPropertyType == null ? other$annotationPropertyType != null : !this$annotationPropertyType.equals(other$annotationPropertyType)) return false;
+        if ( this$annotationPropertyType == null ? other$annotationPropertyType != null : !this$annotationPropertyType.equals(other$annotationPropertyType) ) return false;
         return true;
     }
 

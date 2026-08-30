@@ -123,25 +123,25 @@ public class EdgeDeletion extends EdgeChange {
 
         final Object this$subject = this.getSubject();
         final Object other$subject = other.getSubject();
-        if ( this$subject == null ? other$subject != null : !this$subject.equals(other$subject)) return false;
+        if ( this$subject == null ? other$subject != null : !this$subject.equals(other$subject) ) return false;
         final Object this$predicate = this.getPredicate();
         final Object other$predicate = other.getPredicate();
-        if ( this$predicate == null ? other$predicate != null : !this$predicate.equals(other$predicate)) return false;
+        if ( this$predicate == null ? other$predicate != null : !this$predicate.equals(other$predicate) ) return false;
         final Object this$object = this.getObject();
         final Object other$object = other.getObject();
-        if ( this$object == null ? other$object != null : !this$object.equals(other$object)) return false;
+        if ( this$object == null ? other$object != null : !this$object.equals(other$object) ) return false;
         final Object this$subjectType = this.getSubjectType();
         final Object other$subjectType = other.getSubjectType();
-        if ( this$subjectType == null ? other$subjectType != null : !this$subjectType.equals(other$subjectType)) return false;
+        if ( this$subjectType == null ? other$subjectType != null : !this$subjectType.equals(other$subjectType) ) return false;
         final Object this$predicateType = this.getPredicateType();
         final Object other$predicateType = other.getPredicateType();
-        if ( this$predicateType == null ? other$predicateType != null : !this$predicateType.equals(other$predicateType)) return false;
+        if ( this$predicateType == null ? other$predicateType != null : !this$predicateType.equals(other$predicateType) ) return false;
         final Object this$annotationSet = this.getAnnotationSet();
         final Object other$annotationSet = other.getAnnotationSet();
-        if ( this$annotationSet == null ? other$annotationSet != null : !this$annotationSet.equals(other$annotationSet)) return false;
+        if ( this$annotationSet == null ? other$annotationSet != null : !this$annotationSet.equals(other$annotationSet) ) return false;
         final Object this$about = this.getAbout();
         final Object other$about = other.getAbout();
-        if ( this$about == null ? other$about != null : !this$about.equals(other$about)) return false;
+        if ( this$about == null ? other$about != null : !this$about.equals(other$about) ) return false;
         return true;
     }
 

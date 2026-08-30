@@ -65,10 +65,10 @@ public class NewMapping extends NodeMappingChange {
 
         final Object this$object = this.getObject();
         final Object other$object = other.getObject();
-        if ( this$object == null ? other$object != null : !this$object.equals(other$object)) return false;
+        if ( this$object == null ? other$object != null : !this$object.equals(other$object) ) return false;
         final Object this$predicate = this.getPredicate();
         final Object other$predicate = other.getPredicate();
-        if ( this$predicate == null ? other$predicate != null : !this$predicate.equals(other$predicate)) return false;
+        if ( this$predicate == null ? other$predicate != null : !this$predicate.equals(other$predicate) ) return false;
         return true;
     }
 

@@ -104,13 +104,13 @@ public class Annotation extends PropertyValue {
 
         final Object this$annotationSet = this.getAnnotationSet();
         final Object other$annotationSet = other.getAnnotationSet();
-        if ( this$annotationSet == null ? other$annotationSet != null : !this$annotationSet.equals(other$annotationSet)) return false;
+        if ( this$annotationSet == null ? other$annotationSet != null : !this$annotationSet.equals(other$annotationSet) ) return false;
         final Object this$propertyType = this.getPropertyType();
         final Object other$propertyType = other.getPropertyType();
-        if ( this$propertyType == null ? other$propertyType != null : !this$propertyType.equals(other$propertyType)) return false;
+        if ( this$propertyType == null ? other$propertyType != null : !this$propertyType.equals(other$propertyType) ) return false;
         final Object this$fillerType = this.getFillerType();
         final Object other$fillerType = other.getFillerType();
-        if ( this$fillerType == null ? other$fillerType != null : !this$fillerType.equals(other$fillerType)) return false;
+        if ( this$fillerType == null ? other$fillerType != null : !this$fillerType.equals(other$fillerType) ) return false;
         return true;
     }
 

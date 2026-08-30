@@ -65,10 +65,10 @@ public class NewSynonym extends NodeSynonymChange {
 
         final Object this$qualifier = this.getQualifier();
         final Object other$qualifier = other.getQualifier();
-        if ( this$qualifier == null ? other$qualifier != null : !this$qualifier.equals(other$qualifier)) return false;
+        if ( this$qualifier == null ? other$qualifier != null : !this$qualifier.equals(other$qualifier) ) return false;
         final Object this$predicate = this.getPredicate();
         final Object other$predicate = other.getPredicate();
-        if ( this$predicate == null ? other$predicate != null : !this$predicate.equals(other$predicate)) return false;
+        if ( this$predicate == null ? other$predicate != null : !this$predicate.equals(other$predicate) ) return false;
         return true;
     }
 

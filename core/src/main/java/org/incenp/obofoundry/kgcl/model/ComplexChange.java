@@ -76,7 +76,7 @@ public abstract class ComplexChange extends Change {
 
         final Object this$changeSet = this.getChangeSet();
         final Object other$changeSet = other.getChangeSet();
-        if ( this$changeSet == null ? other$changeSet != null : !this$changeSet.equals(other$changeSet)) return false;
+        if ( this$changeSet == null ? other$changeSet != null : !this$changeSet.equals(other$changeSet) ) return false;
         return true;
     }
 

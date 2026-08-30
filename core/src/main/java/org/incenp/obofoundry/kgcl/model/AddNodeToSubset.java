@@ -66,10 +66,10 @@ public class AddNodeToSubset extends NodeChange {
 
         final Object this$inSubset = this.getInSubset();
         final Object other$inSubset = other.getInSubset();
-        if ( this$inSubset == null ? other$inSubset != null : !this$inSubset.equals(other$inSubset)) return false;
+        if ( this$inSubset == null ? other$inSubset != null : !this$inSubset.equals(other$inSubset) ) return false;
         final Object this$about = this.getAbout();
         final Object other$about = other.getAbout();
-        if ( this$about == null ? other$about != null : !this$about.equals(other$about)) return false;
+        if ( this$about == null ? other$about != null : !this$about.equals(other$about) ) return false;
         return true;
     }
 

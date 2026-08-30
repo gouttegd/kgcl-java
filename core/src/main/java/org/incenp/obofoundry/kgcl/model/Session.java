@@ -93,10 +93,10 @@ public class Session extends ChangeLanguageElement {
 
         final Object this$changeSet = this.getChangeSet();
         final Object other$changeSet = other.getChangeSet();
-        if ( this$changeSet == null ? other$changeSet != null : !this$changeSet.equals(other$changeSet)) return false;
+        if ( this$changeSet == null ? other$changeSet != null : !this$changeSet.equals(other$changeSet) ) return false;
         final Object this$activitySet = this.getActivitySet();
         final Object other$activitySet = other.getActivitySet();
-        if ( this$activitySet == null ? other$activitySet != null : !this$activitySet.equals(other$activitySet)) return false;
+        if ( this$activitySet == null ? other$activitySet != null : !this$activitySet.equals(other$activitySet) ) return false;
         return true;
     }
 

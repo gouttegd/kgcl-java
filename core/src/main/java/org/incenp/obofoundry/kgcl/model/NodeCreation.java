@@ -118,19 +118,19 @@ public class NodeCreation extends NodeChange {
 
         final Object this$nodeId = this.getNodeId();
         final Object other$nodeId = other.getNodeId();
-        if ( this$nodeId == null ? other$nodeId != null : !this$nodeId.equals(other$nodeId)) return false;
+        if ( this$nodeId == null ? other$nodeId != null : !this$nodeId.equals(other$nodeId) ) return false;
         final Object this$name = this.getName();
         final Object other$name = other.getName();
-        if ( this$name == null ? other$name != null : !this$name.equals(other$name)) return false;
+        if ( this$name == null ? other$name != null : !this$name.equals(other$name) ) return false;
         final Object this$owlType = this.getOwlType();
         final Object other$owlType = other.getOwlType();
-        if ( this$owlType == null ? other$owlType != null : !this$owlType.equals(other$owlType)) return false;
+        if ( this$owlType == null ? other$owlType != null : !this$owlType.equals(other$owlType) ) return false;
         final Object this$annotationSet = this.getAnnotationSet();
         final Object other$annotationSet = other.getAnnotationSet();
-        if ( this$annotationSet == null ? other$annotationSet != null : !this$annotationSet.equals(other$annotationSet)) return false;
+        if ( this$annotationSet == null ? other$annotationSet != null : !this$annotationSet.equals(other$annotationSet) ) return false;
         final Object this$about = this.getAbout();
         final Object other$about = other.getAbout();
-        if ( this$about == null ? other$about != null : !this$about.equals(other$about)) return false;
+        if ( this$about == null ? other$about != null : !this$about.equals(other$about) ) return false;
         return true;
     }
 

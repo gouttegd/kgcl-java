@@ -75,10 +75,10 @@ public class PropertyValue extends OntologyElement {
 
         final Object this$property = this.getProperty();
         final Object other$property = other.getProperty();
-        if ( this$property == null ? other$property != null : !this$property.equals(other$property)) return false;
+        if ( this$property == null ? other$property != null : !this$property.equals(other$property) ) return false;
         final Object this$filler = this.getFiller();
         final Object other$filler = other.getFiller();
-        if ( this$filler == null ? other$filler != null : !this$filler.equals(other$filler)) return false;
+        if ( this$filler == null ? other$filler != null : !this$filler.equals(other$filler) ) return false;
         return true;
     }
 

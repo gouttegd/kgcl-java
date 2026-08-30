@@ -88,16 +88,16 @@ public class Node extends OntologyElement {
 
         final Object this$id = this.getId();
         final Object other$id = other.getId();
-        if ( this$id == null ? other$id != null : !this$id.equals(other$id)) return false;
+        if ( this$id == null ? other$id != null : !this$id.equals(other$id) ) return false;
         final Object this$name = this.getName();
         final Object other$name = other.getName();
-        if ( this$name == null ? other$name != null : !this$name.equals(other$name)) return false;
+        if ( this$name == null ? other$name != null : !this$name.equals(other$name) ) return false;
         final Object this$annotationSet = this.getAnnotationSet();
         final Object other$annotationSet = other.getAnnotationSet();
-        if ( this$annotationSet == null ? other$annotationSet != null : !this$annotationSet.equals(other$annotationSet)) return false;
+        if ( this$annotationSet == null ? other$annotationSet != null : !this$annotationSet.equals(other$annotationSet) ) return false;
         final Object this$owlType = this.getOwlType();
         final Object other$owlType = other.getOwlType();
-        if ( this$owlType == null ? other$owlType != null : !this$owlType.equals(other$owlType)) return false;
+        if ( this$owlType == null ? other$owlType != null : !this$owlType.equals(other$owlType) ) return false;
         return true;
     }
 

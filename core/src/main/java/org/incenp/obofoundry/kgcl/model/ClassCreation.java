@@ -54,7 +54,7 @@ public class ClassCreation extends NodeCreation {
 
         final Object this$superclass = this.getSuperclass();
         final Object other$superclass = other.getSuperclass();
-        if ( this$superclass == null ? other$superclass != null : !this$superclass.equals(other$superclass)) return false;
+        if ( this$superclass == null ? other$superclass != null : !this$superclass.equals(other$superclass) ) return false;
         return true;
     }
 

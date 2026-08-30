@@ -77,13 +77,13 @@ public class Agent extends ProvElement {
 
         final Object this$id = this.getId();
         final Object other$id = other.getId();
-        if ( this$id == null ? other$id != null : !this$id.equals(other$id)) return false;
+        if ( this$id == null ? other$id != null : !this$id.equals(other$id) ) return false;
         final Object this$actedOnBehalfOf = this.getActedOnBehalfOf();
         final Object other$actedOnBehalfOf = other.getActedOnBehalfOf();
-        if ( this$actedOnBehalfOf == null ? other$actedOnBehalfOf != null : !this$actedOnBehalfOf.equals(other$actedOnBehalfOf)) return false;
+        if ( this$actedOnBehalfOf == null ? other$actedOnBehalfOf != null : !this$actedOnBehalfOf.equals(other$actedOnBehalfOf) ) return false;
         final Object this$wasInformedBy = this.getWasInformedBy();
         final Object other$wasInformedBy = other.getWasInformedBy();
-        if ( this$wasInformedBy == null ? other$wasInformedBy != null : !this$wasInformedBy.equals(other$wasInformedBy)) return false;
+        if ( this$wasInformedBy == null ? other$wasInformedBy != null : !this$wasInformedBy.equals(other$wasInformedBy) ) return false;
         return true;
     }
 

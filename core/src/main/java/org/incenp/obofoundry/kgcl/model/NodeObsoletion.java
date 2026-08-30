@@ -102,13 +102,13 @@ public class NodeObsoletion extends NodeChange {
 
         final Object this$hasDirectReplacement = this.getHasDirectReplacement();
         final Object other$hasDirectReplacement = other.getHasDirectReplacement();
-        if ( this$hasDirectReplacement == null ? other$hasDirectReplacement != null : !this$hasDirectReplacement.equals(other$hasDirectReplacement)) return false;
+        if ( this$hasDirectReplacement == null ? other$hasDirectReplacement != null : !this$hasDirectReplacement.equals(other$hasDirectReplacement) ) return false;
         final Object this$hasNondirectReplacement = this.getHasNondirectReplacement();
         final Object other$hasNondirectReplacement = other.getHasNondirectReplacement();
-        if ( this$hasNondirectReplacement == null ? other$hasNondirectReplacement != null : !this$hasNondirectReplacement.equals(other$hasNondirectReplacement)) return false;
+        if ( this$hasNondirectReplacement == null ? other$hasNondirectReplacement != null : !this$hasNondirectReplacement.equals(other$hasNondirectReplacement) ) return false;
         final Object this$about = this.getAbout();
         final Object other$about = other.getAbout();
-        if ( this$about == null ? other$about != null : !this$about.equals(other$about)) return false;
+        if ( this$about == null ? other$about != null : !this$about.equals(other$about) ) return false;
         return true;
     }
 

@@ -89,16 +89,16 @@ public abstract class EdgeChange extends SimpleChange {
 
         final Object this$aboutEdge = this.getAboutEdge();
         final Object other$aboutEdge = other.getAboutEdge();
-        if ( this$aboutEdge == null ? other$aboutEdge != null : !this$aboutEdge.equals(other$aboutEdge)) return false;
+        if ( this$aboutEdge == null ? other$aboutEdge != null : !this$aboutEdge.equals(other$aboutEdge) ) return false;
         final Object this$objectType = this.getObjectType();
         final Object other$objectType = other.getObjectType();
-        if ( this$objectType == null ? other$objectType != null : !this$objectType.equals(other$objectType)) return false;
+        if ( this$objectType == null ? other$objectType != null : !this$objectType.equals(other$objectType) ) return false;
         final Object this$language = this.getLanguage();
         final Object other$language = other.getLanguage();
-        if ( this$language == null ? other$language != null : !this$language.equals(other$language)) return false;
+        if ( this$language == null ? other$language != null : !this$language.equals(other$language) ) return false;
         final Object this$datatype = this.getDatatype();
         final Object other$datatype = other.getDatatype();
-        if ( this$datatype == null ? other$datatype != null : !this$datatype.equals(other$datatype)) return false;
+        if ( this$datatype == null ? other$datatype != null : !this$datatype.equals(other$datatype) ) return false;
         return true;
     }
 

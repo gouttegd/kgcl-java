@@ -108,16 +108,16 @@ public class ChangeMixin {
         if ( !other.canEqual((Object) this)) return false;
         final Object this$about = this.getAbout();
         final Object other$about = other.getAbout();
-        if ( this$about == null ? other$about != null : !this$about.equals(other$about)) return false;
+        if ( this$about == null ? other$about != null : !this$about.equals(other$about) ) return false;
         final Object this$hasUndo = this.getHasUndo();
         final Object other$hasUndo = other.getHasUndo();
-        if ( this$hasUndo == null ? other$hasUndo != null : !this$hasUndo.equals(other$hasUndo)) return false;
+        if ( this$hasUndo == null ? other$hasUndo != null : !this$hasUndo.equals(other$hasUndo) ) return false;
         final Object this$oldValue = this.getOldValue();
         final Object other$oldValue = other.getOldValue();
-        if ( this$oldValue == null ? other$oldValue != null : !this$oldValue.equals(other$oldValue)) return false;
+        if ( this$oldValue == null ? other$oldValue != null : !this$oldValue.equals(other$oldValue) ) return false;
         final Object this$newValue = this.getNewValue();
         final Object other$newValue = other.getNewValue();
-        if ( this$newValue == null ? other$newValue != null : !this$newValue.equals(other$newValue)) return false;
+        if ( this$newValue == null ? other$newValue != null : !this$newValue.equals(other$newValue) ) return false;
         return true;
     }
 

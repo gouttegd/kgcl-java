@@ -221,34 +221,34 @@ public class Configuration extends ChangeLanguageElement {
 
         final Object this$namePredicate = this.getNamePredicate();
         final Object other$namePredicate = other.getNamePredicate();
-        if ( this$namePredicate == null ? other$namePredicate != null : !this$namePredicate.equals(other$namePredicate)) return false;
+        if ( this$namePredicate == null ? other$namePredicate != null : !this$namePredicate.equals(other$namePredicate) ) return false;
         final Object this$definitionPredicate = this.getDefinitionPredicate();
         final Object other$definitionPredicate = other.getDefinitionPredicate();
-        if ( this$definitionPredicate == null ? other$definitionPredicate != null : !this$definitionPredicate.equals(other$definitionPredicate)) return false;
+        if ( this$definitionPredicate == null ? other$definitionPredicate != null : !this$definitionPredicate.equals(other$definitionPredicate) ) return false;
         final Object this$mainSynonymPredicate = this.getMainSynonymPredicate();
         final Object other$mainSynonymPredicate = other.getMainSynonymPredicate();
-        if ( this$mainSynonymPredicate == null ? other$mainSynonymPredicate != null : !this$mainSynonymPredicate.equals(other$mainSynonymPredicate)) return false;
+        if ( this$mainSynonymPredicate == null ? other$mainSynonymPredicate != null : !this$mainSynonymPredicate.equals(other$mainSynonymPredicate) ) return false;
         final Object this$synonymPredicates = this.getSynonymPredicates();
         final Object other$synonymPredicates = other.getSynonymPredicates();
-        if ( this$synonymPredicates == null ? other$synonymPredicates != null : !this$synonymPredicates.equals(other$synonymPredicates)) return false;
+        if ( this$synonymPredicates == null ? other$synonymPredicates != null : !this$synonymPredicates.equals(other$synonymPredicates) ) return false;
         final Object this$creatorPredicate = this.getCreatorPredicate();
         final Object other$creatorPredicate = other.getCreatorPredicate();
-        if ( this$creatorPredicate == null ? other$creatorPredicate != null : !this$creatorPredicate.equals(other$creatorPredicate)) return false;
+        if ( this$creatorPredicate == null ? other$creatorPredicate != null : !this$creatorPredicate.equals(other$creatorPredicate) ) return false;
         final Object this$contributorPredicate = this.getContributorPredicate();
         final Object other$contributorPredicate = other.getContributorPredicate();
-        if ( this$contributorPredicate == null ? other$contributorPredicate != null : !this$contributorPredicate.equals(other$contributorPredicate)) return false;
+        if ( this$contributorPredicate == null ? other$contributorPredicate != null : !this$contributorPredicate.equals(other$contributorPredicate) ) return false;
         final Object this$obsoleteNodeLabelPrefix = this.getObsoleteNodeLabelPrefix();
         final Object other$obsoleteNodeLabelPrefix = other.getObsoleteNodeLabelPrefix();
-        if ( this$obsoleteNodeLabelPrefix == null ? other$obsoleteNodeLabelPrefix != null : !this$obsoleteNodeLabelPrefix.equals(other$obsoleteNodeLabelPrefix)) return false;
+        if ( this$obsoleteNodeLabelPrefix == null ? other$obsoleteNodeLabelPrefix != null : !this$obsoleteNodeLabelPrefix.equals(other$obsoleteNodeLabelPrefix) ) return false;
         final Object this$obsoletionWorkflow = this.getObsoletionWorkflow();
         final Object other$obsoletionWorkflow = other.getObsoletionWorkflow();
-        if ( this$obsoletionWorkflow == null ? other$obsoletionWorkflow != null : !this$obsoletionWorkflow.equals(other$obsoletionWorkflow)) return false;
+        if ( this$obsoletionWorkflow == null ? other$obsoletionWorkflow != null : !this$obsoletionWorkflow.equals(other$obsoletionWorkflow) ) return false;
         final Object this$obsoletionPolicies = this.getObsoletionPolicies();
         final Object other$obsoletionPolicies = other.getObsoletionPolicies();
-        if ( this$obsoletionPolicies == null ? other$obsoletionPolicies != null : !this$obsoletionPolicies.equals(other$obsoletionPolicies)) return false;
+        if ( this$obsoletionPolicies == null ? other$obsoletionPolicies != null : !this$obsoletionPolicies.equals(other$obsoletionPolicies) ) return false;
         final Object this$obsoleteSubclassOfShadowProperty = this.getObsoleteSubclassOfShadowProperty();
         final Object other$obsoleteSubclassOfShadowProperty = other.getObsoleteSubclassOfShadowProperty();
-        if ( this$obsoleteSubclassOfShadowProperty == null ? other$obsoleteSubclassOfShadowProperty != null : !this$obsoleteSubclassOfShadowProperty.equals(other$obsoleteSubclassOfShadowProperty)) return false;
+        if ( this$obsoleteSubclassOfShadowProperty == null ? other$obsoleteSubclassOfShadowProperty != null : !this$obsoleteSubclassOfShadowProperty.equals(other$obsoleteSubclassOfShadowProperty) ) return false;
         return true;
     }
 

@@ -80,7 +80,7 @@ public class SubsetMembershipChange extends ChangeMixin {
 
         final Object this$inSubset = this.getInSubset();
         final Object other$inSubset = other.getInSubset();
-        if ( this$inSubset == null ? other$inSubset != null : !this$inSubset.equals(other$inSubset)) return false;
+        if ( this$inSubset == null ? other$inSubset != null : !this$inSubset.equals(other$inSubset) ) return false;
         return true;
     }
 

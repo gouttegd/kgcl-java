@@ -54,7 +54,7 @@ public class SetLanguageForName extends NodeChange {
 
         final Object this$about = this.getAbout();
         final Object other$about = other.getAbout();
-        if ( this$about == null ? other$about != null : !this$about.equals(other$about)) return false;
+        if ( this$about == null ? other$about != null : !this$about.equals(other$about) ) return false;
         return true;
     }
 

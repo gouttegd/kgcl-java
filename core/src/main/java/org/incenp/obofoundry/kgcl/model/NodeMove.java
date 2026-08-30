@@ -67,10 +67,10 @@ public class NodeMove extends EdgeChange {
 
         final Object this$oldObjectType = this.getOldObjectType();
         final Object other$oldObjectType = other.getOldObjectType();
-        if ( this$oldObjectType == null ? other$oldObjectType != null : !this$oldObjectType.equals(other$oldObjectType)) return false;
+        if ( this$oldObjectType == null ? other$oldObjectType != null : !this$oldObjectType.equals(other$oldObjectType) ) return false;
         final Object this$newObjectType = this.getNewObjectType();
         final Object other$newObjectType = other.getNewObjectType();
-        if ( this$newObjectType == null ? other$newObjectType != null : !this$newObjectType.equals(other$newObjectType)) return false;
+        if ( this$newObjectType == null ? other$newObjectType != null : !this$newObjectType.equals(other$newObjectType) ) return false;
         return true;
     }
 

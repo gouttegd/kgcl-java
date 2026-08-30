@@ -159,25 +159,25 @@ public class Edge extends OntologyElement {
 
         final Object this$subject = this.getSubject();
         final Object other$subject = other.getSubject();
-        if ( this$subject == null ? other$subject != null : !this$subject.equals(other$subject)) return false;
+        if ( this$subject == null ? other$subject != null : !this$subject.equals(other$subject) ) return false;
         final Object this$predicate = this.getPredicate();
         final Object other$predicate = other.getPredicate();
-        if ( this$predicate == null ? other$predicate != null : !this$predicate.equals(other$predicate)) return false;
+        if ( this$predicate == null ? other$predicate != null : !this$predicate.equals(other$predicate) ) return false;
         final Object this$object = this.getObject();
         final Object other$object = other.getObject();
-        if ( this$object == null ? other$object != null : !this$object.equals(other$object)) return false;
+        if ( this$object == null ? other$object != null : !this$object.equals(other$object) ) return false;
         final Object this$subjectRepresentation = this.getSubjectRepresentation();
         final Object other$subjectRepresentation = other.getSubjectRepresentation();
-        if ( this$subjectRepresentation == null ? other$subjectRepresentation != null : !this$subjectRepresentation.equals(other$subjectRepresentation)) return false;
+        if ( this$subjectRepresentation == null ? other$subjectRepresentation != null : !this$subjectRepresentation.equals(other$subjectRepresentation) ) return false;
         final Object this$predicateRepresentation = this.getPredicateRepresentation();
         final Object other$predicateRepresentation = other.getPredicateRepresentation();
-        if ( this$predicateRepresentation == null ? other$predicateRepresentation != null : !this$predicateRepresentation.equals(other$predicateRepresentation)) return false;
+        if ( this$predicateRepresentation == null ? other$predicateRepresentation != null : !this$predicateRepresentation.equals(other$predicateRepresentation) ) return false;
         final Object this$objectRepresentation = this.getObjectRepresentation();
         final Object other$objectRepresentation = other.getObjectRepresentation();
-        if ( this$objectRepresentation == null ? other$objectRepresentation != null : !this$objectRepresentation.equals(other$objectRepresentation)) return false;
+        if ( this$objectRepresentation == null ? other$objectRepresentation != null : !this$objectRepresentation.equals(other$objectRepresentation) ) return false;
         final Object this$annotationSet = this.getAnnotationSet();
         final Object other$annotationSet = other.getAnnotationSet();
-        if ( this$annotationSet == null ? other$annotationSet != null : !this$annotationSet.equals(other$annotationSet)) return false;
+        if ( this$annotationSet == null ? other$annotationSet != null : !this$annotationSet.equals(other$annotationSet) ) return false;
         return true;
     }
 

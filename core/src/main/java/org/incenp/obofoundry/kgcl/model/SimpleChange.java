@@ -140,28 +140,28 @@ public abstract class SimpleChange extends Change {
 
         final Object this$oldValue = this.getOldValue();
         final Object other$oldValue = other.getOldValue();
-        if ( this$oldValue == null ? other$oldValue != null : !this$oldValue.equals(other$oldValue)) return false;
+        if ( this$oldValue == null ? other$oldValue != null : !this$oldValue.equals(other$oldValue) ) return false;
         final Object this$newValue = this.getNewValue();
         final Object other$newValue = other.getNewValue();
-        if ( this$newValue == null ? other$newValue != null : !this$newValue.equals(other$newValue)) return false;
+        if ( this$newValue == null ? other$newValue != null : !this$newValue.equals(other$newValue) ) return false;
         final Object this$oldValueType = this.getOldValueType();
         final Object other$oldValueType = other.getOldValueType();
-        if ( this$oldValueType == null ? other$oldValueType != null : !this$oldValueType.equals(other$oldValueType)) return false;
+        if ( this$oldValueType == null ? other$oldValueType != null : !this$oldValueType.equals(other$oldValueType) ) return false;
         final Object this$newValueType = this.getNewValueType();
         final Object other$newValueType = other.getNewValueType();
-        if ( this$newValueType == null ? other$newValueType != null : !this$newValueType.equals(other$newValueType)) return false;
+        if ( this$newValueType == null ? other$newValueType != null : !this$newValueType.equals(other$newValueType) ) return false;
         final Object this$newLanguage = this.getNewLanguage();
         final Object other$newLanguage = other.getNewLanguage();
-        if ( this$newLanguage == null ? other$newLanguage != null : !this$newLanguage.equals(other$newLanguage)) return false;
+        if ( this$newLanguage == null ? other$newLanguage != null : !this$newLanguage.equals(other$newLanguage) ) return false;
         final Object this$oldLanguage = this.getOldLanguage();
         final Object other$oldLanguage = other.getOldLanguage();
-        if ( this$oldLanguage == null ? other$oldLanguage != null : !this$oldLanguage.equals(other$oldLanguage)) return false;
+        if ( this$oldLanguage == null ? other$oldLanguage != null : !this$oldLanguage.equals(other$oldLanguage) ) return false;
         final Object this$newDatatype = this.getNewDatatype();
         final Object other$newDatatype = other.getNewDatatype();
-        if ( this$newDatatype == null ? other$newDatatype != null : !this$newDatatype.equals(other$newDatatype)) return false;
+        if ( this$newDatatype == null ? other$newDatatype != null : !this$newDatatype.equals(other$newDatatype) ) return false;
         final Object this$oldDatatype = this.getOldDatatype();
         final Object other$oldDatatype = other.getOldDatatype();
-        if ( this$oldDatatype == null ? other$oldDatatype != null : !this$oldDatatype.equals(other$oldDatatype)) return false;
+        if ( this$oldDatatype == null ? other$oldDatatype != null : !this$oldDatatype.equals(other$oldDatatype) ) return false;
         return true;
     }
 

@@ -123,25 +123,25 @@ public class Activity extends ProvElement {
 
         final Object this$id = this.getId();
         final Object other$id = other.getId();
-        if ( this$id == null ? other$id != null : !this$id.equals(other$id)) return false;
+        if ( this$id == null ? other$id != null : !this$id.equals(other$id) ) return false;
         final Object this$startedAtTime = this.getStartedAtTime();
         final Object other$startedAtTime = other.getStartedAtTime();
-        if ( this$startedAtTime == null ? other$startedAtTime != null : !this$startedAtTime.equals(other$startedAtTime)) return false;
+        if ( this$startedAtTime == null ? other$startedAtTime != null : !this$startedAtTime.equals(other$startedAtTime) ) return false;
         final Object this$endedAtTime = this.getEndedAtTime();
         final Object other$endedAtTime = other.getEndedAtTime();
-        if ( this$endedAtTime == null ? other$endedAtTime != null : !this$endedAtTime.equals(other$endedAtTime)) return false;
+        if ( this$endedAtTime == null ? other$endedAtTime != null : !this$endedAtTime.equals(other$endedAtTime) ) return false;
         final Object this$wasInformedBy = this.getWasInformedBy();
         final Object other$wasInformedBy = other.getWasInformedBy();
-        if ( this$wasInformedBy == null ? other$wasInformedBy != null : !this$wasInformedBy.equals(other$wasInformedBy)) return false;
+        if ( this$wasInformedBy == null ? other$wasInformedBy != null : !this$wasInformedBy.equals(other$wasInformedBy) ) return false;
         final Object this$wasAssociatedWith = this.getWasAssociatedWith();
         final Object other$wasAssociatedWith = other.getWasAssociatedWith();
-        if ( this$wasAssociatedWith == null ? other$wasAssociatedWith != null : !this$wasAssociatedWith.equals(other$wasAssociatedWith)) return false;
+        if ( this$wasAssociatedWith == null ? other$wasAssociatedWith != null : !this$wasAssociatedWith.equals(other$wasAssociatedWith) ) return false;
         final Object this$used = this.getUsed();
         final Object other$used = other.getUsed();
-        if ( this$used == null ? other$used != null : !this$used.equals(other$used)) return false;
+        if ( this$used == null ? other$used != null : !this$used.equals(other$used) ) return false;
         final Object this$description = this.getDescription();
         final Object other$description = other.getDescription();
-        if ( this$description == null ? other$description != null : !this$description.equals(other$description)) return false;
+        if ( this$description == null ? other$description != null : !this$description.equals(other$description) ) return false;
         return true;
     }
 

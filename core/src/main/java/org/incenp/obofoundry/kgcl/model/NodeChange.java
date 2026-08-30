@@ -78,13 +78,13 @@ public abstract class NodeChange extends SimpleChange {
 
         final Object this$aboutNode = this.getAboutNode();
         final Object other$aboutNode = other.getAboutNode();
-        if ( this$aboutNode == null ? other$aboutNode != null : !this$aboutNode.equals(other$aboutNode)) return false;
+        if ( this$aboutNode == null ? other$aboutNode != null : !this$aboutNode.equals(other$aboutNode) ) return false;
         final Object this$aboutNodeRepresentation = this.getAboutNodeRepresentation();
         final Object other$aboutNodeRepresentation = other.getAboutNodeRepresentation();
-        if ( this$aboutNodeRepresentation == null ? other$aboutNodeRepresentation != null : !this$aboutNodeRepresentation.equals(other$aboutNodeRepresentation)) return false;
+        if ( this$aboutNodeRepresentation == null ? other$aboutNodeRepresentation != null : !this$aboutNodeRepresentation.equals(other$aboutNodeRepresentation) ) return false;
         final Object this$language = this.getLanguage();
         final Object other$language = other.getLanguage();
-        if ( this$language == null ? other$language != null : !this$language.equals(other$language)) return false;
+        if ( this$language == null ? other$language != null : !this$language.equals(other$language) ) return false;
         return true;
     }
 
