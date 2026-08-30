@@ -34,7 +34,7 @@ def cli(output_directory, linkml_directory):
         package_name = package_dir.as_posix().replace("/", ".")
         gen = JavaGenerator(schema,
                             true_enums=True,
-                            use_aliases=True,
+                            use_aliases=False,
                             package=package_name,
                             template_dir=Path("core/src/main/linkml/templates"))
         visitors = []
