@@ -159,16 +159,16 @@ public class ApplyCommand implements Command {
                 changeset.addAll(KGCLHelper.parse(kgcl, prefixManager, errors, labelResolver));
             }
         }
-        if ( line.hasOption('K') ) {
-            for ( String kgclFile : line.getOptionValues('K') ) {
+        if ( line.hasOption("kgcl-file") ) {
+            for ( String kgclFile : line.getOptionValues("kgcl-file") ) {
                 File f = new File(kgclFile);
                 changeset.addAll(KGCLHelper.parse(f, prefixManager, errors, labelResolver));
             }
         }
-        if ( line.hasOption('Y') ) {
+        if ( line.hasOption("kgcl-yaml") ) {
             ObjectLoader loader = new ObjectLoader();
             prefixManager.getPrefixName2PrefixMap().forEach(loader.getContext()::addPrefix);
-            for ( String yamlFile : line.getOptionValues('Y') ) {
+            for ( String yamlFile : line.getOptionValues("kgcl-yaml") ) {
                 changeset.addAll(loader.loadObjects(new File(yamlFile), Change.class));
             }
         }
@@ -184,7 +184,7 @@ public class ApplyCommand implements Command {
 
         if ( line.hasOption('P') ) {
             ZonedDateTime before = null;
-            String v = line.getOptionValue('P');
+            String v = line.getOptionValue("pending");
             if ( !v.equalsIgnoreCase("all") ) {
                 try {
                     before = LocalDate.parse(v).atStartOfDay(ZoneId.systemDefault());
@@ -214,7 +214,7 @@ public class ApplyCommand implements Command {
 
             List<RejectedChange> rejects = new ArrayList<RejectedChange>();
             KGCLHelper.apply(changeset, ontology, reasoner, line.hasOption("no-partial-apply"), rejects,
-                    line.hasOption('p'));
+                    line.hasOption("provisional"));
             if ( !rejects.isEmpty() ) {
                 KGCLWriter writer = getRejectedWriter(line);
                 if ( writer != null ) {
