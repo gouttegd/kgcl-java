@@ -68,8 +68,8 @@ public class MintCommand implements Command {
         options.addOption(null, "min-id", true, "lower bound of the range for newly minted identifiers");
         options.addOption(null, "max-id", true, "upper bound of the range for newly minted identifiers");
 
-        options.addOption(null, "id-range-file", true, "Use the specified ID range file");
-        options.addOption(null, "id-range-name", true, "Use the specified ID range name");
+        options.addOption(null, "id-range-file", true, "use the specified ID range file");
+        options.addOption(null, "id-range-name", true, "use the specified ID range name");
     }
 
     @Override

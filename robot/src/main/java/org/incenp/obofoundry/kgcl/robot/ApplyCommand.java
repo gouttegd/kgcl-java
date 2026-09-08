@@ -80,19 +80,19 @@ public class ApplyCommand implements Command {
         options.addOption("R", "reject-file", true, "write rejected change in specified file");
         options.addOption(null, "no-reject-file", false, "do no write rejected change to a file");
         options.addOption("r", "reasoner", true, "reasoner to use");
-        options.addOption("p", "provisional", false, "Apply changes in a provisional manner");
-        options.addOption("P", "pending", true, "Apply pending (provisional) changes older than the specified date");
-        options.addOption("l", "default-new-language", true, "Use the specified new language tag by default");
+        options.addOption("p", "provisional", false, "apply changes in a provisional manner");
+        options.addOption("P", "pending", true, "apply pending (provisional) changes older than the specified date");
+        options.addOption("l", "default-new-language", true, "use the specified new language tag by default");
         options.addOption(null, "fail-on-reject", false, "exit the pipeline when changes cannot be applied");
 
         // Auto-ID options
-        options.addOption(null, "auto-id-min", true, "Lower range value for automatically assigned IDs");
-        options.addOption(null, "auto-id-max", true, "Upper range value for automatically assigned IDs");
-        options.addOption(null, "auto-id-width", true, "Width of automatically assigned IDs");
-        options.addOption(null, "auto-id-prefix", true, "Prefix for automatically assigned IDs");
-        options.addOption(null, "auto-id-temp-prefix", true, "Generate random temporary IDs in the specified prefix");
-        options.addOption(null, "auto-id-range-file", true, "Assign IDs from the specified ID range file");
-        options.addOption(null, "auto-id-range-name", true, "Use the specified ID range name");
+        options.addOption(null, "auto-id-min", true, "lower range value for automatically assigned IDs");
+        options.addOption(null, "auto-id-max", true, "upper range value for automatically assigned IDs");
+        options.addOption(null, "auto-id-width", true, "width of automatically assigned IDs");
+        options.addOption(null, "auto-id-prefix", true, "prefix for automatically assigned IDs");
+        options.addOption(null, "auto-id-temp-prefix", true, "generate random temporary IDs in the specified prefix");
+        options.addOption(null, "auto-id-range-file", true, "assign IDs from the specified ID range file");
+        options.addOption(null, "auto-id-range-name", true, "use the specified ID range name");
     }
 
     @Override
@@ -183,7 +183,7 @@ public class ApplyCommand implements Command {
 
         OWLReasoner reasoner = CommandLineHelper.getReasonerFactory(line).createReasoner(ontology);
 
-        if ( line.hasOption('P') ) {
+        if ( line.hasOption("pending") ) {
             ZonedDateTime before = null;
             String v = line.getOptionValue("pending");
             if ( !v.equalsIgnoreCase("all") ) {
