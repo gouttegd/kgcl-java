@@ -83,6 +83,7 @@ public class ApplyCommand implements Command {
         options.addOption("p", "provisional", false, "Apply changes in a provisional manner");
         options.addOption("P", "pending", true, "Apply pending (provisional) changes older than the specified date");
         options.addOption("l", "default-new-language", true, "Use the specified new language tag by default");
+        options.addOption(null, "fail-on-reject", false, "exit the pipeline when changes cannot be applied");
 
         // Auto-ID options
         options.addOption(null, "auto-id-min", true, "Lower range value for automatically assigned IDs");
@@ -229,6 +230,9 @@ public class ApplyCommand implements Command {
                 }
                 if ( writer != null ) {
                     writer.close();
+                }
+                if ( line.hasOption("fail-on-reject") ) {
+                    throw new Exception("Some changes could not be applied");
                 }
             }
         }
