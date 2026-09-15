@@ -38,7 +38,7 @@ public class OntologyBasedLabelResolverTest {
     private OWLOntology ontology;
 
     @BeforeEach
-    private void loadOntology() {
+    void loadOntology() {
         OWLOntologyManager mgr = OWLManager.createOWLOntologyManager();
         try {
             ontology = mgr.loadOntologyFromOntologyDocument(new File("src/test/resources/pizza.ofn"));

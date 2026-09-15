@@ -104,7 +104,7 @@ public class DirectOWLTranslatorTest implements RejectedChangeListener {
     private ArrayList<String> actualRejections = new ArrayList<String>();
 
     @BeforeEach
-    private void loadOntology() {
+    void loadOntology() {
         OWLOntologyManager mgr = OWLManager.createOWLOntologyManager();
         try {
             ontology = mgr.loadOntologyFromOntologyDocument(new File("src/test/resources/pizza.ofn"));

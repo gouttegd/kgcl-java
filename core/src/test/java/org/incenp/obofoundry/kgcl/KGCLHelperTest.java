@@ -44,7 +44,7 @@ public class KGCLHelperTest {
     private PrefixManager prefixManager;
 
     @BeforeEach
-    private void initialisePatcher() {
+    void initialisePatcher() {
         OWLOntologyManager mgr = OWLManager.createOWLOntologyManager();
 
         try {

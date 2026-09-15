@@ -42,7 +42,7 @@ public class OntologyPatcherTest {
     private OntologyPatcher patcher;
 
     @BeforeEach
-    private void initialisePatcher() {
+    void initialisePatcher() {
         OWLOntologyManager mgr = OWLManager.createOWLOntologyManager();
 
         try {
