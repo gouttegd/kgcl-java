@@ -1,3 +1,9 @@
+Changes in kgcl-java-0.6.2
+--------------------------
+
+    * New `--fail-on-reject` option for the `kgcl:apply` command.
+
+
 Changes in kgcl-java-0.6.1
 --------------------------
 
