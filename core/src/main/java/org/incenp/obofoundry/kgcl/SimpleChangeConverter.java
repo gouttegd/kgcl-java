@@ -22,7 +22,7 @@ import java.util.Map;
 
 import org.incenp.linkml.core.ConverterContext;
 import org.incenp.linkml.core.LinkMLRuntimeException;
-import org.incenp.linkml.core.ObjectConverter;
+import org.incenp.linkml.core.converters.ObjectConverter;
 import org.incenp.obofoundry.kgcl.model.SimpleChange;
 
 /**
