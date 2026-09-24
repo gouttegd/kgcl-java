@@ -94,6 +94,7 @@
                   <include>org.incenp:kgcl-core</include>
                   <include>org.incenp:dicer-lib</include>
                   <include>org.incenp:linkml-core</include>
+                  <include>org.incenp:linkml-ext</include>
                   <include>org.projectlombok:lombok</include>
                   <include>org.antlr:antlr4-runtime</include>
                 </includes>
