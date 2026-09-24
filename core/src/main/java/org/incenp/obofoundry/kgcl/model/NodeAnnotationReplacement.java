@@ -9,17 +9,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.incenp.linkml.core.annotations.Converter;
-import org.incenp.linkml.core.annotations.ExtensionHolder;
-import org.incenp.linkml.core.annotations.Identifier;
-import org.incenp.linkml.core.annotations.Inlined;
-import org.incenp.linkml.core.annotations.LinkURI;
-import org.incenp.linkml.core.annotations.Required;
-import org.incenp.linkml.core.annotations.SlotName;
-import org.incenp.linkml.core.annotations.TypeDesignator;
-import org.incenp.linkml.core.CurieConverter;
-
-import org.incenp.obofoundry.kgcl.SimpleChangeConverter;
+import org.incenp.linkml.core.annotations.*;
+import org.incenp.linkml.core.types.*;
 
 @LinkURI("http://w3id.org/kgcl/NodeAnnotationReplacement")
 public class NodeAnnotationReplacement extends NodeAnnotationChange {
