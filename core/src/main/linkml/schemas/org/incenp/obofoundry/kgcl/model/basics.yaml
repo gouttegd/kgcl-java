@@ -14,6 +14,7 @@ imports:
 - linkml:types
 types:
   LanguageTag:
+    typeof: string
     base: str
     uri: xml:lang
 slots:
