@@ -1,3 +1,10 @@
+Changes in kgcl-java-0.6.3
+--------------------------
+
+    * Fix build of the ROBOT plugin that caused the `--kgcl-yaml` option
+      to be inoperative.
+
+
 Changes in kgcl-java-0.6.2
 --------------------------
 
