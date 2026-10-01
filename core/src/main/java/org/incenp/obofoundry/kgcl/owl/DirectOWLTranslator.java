@@ -61,12 +61,7 @@ import org.semanticweb.owlapi.model.OWLAnnotationAssertionAxiom;
 import org.semanticweb.owlapi.model.OWLAnnotationValue;
 import org.semanticweb.owlapi.model.OWLAxiom;
 import org.semanticweb.owlapi.model.OWLClass;
-import org.semanticweb.owlapi.model.OWLClassExpression;
-import org.semanticweb.owlapi.model.OWLDataFactory;
 import org.semanticweb.owlapi.model.OWLDeclarationAxiom;
-import org.semanticweb.owlapi.model.OWLDisjointClassesAxiom;
-import org.semanticweb.owlapi.model.OWLDisjointUnionAxiom;
-import org.semanticweb.owlapi.model.OWLEquivalentClassesAxiom;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyChange;
 import org.semanticweb.owlapi.model.OWLSubClassOfAxiom;
@@ -75,7 +70,6 @@ import org.semanticweb.owlapi.model.parameters.Imports;
 import org.semanticweb.owlapi.reasoner.NodeSet;
 import org.semanticweb.owlapi.reasoner.OWLReasoner;
 import org.semanticweb.owlapi.reasoner.OWLReasonerRuntimeException;
-import org.semanticweb.owlapi.util.OWLAxiomVisitorExAdapter;
 import org.semanticweb.owlapi.vocab.OWLRDFVocabulary;
 
 /**
@@ -898,85 +892,5 @@ public class DirectOWLTranslator extends OWLTranslator {
         }
 
         return changes;
-    }
-
-    /*
-     * Rewrite a class expression to change any reference to a given class to
-     * reference to another class.
-     */
-    private class ClassRewritingVisitor extends RecursiveClassExpressionVisitorBase {
-
-        private IRI oldObject;
-        private IRI newObject;
-
-        protected ClassRewritingVisitor(OWLDataFactory factory, IRI oldObject, IRI newObject) {
-            super(factory);
-            this.oldObject = oldObject;
-            this.newObject = newObject;
-        }
-
-        @Override
-        public OWLClassExpression visit(OWLClass ce) {
-            if ( ce.getIRI().equals(oldObject) ) {
-                return factory.getOWLClass(newObject);
-            } else {
-                return factory.getOWLClass(ce.getIRI());
-            }
-        }
-    }
-
-    /*
-     * Rewrite all logical axioms to change any reference to a given class to a
-     * reference to another class.
-     */
-    private class AxiomRewritingVisitor extends OWLAxiomVisitorExAdapter<OWLAxiom> {
-
-        private ClassRewritingVisitor rewriter;
-        private OWLDataFactory factory;
-
-        public AxiomRewritingVisitor(OWLDataFactory factory, IRI oldClass, IRI newClass) {
-            super(null);
-            rewriter = new ClassRewritingVisitor(factory, oldClass, newClass);
-            this.factory = factory;
-        }
-
-        @Override
-        public OWLAxiom doDefault(OWLAxiom axiom) {
-            return null;
-        }
-
-        @Override
-        public OWLAxiom visit(OWLSubClassOfAxiom axiom) {
-            return factory.getOWLSubClassOfAxiom(axiom.getSubClass().accept(rewriter),
-                    axiom.getSuperClass().accept(rewriter), axiom.getAnnotations());
-        }
-
-        @Override
-        public OWLAxiom visit(OWLEquivalentClassesAxiom axiom) {
-            HashSet<OWLClassExpression> equivs = new HashSet<OWLClassExpression>();
-            for ( OWLClassExpression ce : axiom.getClassExpressions() ) {
-                equivs.add(ce.accept(rewriter));
-            }
-            return factory.getOWLEquivalentClassesAxiom(equivs, axiom.getAnnotations());
-        }
-
-        @Override
-        public OWLAxiom visit(OWLDisjointClassesAxiom axiom) {
-            HashSet<OWLClassExpression> disjoints = new HashSet<OWLClassExpression>();
-            for ( OWLClassExpression ce : axiom.getClassExpressions() ) {
-                disjoints.add(ce.accept(rewriter));
-            }
-            return factory.getOWLDisjointClassesAxiom(disjoints, axiom.getAnnotations());
-        }
-
-        @Override
-        public OWLAxiom visit(OWLDisjointUnionAxiom axiom) {
-            HashSet<OWLClassExpression> union = new HashSet<OWLClassExpression>();
-            for ( OWLClassExpression ce : axiom.getClassExpressions() ) {
-                union.add(ce.accept(rewriter));
-            }
-            return factory.getOWLDisjointUnionAxiom(axiom.getOWLClass().accept(rewriter).asOWLClass(), union,
-                    axiom.getAnnotations());
-        }
     }
 }
