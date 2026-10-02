@@ -1,0 +1,114 @@
+id: https://schemas.incenp.org/kgcl/deprecation
+name: protege-deprecation-profile
+description: >-
+  A schema for the deprecation profiles used by the Protégé ontology editor.
+
+prefixes:
+  linkml: https://w3id.org/linkml/
+  dep: https://schemas.incenp.org/kgcl/deprecation#
+default_prefix: dep
+default_range: uriorcurie
+
+imports:
+  - linkml:types
+
+classes:
+  DeprecationProfile:
+    description:
+      A deprecation profile, that dictates what to do exactly when obsoleting an
+      entity.
+    extra_slots:
+      allowed: true
+    attributes:
+      name:
+        description: The human-readable name of the profile.
+        notes:
+          - This is not used by KGCL-Java; in Protégé, this is how the user can
+            select a profile.
+        range: string
+        required: true
+      description:
+        description: The human-readable description of the profile.
+        notes:
+          - This is not used by JGCL-Java; in Protégé, this is shown to the user
+            when selecting a profile.
+        range: string
+        required: true
+      activatedBy:
+        description: An ontology IRI associated with this profile.
+        notes:
+          - This is not used by KGCL-Java; in Protégé, this allows automatically
+            selecting this profile based on the IRI of the current ontology.
+        range: uri
+      removeLogicalDefinition:
+        description:
+          If true, the axioms making up the logical definition of the obsolete
+          entity are removed.
+        range: boolean
+      removeAnnotationAssertions:
+        description:
+          If true, annotation assertion axioms on the obsolete entity are
+          removed.
+        range: boolean
+      replacedByAnnotationPropertyIri:
+        description:
+          The property to use to annotate the obsolete entity with the IRI of
+          the entity that replaces it, if any.
+      alternateEntityAnnotationPropertyIri:
+        description:
+          The property to use to annotate the obsolete entity with the IRIs of
+          entities that may be considered as potential replacements, if any.
+      labelPrefix:
+        description:
+          If set, the label annotation on the obsolete entity will be preserved
+          (even if `removeAnnotationAssertions` is enabled) and prefixed with
+          this value.
+        range: string
+      annotationValuePrefix:
+        description:
+          If set, the annotations listed in
+          `preservedAnnotationAssertionPropertyIris` will be prefixed with this
+          value.
+        range: string
+      preservedAnnotationAssertionPropertyIris:
+        description:
+          The properties of annotations that should not be removed, even if
+          `removeAnnotationAssertions` is enabled.
+        multivalued: true
+      deprecatedClassParentIri:
+        description:
+          If set, obsolete classes will be reparented under the specified class.
+      deprecatedObjectPropertyParentIri:
+        description:
+          If set, obsolete object properties will be reparented under the
+          specified property.
+      deprecatedDataPropertyParentIri:
+        description:
+          If set, obsolete data properties will be reparented under the
+          specified property.
+      deprecatedAnnotationPropertyParentIri:
+        description:
+          If set, obsolete annotation properties will be reparented under the
+          specified property.
+      deprecatedIndivdualParentClassIri:
+        description:
+          If set, obsolete individuals will be reparented under the specified
+          class.
+      onlyLanguage:
+        description:
+          If set, the `labelPrefix` will be prefixed to label annotations that
+          either have no language tag or that have a language tag matching this
+          value. Other label annotations will be removed entirely, unless no
+          label could be prefixed.
+        notes:
+          - This is an extension specific to KGCL-Java.
+        range: string
+      rewireAxioms:
+        description:
+          If true, axioms that reference the obsolete entity will be (a) rewired
+          to the replacement entity if such an entity exists, (b) removed if
+          there is neither a replacement entity nor any potential replaecement
+          entity.
+        notes:
+          - This is an extension specific to KGCL-Java.
+        range: boolean
