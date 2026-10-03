@@ -27,6 +27,7 @@ import org.incenp.obofoundry.kgcl.EdgeType;
 import org.incenp.obofoundry.kgcl.model.AddNodeToSubset;
 import org.incenp.obofoundry.kgcl.model.Change;
 import org.incenp.obofoundry.kgcl.model.ClassCreation;
+import org.incenp.obofoundry.kgcl.model.DeprecationProfile;
 import org.incenp.obofoundry.kgcl.model.EdgeCreation;
 import org.incenp.obofoundry.kgcl.model.EdgeDeletion;
 import org.incenp.obofoundry.kgcl.model.NewSynonym;
@@ -61,7 +62,6 @@ import org.semanticweb.owlapi.model.OWLAnnotationAssertionAxiom;
 import org.semanticweb.owlapi.model.OWLAnnotationValue;
 import org.semanticweb.owlapi.model.OWLAxiom;
 import org.semanticweb.owlapi.model.OWLClass;
-import org.semanticweb.owlapi.model.OWLDeclarationAxiom;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyChange;
 import org.semanticweb.owlapi.model.OWLSubClassOfAxiom;
@@ -106,16 +106,30 @@ public class DirectOWLTranslator extends OWLTranslator {
     private Set<IRI> addedAnnotationProperties = new HashSet<IRI>();
     private Set<IRI> addedIndividuals = new HashSet<IRI>();
     private Set<OWLAxiom> removedAxioms = new HashSet<OWLAxiom>();
+    private EntityDeprecator deprecator;
 
     /**
      * Creates a new instance for the specified ontology.
      * 
-     * @param ontology The OWL API ontology the changes are intended for.
+     * @param ontology The ontology the changes are intended for.
      * @param reasoner The reasoner to use for checking the {@code NodeDeepening}
      *                 and {@code NodeShallowing} operations.
      */
     public DirectOWLTranslator(OWLOntology ontology, OWLReasoner reasoner) {
+        this(ontology, reasoner, null);
+    }
+
+    /**
+     * Creates a new instance for the specified ontology.
+     * 
+     * @param ontology The ontology the changes are intended for.
+     * @param reasoner The reasoner to use for checking the {@code NodeDeepening}
+     *                 and {@code NodeShallowing} operations.
+     * @param profile  The deprecation profile for obsoleting entities.
+     */
+    public DirectOWLTranslator(OWLOntology ontology, OWLReasoner reasoner, DeprecationProfile profile) {
         super(ontology, reasoner);
+        deprecator = new EntityDeprecator(ontology, profile);
     }
 
     private boolean aboutNodeExists(NodeChange v) {
@@ -389,118 +403,25 @@ public class DirectOWLTranslator extends OWLTranslator {
             return empty;
         }
 
-        IRI obsoleteNodeIri = IRI.create(v.getAboutNode().getId());
-        ArrayList<OWLOntologyChange> changes = new ArrayList<OWLOntologyChange>();
+        IRI entityIRI = IRI.create(v.getAboutNode().getId());
+        IRI replacementIRI = null;
+        Set<IRI> considerIRIs = new HashSet<>();
+        Set<OWLAxiom> removed = new HashSet<>();
+        Set<OWLAxiom> added = new HashSet<>();
+        List<OWLOntologyChange> changes = new ArrayList<>();
 
-        // Remove the axioms that make up the class definition
-        for ( OWLAxiom ax : ontology.getAxioms(factory.getOWLClass(obsoleteNodeIri), Imports.INCLUDED) ) {
-            changes.add(removeAxiom(ax));
-        }
-
-        // Remove annotation properties
-        Set<OWLAxiom> foreignLabels = new HashSet<OWLAxiom>();
-        boolean keepForeignLabels = true;
-        for ( OWLAnnotationAssertionAxiom ax : ontology.getAnnotationAssertionAxioms(obsoleteNodeIri) ) {
-            if ( ax.getProperty().getIRI().equals(OWLRDFVocabulary.RDFS_LABEL.getIRI()) && ax.getValue().isLiteral() ) {
-                // Prepend "obsolete " to the existing label. We only do that if the label has
-                // no language tag or is explicitly an English label, because "obsolete" may not
-                // mean anything (or may mean something different) in another language.
-                String oldLabel = ax.getValue().asLiteral().get().getLiteral();
-                String oldLang = ax.getValue().asLiteral().get().getLang();
-                if ( oldLang.isEmpty() || oldLang.equalsIgnoreCase("en") || oldLang.startsWith("en-") ) {
-                    changes.add(removeAxiom(ax));
-                    changes.add(new AddAxiom(ontology,
-                            factory.getOWLAnnotationAssertionAxiom(
-                                    factory.getOWLAnnotationProperty(OWLRDFVocabulary.RDFS_LABEL.getIRI()),
-                                    obsoleteNodeIri, factory.getOWLLiteral("obsolete " + oldLabel, oldLang))));
-                    keepForeignLabels = false;
-                } else {
-                    // Set foreign (non-English) labels aside for now
-                    foreignLabels.add(ax);
-                }
-            } else {
-                changes.add(removeAxiom(ax));
-            }
-        }
-        if ( !keepForeignLabels ) {
-            // There was a neutral or English label, so we can remove the foreign ones
-            foreignLabels.forEach(ax -> changes.add(removeAxiom(ax)));
-        }
-
-        // Add deprecation annotation property
-        changes.add(new AddAxiom(ontology,
-                factory.getOWLAnnotationAssertionAxiom(
-                        factory.getOWLAnnotationProperty(OWLRDFVocabulary.OWL_DEPRECATED.getIRI()), obsoleteNodeIri,
-                        factory.getOWLLiteral(true))));
-
-        // Add "term replaced by"
         if ( v.getHasDirectReplacement() != null ) {
-            IRI replacementNodeIri = IRI.create(v.getHasDirectReplacement().getId());
-            changes.add(new AddAxiom(ontology,
-                    factory.getOWLAnnotationAssertionAxiom(
-                            factory.getOWLAnnotationProperty(
-                                    Obo2OWLConstants.Obo2OWLVocabulary.IRI_IAO_0100001.getIRI()),
-                            obsoleteNodeIri, replacementNodeIri)));
-
-            // Since the class has a direct replacement, we can rewrite all axioms referring
-            // to it to make them refer to the replacement class
-            AxiomRewritingVisitor rewriter = new AxiomRewritingVisitor(factory, obsoleteNodeIri, replacementNodeIri);
-            for ( OWLAxiom axiom : ontology.getReferencingAxioms(obsoleteNodeIri, Imports.INCLUDED) ) {
-                // Do not rewrite axioms that are already slated for removal
-                if ( removedAxioms.contains(axiom) ) {
-                    continue;
-                }
-
-                // Do not rewrite foreign label axioms
-                if ( keepForeignLabels && foreignLabels.contains(axiom) ) {
-                    continue;
-                }
-
-                OWLAxiom rewrittenAxiom = axiom.accept(rewriter);
-                if ( rewrittenAxiom != null ) {
-                    changes.add(removeAxiom(axiom));
-                    changes.add(new AddAxiom(ontology, rewrittenAxiom));
-                }
-            }
-        } else if ( v.getHasNondirectReplacement() != null ) {
-            // Add "consider"
-            for ( Node consider : v.getHasNondirectReplacement() ) {
-                changes.add(new AddAxiom(ontology,
-                        factory.getOWLAnnotationAssertionAxiom(
-                                factory.getOWLAnnotationProperty(
-                                        Obo2OWLConstants.Obo2OWLVocabulary.IRI_OIO_consider.getIRI()),
-                                obsoleteNodeIri, IRI.create(consider.getId()))));
-            }
-
-            /*
-             * FIXME: It’s unclear to me what should be done with referencing axioms in this
-             * case. Obviously we cannot rewrite them, but should we remove them or leave
-             * them alone? Since they are expected to be removed when there is no
-             * replacement at all (see below), it would be consistent to also remove them
-             * when there are only non-direct replacements. But this creates the risk that
-             * the axioms forcefully removed in that manner are never later manually
-             * rewritten by editors, since they might not even realise those axioms were
-             * there and had been removed.
-             * 
-             * https://github.com/INCATools/kgcl/issues/52
-             */
-        } else {
-            // No replacement or alternative, the expectation from the KGCL folks is that
-            // all referencing axioms should be removed
-            for (OWLAxiom axiom : ontology.getReferencingAxioms(obsoleteNodeIri, Imports.INCLUDED)) {
-                if ( removedAxioms.contains(axiom) ) {
-                    continue; // Avoid redundant changes
-                }
-                if ( axiom instanceof OWLDeclarationAxiom ) {
-                    continue; // Always keep declaration
-                }
-                if ( keepForeignLabels && foreignLabels.contains(axiom) ) {
-                    continue; // Foreign labels to be preserved
-                }
-                changes.add(removeAxiom(axiom));
-
-            }
+            replacementIRI = IRI.create(v.getHasDirectReplacement().getId());
         }
+        if ( v.getHasNondirectReplacement() != null ) {
+            v.getHasNondirectReplacement().forEach(node -> considerIRIs.add(IRI.create(node.getId())));
+        }
+
+        deprecator.deprecate(entityIRI, replacementIRI, considerIRIs, removed, added);
+
+        removedAxioms.addAll(removed);
+        removed.forEach(ax -> changes.add(new RemoveAxiom(ontology, ax)));
+        added.forEach(ax -> changes.add(new AddAxiom(ontology, ax)));
 
         return changes;
     }

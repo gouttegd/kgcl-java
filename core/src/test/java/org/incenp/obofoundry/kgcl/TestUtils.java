@@ -18,9 +18,16 @@
 
 package org.incenp.obofoundry.kgcl;
 
+import java.util.Collection;
+
 import org.incenp.obofoundry.kgcl.model.Edge;
 import org.incenp.obofoundry.kgcl.model.Node;
+import org.junit.jupiter.api.Assertions;
+import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.IRI;
+import org.semanticweb.owlapi.model.OWLClass;
+import org.semanticweb.owlapi.model.OWLDataFactory;
+import org.semanticweb.owlapi.model.OWLObjectProperty;
 import org.semanticweb.owlapi.model.PrefixManager;
 import org.semanticweb.owlapi.util.DefaultPrefixManager;
 
@@ -33,10 +40,18 @@ public class TestUtils {
     public final static String EXAMPLE_BASE = "https://example.org/";
 
     private String base_iri;
+    private OWLDataFactory factory;
 
     // Creates a new instance with a specific base IRI
     public TestUtils(String base_iri) {
         this.base_iri = base_iri;
+        factory = OWLManager.getOWLDataFactory();
+    }
+
+    // Creates a new instance with a specific base IRI and a pre-existing factory
+    public TestUtils(String base_iri, OWLDataFactory factory) {
+        this.base_iri = base_iri;
+        this.factory = factory;
     }
 
     // Creates a new instance with the default base IRI
@@ -89,5 +104,25 @@ public class TestUtils {
         DefaultPrefixManager pm = new DefaultPrefixManager();
         pm.setPrefix("EX:", base_iri);
         return pm;
+    }
+
+    // Gets a OWL class in the base namespace
+    public OWLClass getKlass(String id) {
+        return factory.getOWLClass(getIRI(id));
+    }
+
+    // Gets a OWL object property in the base namespace
+    public OWLObjectProperty getObjectProperty(String id) {
+        return factory.getOWLObjectProperty(getIRI(id));
+    }
+
+    // Compare the contents of iterables, without expecting that items should appear
+    // in any given order.
+    public <T> void assertUnsortedIterableEquals(Collection<T> expected, Collection<T> actual) {
+        Assertions.assertEquals(expected.size(), actual.size());
+        for ( T item : expected ) {
+            Assertions.assertTrue(actual.contains(item),
+                    String.format("Expected item not found: %s\n", item.toString()));
+        }
     }
 }
