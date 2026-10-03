@@ -1,0 +1,10 @@
+---
+name: KGCL-Java
+description: The KGCL-Java built-in obsoletion profile.
+removeLogicalDefinition: true
+removeAnnotationAssertions: true
+rewireAxioms: true
+labelPrefix: obsolete
+onlyLanguage: en
+replacedByAnnotationPropertyIri: IAO:0100001
+alternateEntityAnnotationPropertyIri: oboInOwl:consider

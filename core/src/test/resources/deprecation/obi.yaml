@@ -1,0 +1,21 @@
+---
+name: Ontology for Biomedical Investigation (OBI)
+description: >-
+  A profile for obsoletion of OWL entities in the Ontology for Biomedical
+  Investigation (OBI).
+activatedBy: http://purl.obolibrary.org/obo/obi.owl
+removeLogicalDefinition: true
+removeAnnotationAssertions: false
+labelPrefix: obsolete_
+annotationValuePrefix: obsolete_
+preservedAnnotationAssertionPropertyIris:
+  - IAO:0000111 # Editor preferred term
+replacedByAnnotationPropertyIri: IAO:0100001
+alternateEntityAnnotationPropertyIri: rdfs:seeAlso
+textualReasonAnnotationPropertyIri: IAO:0000116
+deprecatedClassParentIri: oboInOwl:ObsoleteClass
+deprecationCode:
+  property: IAO:0000231 # has obsolesence reason
+  valueSet:
+    type: Individuals
+    classIri: IAO:0000225 # Obsolescence reason specification
