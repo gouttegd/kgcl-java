@@ -106,7 +106,7 @@ public class EntityDeprecatorTest {
         loader.getContext().addPrefix("skos", Namespaces.SKOS.getPrefixIRI());
         EntityDeprecator deprecator = null;
         try {
-            DeprecationProfile basic = loader.loadObject(new File("src/test/resources/deprecation/basic.yaml"),
+            DeprecationProfile basic = loader.loadObject(new File("src/main/resources/deprecation/basic.yaml"),
                     DeprecationProfile.class);
             deprecator = new EntityDeprecator(ontology, basic);
         } catch ( IOException | LinkMLRuntimeException e ) {

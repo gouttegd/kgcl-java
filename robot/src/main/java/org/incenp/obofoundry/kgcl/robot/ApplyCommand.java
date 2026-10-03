@@ -19,7 +19,9 @@
 package org.incenp.obofoundry.kgcl.robot;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -30,6 +32,7 @@ import java.util.UUID;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
+import org.incenp.linkml.core.LinkMLRuntimeException;
 import org.incenp.linkml.ext.ObjectLoader;
 import org.incenp.obofoundry.dicer.IAutoIDGenerator;
 import org.incenp.obofoundry.dicer.IDException;
@@ -184,8 +187,7 @@ public class ApplyCommand implements Command {
         }
 
         if ( line.hasOption("deprecation-profile") ) {
-            deprecation = getLoader(prefixManager).loadObject(new File(line.getOptionValue("deprecation-profile")),
-                    DeprecationProfile.class);
+            deprecation = this.loadDeprecationProfile(prefixManager, line.getOptionValue("deprecation-profile"));
         }
 
         OWLReasoner reasoner = CommandLineHelper.getReasonerFactory(line).createReasoner(ontology);
@@ -316,5 +318,25 @@ public class ApplyCommand implements Command {
             pm.getPrefixName2PrefixMap().forEach(loader.getContext()::addPrefix);
         }
         return loader;
+    }
+
+    private DeprecationProfile loadDeprecationProfile(PrefixManager pm, String name)
+            throws IOException {
+        InputStream input = null;
+        if ( name.startsWith("builtin:") ) {
+            String basename = name.substring(8);
+            input = Change.class.getResourceAsStream("/deprecation/" + basename + ".yaml");
+            if ( input == null ) {
+                throw new IOException(String.format("No builtin deprecation profile named '%s'", basename));
+            }
+        } else {
+            input = new FileInputStream(name);
+        }
+
+        try {
+            return getLoader(pm).loadObject(input, DeprecationProfile.class);
+        } catch ( IOException | LinkMLRuntimeException e ) {
+            throw new IOException(String.format("Cannot read deprecation profile from '%s'", name), e);
+        }
     }
 }
