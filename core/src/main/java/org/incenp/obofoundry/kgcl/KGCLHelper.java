@@ -28,6 +28,7 @@ import java.util.Map;
 import org.incenp.linkml.core.LinkMLRuntimeException;
 import org.incenp.linkml.ext.ObjectLoader;
 import org.incenp.obofoundry.kgcl.model.Change;
+import org.incenp.obofoundry.kgcl.model.DeprecationProfile;
 import org.incenp.obofoundry.kgcl.owl.OntologyPatcher;
 import org.incenp.obofoundry.kgcl.owl.ProvisionalOWLTranslator;
 import org.semanticweb.owlapi.model.OWLOntology;
@@ -305,7 +306,7 @@ public class KGCLHelper {
      * 
      * @param changeset      The changeset to apply.
      * @param ontology       The ontology to apply it to.
-     * @param reasoner       The reasoner to use,
+     * @param reasoner       The reasoner to use.
      * @param noPartialApply If {@code true}, changes will only be applied if they
      *                       can all be applied.
      * @param rejects        A list that will collect the changes that cannot be
@@ -316,8 +317,30 @@ public class KGCLHelper {
      */
     public static void apply(List<Change> changeset, OWLOntology ontology, OWLReasoner reasoner, boolean noPartialApply,
             List<RejectedChange> rejects, boolean provisional) {
+        apply(changeset, ontology, reasoner, noPartialApply, rejects, provisional, null);
+    }
+
+    /**
+     * Applies a KGCL changeset to an ontology.
+     * 
+     * @param changeset      The changeset to apply.
+     * @param ontology       The ontology to apply it to.
+     * @param reasoner       The reasoner to use.
+     * @param noPartialApply If {@code true}, changes will only be applied if they
+     *                       can all be applied.
+     * @param rejects        A list that will collect the changes that cannot be
+     *                       applied. May be {@code null}.
+     * @param provisional    If {@code true}, changes will be recorded in the
+     *                       ontology for later application, rather applied
+     *                       directly.
+     * @param profile        The deprecation profile to use for obsoleting entity.
+     *                       May be {@code null}.
+     */
+    public static void apply(List<Change> changeset, OWLOntology ontology, OWLReasoner reasoner, boolean noPartialApply,
+            List<RejectedChange> rejects, boolean provisional, DeprecationProfile profile) {
         OntologyPatcher patcher = new OntologyPatcher(ontology, reasoner);
         patcher.setProvisional(provisional);
+        patcher.setDeprecationProfile(profile);
         apply(changeset, patcher, noPartialApply, rejects);
     }
 

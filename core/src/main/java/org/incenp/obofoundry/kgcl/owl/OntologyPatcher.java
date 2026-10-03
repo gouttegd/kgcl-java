@@ -25,6 +25,7 @@ import org.incenp.obofoundry.kgcl.IPatcher;
 import org.incenp.obofoundry.kgcl.RejectedChange;
 import org.incenp.obofoundry.kgcl.RejectedChangeListener;
 import org.incenp.obofoundry.kgcl.model.Change;
+import org.incenp.obofoundry.kgcl.model.DeprecationProfile;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyChange;
 import org.semanticweb.owlapi.reasoner.OWLReasoner;
@@ -58,6 +59,7 @@ public class OntologyPatcher implements IPatcher, RejectedChangeListener {
     private OWLOntology ontology;
     private OWLReasoner reasoner;
     private OWLTranslator translator;
+    private DeprecationProfile deprecationProfile;
     private ArrayList<RejectedChange> rejectedChanges;
     private boolean isProvisional;
 
@@ -84,6 +86,18 @@ public class OntologyPatcher implements IPatcher, RejectedChangeListener {
      */
     public void setProvisional(boolean provisional) {
         isProvisional = provisional;
+        if ( translator != null ) {
+            translator = null;
+        }
+    }
+
+    /**
+     * Sets the deprecation profile this patcher will use for obsoleting entities.
+     * 
+     * @param profile The deprecation profile to use.
+     */
+    public void setDeprecationProfile(DeprecationProfile profile) {
+        deprecationProfile = profile;
         if ( translator != null ) {
             translator = null;
         }
@@ -139,7 +153,7 @@ public class OntologyPatcher implements IPatcher, RejectedChangeListener {
     private OWLTranslator getTranslator() {
         if ( translator == null ) {
             translator = isProvisional ? new ProvisionalOWLTranslator(ontology, reasoner)
-                    : new DirectOWLTranslator(ontology, reasoner);
+                    : new DirectOWLTranslator(ontology, reasoner, deprecationProfile);
             translator.addRejectListener(this);
         }
         return translator;

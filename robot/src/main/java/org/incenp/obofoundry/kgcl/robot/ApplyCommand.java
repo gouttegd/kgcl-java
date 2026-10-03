@@ -44,6 +44,7 @@ import org.incenp.obofoundry.kgcl.KGCLSyntaxError;
 import org.incenp.obofoundry.kgcl.KGCLWriter;
 import org.incenp.obofoundry.kgcl.RejectedChange;
 import org.incenp.obofoundry.kgcl.model.Change;
+import org.incenp.obofoundry.kgcl.model.DeprecationProfile;
 import org.incenp.obofoundry.kgcl.model.NodeChange;
 import org.incenp.obofoundry.kgcl.owl.OntologyBasedLabelResolver;
 import org.obolibrary.robot.Command;
@@ -67,6 +68,7 @@ public class ApplyCommand implements Command {
     private static final Logger logger = LoggerFactory.getLogger(ApplyCommand.class);
 
     private Options options;
+    private ObjectLoader loader;
 
     public ApplyCommand() {
         options = CommandLineHelper.getCommonOptions();
@@ -84,6 +86,7 @@ public class ApplyCommand implements Command {
         options.addOption("P", "pending", true, "apply pending (provisional) changes older than the specified date");
         options.addOption("l", "default-new-language", true, "use the specified new language tag by default");
         options.addOption(null, "fail-on-reject", false, "exit the pipeline when changes cannot be applied");
+        options.addOption(null, "deprecation-profile", true, "use the specified deprecation profile");
 
         // Auto-ID options
         options.addOption(null, "auto-id-min", true, "lower range value for automatically assigned IDs");
@@ -152,6 +155,7 @@ public class ApplyCommand implements Command {
             prefixManager.copyPrefixesFrom(ontologyFormat.asPrefixOWLOntologyFormat());
         }
         ILabelResolver labelResolver = new OntologyBasedLabelResolver(ontology);
+        DeprecationProfile deprecation = null;
 
         List<Change> changeset = new ArrayList<Change>();
         List<KGCLSyntaxError> errors = new ArrayList<KGCLSyntaxError>();
@@ -167,10 +171,8 @@ public class ApplyCommand implements Command {
             }
         }
         if ( line.hasOption("kgcl-yaml") ) {
-            ObjectLoader loader = new ObjectLoader();
-            prefixManager.getPrefixName2PrefixMap().forEach(loader.getContext()::addPrefix);
             for ( String yamlFile : line.getOptionValues("kgcl-yaml") ) {
-                changeset.addAll(loader.loadObjects(new File(yamlFile), Change.class));
+                changeset.addAll(getLoader(prefixManager).loadObjects(new File(yamlFile), Change.class));
             }
         }
 
@@ -179,6 +181,11 @@ public class ApplyCommand implements Command {
                 logger.error(String.format("KGCL syntax error: %s", error));
             }
             throw new Exception("Invalid KGCL input, aborting");
+        }
+
+        if ( line.hasOption("deprecation-profile") ) {
+            deprecation = getLoader(prefixManager).loadObject(new File(line.getOptionValue("deprecation-profile")),
+                    DeprecationProfile.class);
         }
 
         OWLReasoner reasoner = CommandLineHelper.getReasonerFactory(line).createReasoner(ontology);
@@ -215,7 +222,7 @@ public class ApplyCommand implements Command {
 
             List<RejectedChange> rejects = new ArrayList<RejectedChange>();
             KGCLHelper.apply(changeset, ontology, reasoner, line.hasOption("no-partial-apply"), rejects,
-                    line.hasOption("provisional"));
+                    line.hasOption("provisional"), deprecation);
             if ( !rejects.isEmpty() ) {
                 KGCLWriter writer = getRejectedWriter(line);
                 if ( writer != null ) {
@@ -301,5 +308,13 @@ public class ApplyCommand implements Command {
         }
 
         return generator;
+    }
+
+    private ObjectLoader getLoader(PrefixManager pm) {
+        if ( loader == null ) {
+            loader = new ObjectLoader();
+            pm.getPrefixName2PrefixMap().forEach(loader.getContext()::addPrefix);
+        }
+        return loader;
     }
 }

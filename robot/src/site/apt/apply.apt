@@ -13,7 +13,7 @@ The <apply> command
   the <<<-k>>> (or <<<--kgcl>>>) option, a KGCL file (with one
   instruction per line) specified with the <<<-K>>> (or
   <<<--kgcl-file>>>) option, or a KGCL YAML file (containing a list of
-  KGCL change objects) specifiedwith the <<<-Y>>> (or <<<--kgcl-yaml>>>)
+  KGCL change objects) specified with the <<<-Y>>> (or <<<--kgcl-yaml>>>)
   option. All three options can be used repeatedly, to specify more than
   one change (with <<<-k>>>) or changes from more than one file (with
   <<<-K>>> or <<<-Y>>>). It applies the change(s) to the current
@@ -50,6 +50,8 @@ $ robot merge -i input1.ofn -i input2.ofn \
   such as <<<create class>>>, <<<create relation>>>, etc.). The newly
   created ontology will become the current ontology of the ROBOT
   pipeline.
+  
+* Rejected changes
 
   If some changes cannot be applied because they don’t match the
   contents of the ontology (for example, a change that tries to add a
@@ -65,6 +67,24 @@ $ robot merge -i input1.ofn -i input2.ofn \
   which case the command will refuse to apply any changes at all unless
   they can all be applied.
   
+  The plugin causes the current ROBOT pipeline to error out if it is
+  provided with invalid KGCL input. However, changes that are correctly
+  specified (using valid KGCL syntax) but cannot be applied and are
+  therefore rejected do not, by default, cause a failure. Use the
+  <<<--fail-on-reject>>> option to force the command to error out in the
+  presence of inapplicable changes.
+  
+* Deprecation profiles
+
+  The <<<apply>>> command supports the use of Protégé’s deprecation
+  profiles to specify what exactly should happen when an entity is
+  obsoleted (with the <<<obsolete>>> KGCL instruction).
+  
+  Use the <<<--deprecation-profile>>> option to specify the path to
+  such a profile file.
+  
+* Other options
+  
   Some changes require the use of a reasoner to check if they can be
   applied. As for other ROBOT commands that need a reasoner, the
   reasoner to use can be specified with the <<<--reasoner>>> (or
@@ -73,13 +93,6 @@ $ robot merge -i input1.ofn -i input2.ofn \
   If the <<<--default-new-language>>> option is specified, any
   NodeChange operation that does not have an explicit language tag will
   use the specified default new language tag.
-  
-  The plugin causes the current ROBOT pipeline to error out if it is
-  provided with invalid KGCL input. However, changes that are correctly
-  specified (using valid KGCL syntax) but cannot be applied and are
-  therefore rejected (as explained above) do not, by default, cause a
-  failure. Use the <<<--fail-on-reject>>> option to force the command to
-  error out in the presence of inapplicable changes.
   
 * Automatically assigned IDs for new entities
 
