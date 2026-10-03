@@ -1,0 +1,16 @@
+---
+name: OBO Foundry
+description: >-
+  A profile for obsoletion of OWL entities according to OBO Foundry
+  Principle 19 (Term Stability).
+removeLogicalDefinition: true
+removeAnnotationAssertions: true
+rewireAxioms: true
+labelPrefix: obsolete
+annotationValuePrefix: OBSOLETE.
+labelPropertyIRIs:
+  - IAO:0000111 # editor preferred term
+preservedAnnotationAssertionPropertyIris:
+  - IAO:0000115 # textual definition
+replacedByAnnotationPropertyIri: IAO:0100001
+alternateEntityAnnotationPropertyIri: oboInOwl:consider

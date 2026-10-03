@@ -83,8 +83,12 @@ public class EntityDeprecator {
             removeDefAxioms = maybeGetBool(profile.getRemoveLogicalDefinition());
             rewireRefAxioms = maybeGetBool(profile.getRewireAxioms());
             removeAnnots = maybeGetBool(profile.getRemoveAnnotationAssertions());
-            labelPrefix = maybeGetPrefix(profile.getLabelPrefix());
             onlyLang = profile.getOnlyLanguage();
+
+            labelPrefix = maybeGetPrefix(profile.getLabelPrefix());
+            for ( String labelProperty : profile.getLabelPropertyIris(true) ) {
+                annotPrefixes.put(IRI.create(labelProperty), labelPrefix);
+            }
 
             String annotPrefix = maybeGetPrefix(profile.getAnnotationValuePrefix());
             for ( String preserved : profile.getPreservedAnnotationAssertionPropertyIris(true) ) {

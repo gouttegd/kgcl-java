@@ -76,6 +76,10 @@ public class DeprecationProfile {
     @LinkURI("https://schemas.incenp.org/kgcl/deprecation#rewireAxioms")
     private Boolean rewireAxioms;
 
+    @TypeURI("https://w3id.org/linkml/Uriorcurie")
+    @LinkURI("https://schemas.incenp.org/kgcl/deprecation#labelPropertyIris")
+    private List<String> labelPropertyIris;
+
     @ExtensionHolder
     private Map<String, Object> extraSlots;
 
@@ -222,6 +226,21 @@ public class DeprecationProfile {
         return this.rewireAxioms;
     }
 
+    public void setLabelPropertyIris(List<String> labelPropertyIris) {
+        this.labelPropertyIris = labelPropertyIris;
+    }
+
+    public List<String> getLabelPropertyIris() {
+        return this.labelPropertyIris;
+    }
+
+    public List<String> getLabelPropertyIris(boolean set) {
+        if ( this.labelPropertyIris == null && set ) {
+            this.labelPropertyIris = new ArrayList<>();
+        }
+        return this.labelPropertyIris;
+    }
+
     public void setExtraSlots(Map<String,Object> extraSlots) {
         this.extraSlots = extraSlots;
     }
@@ -327,6 +346,11 @@ public class DeprecationProfile {
             sb.append(o);
             sb.append(",");
         }
+        if ( (o = this.getLabelPropertyIris()) != null ) {
+            sb.append("labelPropertyIris=");
+            sb.append(o);
+            sb.append(",");
+        }
         sb.append(")");
         return sb.toString();
     }
@@ -388,6 +412,9 @@ public class DeprecationProfile {
         final Object this$rewireAxioms = this.getRewireAxioms();
         final Object other$rewireAxioms = other.getRewireAxioms();
         if ( this$rewireAxioms == null ? other$rewireAxioms != null : !this$rewireAxioms.equals(other$rewireAxioms) ) return false;
+        final Object this$labelPropertyIris = this.getLabelPropertyIris();
+        final Object other$labelPropertyIris = other.getLabelPropertyIris();
+        if ( this$labelPropertyIris == null ? other$labelPropertyIris != null : !this$labelPropertyIris.equals(other$labelPropertyIris) ) return false;
         if ( this.extraSlots == null ? other.extraSlots != null : !this.extraSlots.equals(other.extraSlots) ) return false;
         return true;
     }
@@ -434,6 +461,8 @@ public class DeprecationProfile {
         result = result * PRIME + ($onlyLanguage == null ? 43 : $onlyLanguage.hashCode());
         final Object $rewireAxioms = this.getRewireAxioms();
         result = result * PRIME + ($rewireAxioms == null ? 43 : $rewireAxioms.hashCode());
+        final Object $labelPropertyIris = this.getLabelPropertyIris();
+        result = result * PRIME + ($labelPropertyIris == null ? 43 : $labelPropertyIris.hashCode());
         result = result * PRIME + (this.extraSlots == null ? 43 : this.extraSlots.hashCode());
         return result;
     }

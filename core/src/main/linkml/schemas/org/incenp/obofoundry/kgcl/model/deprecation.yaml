@@ -112,3 +112,10 @@ classes:
         notes:
           - This is an extension specific to KGCL-Java.
         range: boolean
+      labelPropertyIris:
+        description:
+          Additional annotation properties that should be treated in the same way
+          as rdfs:label.
+        notes:
+          - This is an extension specific to KGCL-Java.
+        multivalued: true
