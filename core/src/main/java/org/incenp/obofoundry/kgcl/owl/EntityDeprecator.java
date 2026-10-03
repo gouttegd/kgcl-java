@@ -18,7 +18,9 @@
 
 package org.incenp.obofoundry.kgcl.owl;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.incenp.obofoundry.kgcl.model.DeprecationProfile;
@@ -48,11 +50,9 @@ public class EntityDeprecator {
     private boolean removeDefAxioms = true;
     private boolean rewireRefAxioms = true;
     private boolean removeAnnots = true;
-    private Set<IRI> keepAnnotIRIs = new HashSet<>();
+    private Map<IRI, String> annotPrefixes = new HashMap<>();
     private IRI replacedIRI = Obo2OWLVocabulary.IRI_IAO_0100001.getIRI();
     private IRI considerIRI = Obo2OWLVocabulary.IRI_OIO_consider.getIRI();
-    private String labelPrefix = "obsolete ";
-    private String annotPrefix;
     private String onlyLang = "en";
 
     /**
@@ -77,20 +77,25 @@ public class EntityDeprecator {
         this.ontology = ontology;
         factory = ontology.getOWLOntologyManager().getOWLDataFactory();
 
+        String labelPrefix = "obsolete ";
+
         if ( profile != null ) {
             removeDefAxioms = maybeGetBool(profile.getRemoveLogicalDefinition());
             rewireRefAxioms = maybeGetBool(profile.getRewireAxioms());
             removeAnnots = maybeGetBool(profile.getRemoveAnnotationAssertions());
             labelPrefix = maybeGetPrefix(profile.getLabelPrefix());
-            annotPrefix = maybeGetPrefix(profile.getAnnotationValuePrefix());
             onlyLang = profile.getOnlyLanguage();
+
+            String annotPrefix = maybeGetPrefix(profile.getAnnotationValuePrefix());
+            for ( String preserved : profile.getPreservedAnnotationAssertionPropertyIris(true) ) {
+                annotPrefixes.put(IRI.create(preserved), annotPrefix);
+            }
 
             replacedIRI = maybeGetIRI(profile.getReplacedByAnnotationPropertyIri());
             considerIRI = maybeGetIRI(profile.getAlternateEntityAnnotationPropertyIri());
-            for ( String preserved : profile.getPreservedAnnotationAssertionPropertyIris(true) ) {
-                keepAnnotIRIs.add(IRI.create(preserved));
-            }
         }
+
+        annotPrefixes.put(OWLRDFVocabulary.RDFS_LABEL.getIRI(), labelPrefix);
     }
 
     /**
@@ -122,44 +127,40 @@ public class EntityDeprecator {
     }
 
     private void updateAnnotations(IRI target, Set<OWLAxiom> removed, Set<OWLAxiom> added) {
-        Set<OWLAxiom> foreignLabels = new HashSet<>();
-        boolean keepForeignLabels = true;
+        Map<IRI, ForeignAnnotInfo> foreignAnnots = new HashMap<>();
 
         for ( OWLAnnotationAssertionAxiom ax : ontology.getAnnotationAssertionAxioms(target) ) {
-            if ( ax.getProperty().isLabel() && ax.getValue().isLiteral() ) {
-                if ( labelPrefix == null ) {
-                    // No prefixing, so we just keep the label as it is
+            IRI propertyIRI = ax.getProperty().getIRI();
+            if ( annotPrefixes.containsKey(propertyIRI) && ax.getValue().isLiteral() ) {
+                String prefix = annotPrefixes.get(propertyIRI);
+                if ( prefix == null ) {
+                    // No prefixing, so we just keep the annotation as it is
                     continue;
                 }
 
                 String oldLabel = ax.getValue().asLiteral().get().getLiteral();
                 String oldLang = ax.getValue().asLiteral().get().getLang();
                 if ( onlyLang != null && !oldLang.isEmpty() && !oldLang.startsWith(onlyLang) ) {
-                    // Set foreign labels aside for now
-                    foreignLabels.add(ax);
+                    // Set the foreign axiom aside for now
+                    foreignAnnots.computeIfAbsent(propertyIRI, (iri) -> new ForeignAnnotInfo()).axioms.add(ax);
                 } else {
-                    // Prefix the label
+                    // Prefix the annotation value
                     removed.add(ax);
                     added.add(factory.getOWLAnnotationAssertionAxiom(ax.getProperty(), target,
-                            factory.getOWLLiteral(labelPrefix + oldLabel, oldLang), ax.getAnnotations()));
-                    keepForeignLabels = false;
-                }
-            } else if ( keepAnnotIRIs.contains(ax.getProperty().getIRI()) ) {
-                if ( annotPrefix != null ) {
-                    String oldValue = ax.getValue().asLiteral().get().getLiteral();
-                    String oldLang = ax.getValue().asLiteral().get().getLang();
-
-                    removed.add(ax);
-                    added.add(factory.getOWLAnnotationAssertionAxiom(ax.getProperty(), target,
-                            factory.getOWLLiteral(annotPrefix + oldValue, oldLang), ax.getAnnotations()));
+                            factory.getOWLLiteral(prefix + oldLabel, oldLang), ax.getAnnotations()));
+                    foreignAnnots.computeIfAbsent(propertyIRI, (iri) -> new ForeignAnnotInfo()).keep = false;
                 }
             } else if ( removeAnnots ) {
                 removed.add(ax);
             }
         }
 
-        if ( onlyLang != null && !keepForeignLabels ) {
-            removed.addAll(foreignLabels);
+        if ( onlyLang != null ) {
+            for ( ForeignAnnotInfo fai : foreignAnnots.values() ) {
+                if ( !fai.keep ) {
+                    removed.addAll(fai.axioms);
+                }
+            }
         }
     }
 
@@ -256,5 +257,12 @@ public class EntityDeprecator {
         }
         String prefix = orig.trim();
         return prefix.endsWith("_") || prefix.endsWith("-") ? prefix : prefix + " ";
+    }
+
+    // Helper structure for the updateAnnotations method, to keep track of the
+    // "foreign axioms" for any given property
+    private class ForeignAnnotInfo {
+        boolean keep = true; // Whether the foreign axioms should be preserved from removal
+        Set<OWLAxiom> axioms = new HashSet<>(); // All found foreign axioms
     }
 }
