@@ -84,6 +84,7 @@
 
   <modules>
     <module>core</module>
+    <module>cli</module>
     <module>robot</module>
   </modules>
 
@@ -143,7 +144,7 @@
               <goal>jar</goal>
             </goals>
             <configuration>
-              <excludePackageNames>org.incenp.obofoundry.kgcl.model</excludePackageNames>
+              <excludePackageNames>org.incenp.obofoundry.kgcl.model,org.incenp.obofoundry.kgcl.cli</excludePackageNames>
             </configuration>
           </execution>
         </executions>
@@ -224,7 +225,7 @@
           </reportSet>
         </reportSets>
         <configuration>
-          <excludePackageNames>org.incenp.obofoundry.kgcl.model</excludePackageNames>
+          <excludePackageNames>org.incenp.obofoundry.kgcl.model,org.incenp.obofoundry.kgcl.cli</excludePackageNames>
         </configuration>
       </plugin>
     </plugins>

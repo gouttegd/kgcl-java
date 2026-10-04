@@ -1,0 +1,5 @@
+rename EX:0001 from "foo" to "FOO"
+create broad synonym "bazz" for EX:0003
+obsolete EX:0002 with alternative EX:0003
+create class EX:0004 "xyz"
+create edge EX:0004 rdfs:subClassOf EX:0003

@@ -1,0 +1,59 @@
+    --------------------------
+    The KGCL command line tool
+    --------------------------
+
+The KGCL command line tool
+
+  KGCL-Java comes with a standalone tool to manipulate KGCL changesets
+  from the command line.
+
+  The <<<kgcl-cli>>> commands act as Unix filter that reads one or more
+  KGCL changeset either from files or from standard input (or both), and
+  writes the changeset back to standard output.
+
+  It can be used to:
+
+  * catenate several changesets into a single changeset;
+
+  * convert changeset from one format to another;
+
+  * check that a changeset is syntactically correct.
+
+* Basic usage
+
+  The following call:
+
++----------------------------------------------------------------------
+$ kgcl-cli -o all.yaml set1.kgcl set2.yaml set3.json
++----------------------------------------------------------------------
+
+  will read KGCL changesets from the <<<set1.kgcl>>>, <<<set2.yaml>>>,
+  and <<<set3.json>>> files, merge them together, and write the result
+  in the <<<all.yaml>>> file.
+
+* Input options
+
+  Changesets are read either from files given as positional arguments
+  or, without any positional argument, from standard input.
+
+  The special name <<<->>> can also be used to explicitly read from
+  standard input.
+
+  When reading from a file, the format of the file is inferred, if
+  possible, from the file’s extension. If the extension is not
+  recognized, or when reading from standard input, the format is
+  assumed to be KGCL.
+
+  Use the <<<--input-format>>> option to force the expected input
+  format instead of inferring it from extensions. Of note, that option
+  applies to all input files.
+
+* Output options
+
+  By default, the result changeset is written to standard output in KGCL
+  format.
+
+  Use the <<<--output>>> option to send the output to a file. The file’s
+  extension will be used to infer the output format.
+
+  Use the <<<--output-format>>> to explicitly specify the format.

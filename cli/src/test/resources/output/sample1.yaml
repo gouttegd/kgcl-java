@@ -1,0 +1,26 @@
+---
+- about_node: EX:0001
+  old_value: foo
+  id: CHANGE:0000001
+  type: NodeRename
+  new_value: FOO
+- about_node: EX:0003
+  qualifier: broad
+  id: CHANGE:0000002
+  type: NewSynonym
+  new_value: bazz
+- has_nondirect_replacement:
+  - EX:0003
+  about_node: EX:0002
+  id: CHANGE:0000003
+  type: NodeObsoletionWithNoDirectReplacement
+- about_node: EX:0004
+  id: CHANGE:0000004
+  type: ClassCreation
+  new_value: xyz
+- about_edge:
+    predicate: rdfs:subClassOf
+    subject: EX:0004
+    object: EX:0003
+  id: CHANGE:0000005
+  type: EdgeCreation
