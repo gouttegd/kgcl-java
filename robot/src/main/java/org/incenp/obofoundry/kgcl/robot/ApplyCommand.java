@@ -41,6 +41,7 @@ import org.incenp.obofoundry.kgcl.ILabelResolver;
 import org.incenp.obofoundry.kgcl.KGCLHelper;
 import org.incenp.obofoundry.kgcl.KGCLSyntaxError;
 import org.incenp.obofoundry.kgcl.KGCLWriter;
+import org.incenp.obofoundry.kgcl.Normalizer;
 import org.incenp.obofoundry.kgcl.RejectedChange;
 import org.incenp.obofoundry.kgcl.model.Change;
 import org.incenp.obofoundry.kgcl.model.DeprecationProfile;
@@ -169,7 +170,8 @@ public class ApplyCommand implements Command {
         }
         if ( line.hasOption("kgcl-yaml") ) {
             for ( String yamlFile : line.getOptionValues("kgcl-yaml") ) {
-                changeset.addAll(getLoader(prefixManager).loadObjects(new File(yamlFile), Change.class));
+                List<Change> tmp = getLoader(prefixManager).loadObjects(new File(yamlFile), Change.class);
+                changeset.addAll(Normalizer.normalize(tmp));
             }
         }
 

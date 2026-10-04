@@ -43,11 +43,12 @@
 - id: CHANGE:008
   type: ClassCreation
   about_node: GO:9999999
+  new_value: foo
 
 - id: CHANGE:009
   type: NodeCreation
   about_node: GO:9999999
-  name: foo
+  new_value: foo
 
 - id: CHANGE:010
   type: EdgeCreation

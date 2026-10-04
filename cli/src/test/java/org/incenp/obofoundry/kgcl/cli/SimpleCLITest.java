@@ -49,6 +49,11 @@ public class SimpleCLITest {
                                "--prefix", "pizza: http://www.co-ode.org/ontologies/pizza#" });
     }
 
+    @Test
+    void testNormalize() throws IOException {
+        runCommand(0, new String[] { "samples.yaml" }, "test-normalizing.yaml", new String[] { "-f", "yaml" });
+    }
+
     private void runCommand(int code, String[] inputs, String output, String[] others) throws IOException {
         int nArgs = inputs.length + others.length;
         if ( output != null ) {

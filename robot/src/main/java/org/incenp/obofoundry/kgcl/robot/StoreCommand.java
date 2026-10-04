@@ -28,6 +28,7 @@ import org.incenp.linkml.ext.ObjectLoader;
 import org.incenp.obofoundry.kgcl.ILabelResolver;
 import org.incenp.obofoundry.kgcl.KGCLHelper;
 import org.incenp.obofoundry.kgcl.KGCLSyntaxError;
+import org.incenp.obofoundry.kgcl.Normalizer;
 import org.incenp.obofoundry.kgcl.model.Change;
 import org.incenp.obofoundry.kgcl.owl.OWLTranslator;
 import org.incenp.obofoundry.kgcl.owl.OntologyBasedLabelResolver;
@@ -137,7 +138,7 @@ public class StoreCommand implements Command {
                 prefixManager.getPrefixName2PrefixMap().forEach(loader.getContext()::addPrefix);
             }
             for ( String filename : line.getOptionValues("kgcl-yaml") ) {
-                changeset.addAll(loader.loadObjects(new File(filename), Change.class));
+                changeset.addAll(Normalizer.normalize(loader.loadObjects(new File(filename), Change.class)));
             }
         }
 

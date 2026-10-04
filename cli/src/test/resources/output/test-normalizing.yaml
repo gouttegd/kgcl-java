@@ -1,0 +1,97 @@
+---
+- about_node: GO:0005635
+  old_value: nuclear envelope
+  id: CHANGE:000
+  type: NodeRename
+  new_value: foo bar
+- about_node: GO:0005634
+  id: CHANGE:001
+  type: NodeObsoletion
+- has_direct_replacement: GO:999
+  about_node: GO:0005634
+  id: CHANGE:002
+  type: NodeObsoletionWithDirectReplacement
+- about_node: GO:0005634
+  qualifier: exact
+  id: CHANGE:003
+  type: NewSynonym
+  new_value: foo
+- about_node: GO:0005634
+  old_value: foo
+  id: CHANGE:004
+  type: RemoveSynonym
+- about_node: GO:0005634
+  old_value: cell nucleus
+  id: CHANGE:005
+  type: SynonymReplacement
+  new_value: cell NUCLEUS
+- in_subset: foo
+  about_node: GO:0005634
+  id: CHANGE:006
+  type: AddNodeToSubset
+- in_subset: foo
+  about_node: GO:0005634
+  id: CHANGE:007
+  type: RemoveNodeFromSubset
+- about_node: GO:9999999
+  id: CHANGE:008
+  type: ClassCreation
+  new_value: foo
+- about_node: GO:9999999
+  id: CHANGE:009
+  type: NodeCreation
+  new_value: foo
+- about_edge:
+    predicate: BFO:0000050
+    subject: GO:0005634
+    object: GO:0009411
+  id: CHANGE:010
+  type: EdgeCreation
+- about_edge:
+    predicate: rdfs:subClassOf
+    subject: GO:0005634
+    object: GO:0009411
+  id: CHANGE:011
+  type: PlaceUnder
+- about_edge:
+    predicate: BFO:0000050
+    subject: GO:0005635
+    object: GO:0005634
+  old_value: BFO:0000050
+  id: CHANGE:012
+  type: PredicateChange
+  new_value_type: curie
+  new_value: rdfs:subClassOf
+  old_value_type: curie
+- about_edge:
+    predicate: rdfs:subClassOf
+    subject: GO:0005634
+    object: GO:0043231
+  id: CHANGE:013
+  type: RemoveUnder
+- about_edge:
+    predicate: BFO:0000050
+    subject: GO:0005635
+    object: GO:0005634
+  id: CHANGE:014
+  type: EdgeDeletion
+- about_edge:
+    subject: GO:0005739
+    object: GO:0043231
+  old_value: GO:0043231
+  id: CHANGE:015
+  type: NodeDeepening
+  new_value_type: curie
+  new_value: GO:0005634
+  old_value_type: curie
+- about_node: GO:0005635
+  id: CHANGE:016
+  type: NewTextDefinition
+  new_value: this is dummy description
+- about_node: GO:0005635
+  id: CHANGE:017
+  type: TextDefinitionReplacement
+  new_value: this is dummy description
+- about_node: GO:0005634
+  id: CHANGE:018
+  type: RemoveTextDefinition

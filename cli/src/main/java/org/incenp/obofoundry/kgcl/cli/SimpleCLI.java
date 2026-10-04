@@ -34,6 +34,7 @@ import org.incenp.linkml.ext.ObjectLoader;
 import org.incenp.obofoundry.kgcl.KGCLReader;
 import org.incenp.obofoundry.kgcl.KGCLSyntaxError;
 import org.incenp.obofoundry.kgcl.KGCLWriter;
+import org.incenp.obofoundry.kgcl.Normalizer;
 import org.incenp.obofoundry.kgcl.model.Change;
 import org.semanticweb.owlapi.model.PrefixManager;
 import org.semanticweb.owlapi.util.DefaultPrefixManager;
@@ -141,7 +142,7 @@ public class SimpleCLI implements Runnable {
     @Override
     public void run() {
         List<Change> changeset = loadInputs();
-        addIds(changeset);
+        normalize(changeset);
         writeOutput(changeset);
     }
 
@@ -186,13 +187,15 @@ public class SimpleCLI implements Runnable {
         return changeset;
     }
 
-    private void addIds(List<Change> changeset) {
+    private void normalize(List<Change> changeset) {
         int i = 1;
+        Normalizer normalizer = new Normalizer();
         for ( Change change : changeset ) {
             if ( change.getId() == null ) {
                 // Changes obtained from KGCL do not have an ID
                 change.setId(String.format("CHANGE:%07d", i++));
             }
+            change.accept(normalizer);
         }
     }
 
