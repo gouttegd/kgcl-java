@@ -35,6 +35,7 @@ import org.obolibrary.robot.Command;
 import org.obolibrary.robot.CommandLineHelper;
 import org.obolibrary.robot.CommandState;
 import org.obolibrary.robot.IOHelper;
+import org.semanticweb.owlapi.model.OWLDocumentFormat;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyChange;
 import org.semanticweb.owlapi.reasoner.OWLReasoner;
@@ -125,9 +126,14 @@ public class ExtractCommand implements Command {
 
             if ( line.hasOption("yaml-file") ) {
                 ObjectLoader loader = new ObjectLoader();
+                ioHelper.getPrefixManager().getPrefixName2PrefixMap().forEach(loader.getContext()::addPrefix);
+                OWLDocumentFormat fmt = ontology.getOWLOntologyManager().getOntologyFormat(ontology);
+                if ( fmt.isPrefixOWLOntologyFormat() ) {
+                    fmt.asPrefixOWLOntologyFormat().getPrefixName2PrefixMap().forEach(loader.getContext()::addPrefix);
+                }
                 int i = 1;
                 for ( Change change : changeset ) {
-                    change.setId(String.format("extracted:%07d", i++));
+                    change.setId(String.format("CHANGE:%07d", i++));
                 }
                 loader.dumpObjects(new File(line.getOptionValue("yaml-file")), changeset);
             }
