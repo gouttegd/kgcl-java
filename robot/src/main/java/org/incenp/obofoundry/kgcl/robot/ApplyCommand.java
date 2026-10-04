@@ -22,10 +22,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -85,8 +81,6 @@ public class ApplyCommand implements Command {
         options.addOption("R", "reject-file", true, "write rejected change in specified file");
         options.addOption(null, "no-reject-file", false, "do no write rejected change to a file");
         options.addOption("r", "reasoner", true, "reasoner to use");
-        options.addOption("p", "provisional", false, "apply changes in a provisional manner");
-        options.addOption("P", "pending", true, "apply pending (provisional) changes older than the specified date");
         options.addOption("l", "default-new-language", true, "use the specified new language tag by default");
         options.addOption(null, "fail-on-reject", false, "exit the pipeline when changes cannot be applied");
         options.addOption(null, "deprecation-profile", true, "use the specified deprecation profile");
@@ -192,19 +186,6 @@ public class ApplyCommand implements Command {
 
         OWLReasoner reasoner = CommandLineHelper.getReasonerFactory(line).createReasoner(ontology);
 
-        if ( line.hasOption("pending") ) {
-            ZonedDateTime before = null;
-            String v = line.getOptionValue("pending");
-            if ( !v.equalsIgnoreCase("all") ) {
-                try {
-                    before = LocalDate.parse(v).atStartOfDay(ZoneId.systemDefault());
-                } catch ( DateTimeParseException e ) {
-                    throw new Exception("Invalid date for --pending option");
-                }
-            }
-            changeset.addAll(KGCLHelper.extractPendingChanges(ontology, before));
-        }
-
         if ( line.hasOption("default-new-language") ) {
             for ( Change change : changeset ) {
                 if ( change instanceof NodeChange ) {
@@ -223,8 +204,7 @@ public class ApplyCommand implements Command {
             }
 
             List<RejectedChange> rejects = new ArrayList<RejectedChange>();
-            KGCLHelper.apply(changeset, ontology, reasoner, line.hasOption("no-partial-apply"), rejects,
-                    line.hasOption("provisional"), deprecation);
+            KGCLHelper.apply(changeset, ontology, reasoner, line.hasOption("no-partial-apply"), rejects, deprecation);
             if ( !rejects.isEmpty() ) {
                 KGCLWriter writer = getRejectedWriter(line);
                 if ( writer != null ) {
