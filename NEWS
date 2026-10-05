@@ -1,3 +1,11 @@
+Changes in kgcl-java-1.0.0
+--------------------------
+
+    * Add support for Protégé’s deprecation profiles to the
+      `kgcl:apply` command.
+    * Add a `kgcl-cli` command-line tool.
+
+
 Changes in kgcl-java-0.6.3
 --------------------------
 
