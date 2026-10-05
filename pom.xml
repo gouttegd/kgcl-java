@@ -144,7 +144,7 @@
               <goal>jar</goal>
             </goals>
             <configuration>
-              <excludePackageNames>org.incenp.obofoundry.kgcl.model,org.incenp.obofoundry.kgcl.cli</excludePackageNames>
+              <excludePackageNames>org.incenp.obofoundry.kgcl.model</excludePackageNames>
             </configuration>
           </execution>
         </executions>
@@ -201,7 +201,7 @@
     <plugins>
       <plugin>
         <artifactId>maven-project-info-reports-plugin</artifactId>
-        <version>3.7.0</version>
+        <version>3.9.0</version>
         <reportSets>
           <reportSet />
         </reportSets>
@@ -209,7 +209,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>3.10.0</version>
+        <version>3.12.0</version>
         <reportSets>
           <reportSet>
             <id>aggregate</id>
@@ -225,7 +225,7 @@
           </reportSet>
         </reportSets>
         <configuration>
-          <excludePackageNames>org.incenp.obofoundry.kgcl.model,org.incenp.obofoundry.kgcl.cli</excludePackageNames>
+          <excludePackageNames>org.incenp.obofoundry.kgcl.model</excludePackageNames>
         </configuration>
       </plugin>
     </plugins>

@@ -29,8 +29,8 @@
     </dependency>
 
     <!--
-		For the test suite to work, we need to be sure to use the same
-		versions of the Jackson libraries than the one brought by ROBOT.
+        For the test suite to work, we need to be sure to use the same
+        versions of the Jackson libraries than the one brought by ROBOT.
     -->
     <dependency>
       <groupId>com.fasterxml.jackson.dataformat</groupId>
