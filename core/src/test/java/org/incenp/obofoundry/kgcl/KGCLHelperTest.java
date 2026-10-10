@@ -65,7 +65,7 @@ public class KGCLHelperTest {
 
         try {
             ontology = mgr.loadOntologyFromOntologyDocument(new File("src/test/resources/pizza.ofn"));
-            prefixManager = mgr.getOntologyFormat(ontology).asPrefixOWLOntologyFormat();
+            prefixManager = mgr.getOntologyFormat(ontology).asPrefixOWLDocumentFormat();
         } catch ( OWLOntologyCreationException e ) {
             Assertions.fail(e);
         }

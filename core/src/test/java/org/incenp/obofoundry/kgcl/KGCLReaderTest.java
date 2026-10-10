@@ -219,7 +219,7 @@ class KGCLReaderTest {
         try {
             OWLOntology ont = mgr.loadOntologyFromOntologyDocument(new File("src/test/resources/pizza.ofn"));
             testParse(r -> {
-                r.setPrefixManager(ont);
+                r.setPrefixManager(mgr.getOntologyFormat(ont).asPrefixOWLDocumentFormat());
                 r.read("obsolete pizza:LaReine");
             }, change);
         } catch ( OWLOntologyCreationException e ) {

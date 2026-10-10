@@ -186,8 +186,8 @@ public class KGCLReader {
     public void setPrefixManager(OWLOntology ontology) {
         if ( ontology != null ) {
             OWLDocumentFormat format = ontology.getOWLOntologyManager().getOntologyFormat(ontology);
-            if ( format.isPrefixOWLOntologyFormat() ) {
-                prefixManager = format.asPrefixOWLOntologyFormat();
+            if ( format.isPrefixOWLDocumentFormat() ) {
+                prefixManager = format.asPrefixOWLDocumentFormat();
             } else {
                 prefixManager = new DefaultPrefixManager();
             }

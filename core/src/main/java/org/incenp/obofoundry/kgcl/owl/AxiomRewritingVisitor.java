@@ -39,19 +39,19 @@ import java.util.Set;
 
 import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLAxiom;
+import org.semanticweb.owlapi.model.OWLAxiomVisitorEx;
 import org.semanticweb.owlapi.model.OWLClassExpression;
 import org.semanticweb.owlapi.model.OWLDataFactory;
 import org.semanticweb.owlapi.model.OWLDisjointClassesAxiom;
 import org.semanticweb.owlapi.model.OWLDisjointUnionAxiom;
 import org.semanticweb.owlapi.model.OWLEquivalentClassesAxiom;
 import org.semanticweb.owlapi.model.OWLSubClassOfAxiom;
-import org.semanticweb.owlapi.util.OWLAxiomVisitorExAdapter;
 
 /**
  * Helper visitor to rewrite all logical axioms to change any reference to a
  * given class into a reference to another class.
  */
-public class AxiomRewritingVisitor extends OWLAxiomVisitorExAdapter<OWLAxiom> {
+public class AxiomRewritingVisitor implements OWLAxiomVisitorEx<OWLAxiom> {
 
     private ClassRewritingVisitor rewriter;
     private OWLDataFactory factory;
@@ -64,14 +64,8 @@ public class AxiomRewritingVisitor extends OWLAxiomVisitorExAdapter<OWLAxiom> {
      * @param newClass The IRI of the class to rewrite to.
      */
     public AxiomRewritingVisitor(OWLDataFactory factory, IRI oldClass, IRI newClass) {
-        super(null);
         rewriter = new ClassRewritingVisitor(factory, oldClass, newClass);
         this.factory = factory;
-    }
-
-    @Override
-    public OWLAxiom doDefault(OWLAxiom axiom) {
-        return null;
     }
 
     @Override

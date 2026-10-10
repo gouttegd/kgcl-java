@@ -20,7 +20,10 @@
     <dependency>
       <groupId>org.incenp</groupId>
       <artifactId>kgcl-core</artifactId>
-      <version>${project.parent.version}</version>
+      <!-- ROBOT is still using OWLAPI 4.x, so the KGCL plugin is stuck
+           to the last version of the KGCL core library developed
+           against the 4.x branch. -->
+      <version>1.0.2</version>
     </dependency>
     <dependency>
       <groupId>org.obolibrary.robot</groupId>

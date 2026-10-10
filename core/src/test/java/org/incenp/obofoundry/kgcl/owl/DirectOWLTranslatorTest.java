@@ -289,7 +289,7 @@ public class DirectOWLTranslatorTest implements RejectedChangeListener {
     @Test
     void testNodeRenameLanguageTagDoesNotSelectAnotherLangLabel() {
         // Remove the English label
-        ontology.getOWLOntologyManager().removeAxiom(ontology, getAnnotation(LABEL_IRI, "LaReine", "LaReine", "en"));
+        ontology.removeAxioms(getAnnotation(LABEL_IRI, "LaReine", "LaReine", "en"));
 
         NodeRename change = new NodeRename();
         setAboutNode(change, "LaReine");
@@ -304,7 +304,7 @@ public class DirectOWLTranslatorTest implements RejectedChangeListener {
     @Test
     void testNodeRenameNewLanguageTagSelectsLanglessLabelIfNoOtherLabelMatches() {
         // Remove the English label and adds a langless one
-        ontology.getOWLOntologyManager().removeAxiom(ontology, getAnnotation(LABEL_IRI, "LaReine", "LaReine", "en"));
+        ontology.removeAxiom(getAnnotation(LABEL_IRI, "LaReine", "LaReine", "en"));
         ontology.getOWLOntologyManager().addAxiom(ontology, getAnnotation(LABEL_IRI, "LaReine", "LaReine", null));
 
         NodeRename change = new NodeRename();

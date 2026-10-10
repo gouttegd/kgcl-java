@@ -119,7 +119,7 @@ public class KGCLWriterTest {
         try {
             OWLOntology ont = mgr.loadOntologyFromOntologyDocument(new File("src/test/resources/pizza.ofn"));
             testSimpleWrite(w -> {
-                w.setPrefixManager(ont);
+                w.setPrefixManager(mgr.getOntologyFormat(ont).asPrefixOWLDocumentFormat());
                 w.write(change);
             }, "obsolete pizza:LaReine\n");
         } catch ( OWLOntologyCreationException e ) {

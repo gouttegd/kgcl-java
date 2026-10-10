@@ -30,17 +30,17 @@
     <dependency>
       <groupId>net.sourceforge.owlapi</groupId>
       <artifactId>owlapi-apibinding</artifactId>
-      <version>4.5.29</version>
+      <version>5.5.1</version>
     </dependency>
     <dependency>
       <groupId>org.incenp</groupId>
       <artifactId>dicer-lib</artifactId>
-      <version>0.2.3</version>
+      <version>0.3.0</version>
     </dependency>
     <dependency>
-      <groupId>au.csiro</groupId>
-      <artifactId>elk-owlapi4</artifactId>
-      <version>0.5.0</version>
+      <groupId>io.github.liveontologies</groupId>
+      <artifactId>elk-owlapi</artifactId>
+      <version>0.6.0</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
