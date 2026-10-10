@@ -35,7 +35,7 @@
     <dependency>
       <groupId>org.incenp</groupId>
       <artifactId>dicer-lib</artifactId>
-      <version>0.2.2</version>
+      <version>0.2.3</version>
     </dependency>
     <dependency>
       <groupId>au.csiro</groupId>

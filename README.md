@@ -183,9 +183,9 @@ source code is available in a Git repository at
 
 Copying
 -------
-KGCL-Java is distributed under the terms of the GNU General Public
-License, version 3 or higher. The full license is included in the
-[COPYING file](COPYING) of the source distribution.
+KGCL-Java is distributed under the terms of the 3-clause BSD license.
+The full license is included in the [COPYING file](COPYING) of the
+source distribution.
 
 KGCL-Java includes code that is automatically derived from the [KGCL
 schema](https://github.com/INCATools/kgcl) (all classes under the

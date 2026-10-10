@@ -26,8 +26,7 @@ Homepage and repository
   
 Copying
 
-  KGCL-Java is distributed under the terms of the GNU General Public
-  License, version 3 of higher.
+  KGCL-Java is distributed under the terms of the 3-clause BSD license.
   
   It includes code that is automatically derived from the
   {{{KGCL schema}https://github.com/INCATools/kgcl}} (all the classes
