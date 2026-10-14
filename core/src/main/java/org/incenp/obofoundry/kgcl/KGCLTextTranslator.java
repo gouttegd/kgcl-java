@@ -237,7 +237,7 @@ public class KGCLTextTranslator extends ChangeVisitorBase<String> {
 
     @Override
     public String visit(NewTextDefinition v) {
-        return String.format("add definition %s for %s", renderNewValue(v), renderNode(v.getAboutNode()));
+        return String.format("add definition %s to %s", renderNewValue(v), renderNode(v.getAboutNode()));
     }
 
     @Override

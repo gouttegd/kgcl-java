@@ -69,6 +69,7 @@ import org.incenp.obofoundry.kgcl.model.SynonymReplacement;
 import org.incenp.obofoundry.kgcl.model.TextDefinitionReplacement;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.semanticweb.owlapi.model.PrefixManager;
 import org.semanticweb.owlapi.util.DefaultPrefixManager;
 import org.semanticweb.owlapi.vocab.XSDVocabulary;
 
@@ -130,7 +131,7 @@ public class KGCLTextTranslatorTest {
         change.setAboutNode(defaultNode);
         change.setNewValue("new definition");
 
-        render(change, "add definition \"new definition\" for EX:0001");
+        render(change, "add definition \"new definition\" to EX:0001");
     }
 
     @Test
@@ -268,7 +269,7 @@ public class KGCLTextTranslatorTest {
         change.getAboutEdge().setSubject(util.getNode("0001"));
         change.getAboutEdge().setObject(util.getNode("0002"));
 
-        render(change, "create edge EX:0001 rdfs:subClassOf EX:0002");
+        render(change, "create edge EX:0001 rdfs:subClassOf EX:0002", true, false);
     }
 
     @Test
@@ -278,7 +279,7 @@ public class KGCLTextTranslatorTest {
         change.getAboutEdge().setSubject(util.getNode("0001"));
         change.getAboutEdge().setObject(util.getNode("0002"));
 
-        render(change, "delete edge EX:0001 rdfs:subClassOf EX:0002");
+        render(change, "delete edge EX:0001 rdfs:subClassOf EX:0002", true, false);
     }
 
     @Test
@@ -360,7 +361,7 @@ public class KGCLTextTranslatorTest {
         change.setAboutNode(defaultNode);
         change.setHasDirectReplacement(util.getNode("0002"));
 
-        render(change, "obsolete <https://example.org/0001> with replacement <https://example.org/0002>", false);
+        render(change, "obsolete <https://example.org/0001> with replacement <https://example.org/0002>", false, true);
     }
 
     @Test
@@ -369,7 +370,7 @@ public class KGCLTextTranslatorTest {
         change.setAboutNode(defaultNode);
         change.setNewValue("new \"definition\"");
 
-        render(change, "add definition \"new \\\"definition\\\"\" for EX:0001");
+        render(change, "add definition \"new \\\"definition\\\"\" to EX:0001");
     }
 
     @Test
@@ -379,7 +380,7 @@ public class KGCLTextTranslatorTest {
         change.setNewValue("new definition");
         change.setNewLanguage("en");
 
-        render(change, "add definition \"new definition\"@en for EX:0001");
+        render(change, "add definition \"new definition\"@en to EX:0001");
     }
 
     @Test
@@ -389,7 +390,7 @@ public class KGCLTextTranslatorTest {
         change.setNewValue("123");
         change.setNewDatatype(XSDVocabulary.INTEGER.toString());
 
-        render(change, "add definition \"123\"^^xsd:integer for EX:0001");
+        render(change, "add definition \"123\"^^xsd:integer to EX:0001");
     }
 
     @Test
@@ -400,7 +401,7 @@ public class KGCLTextTranslatorTest {
         change.setNewLanguage("en");
         change.setNewDatatype(XSDVocabulary.STRING.toString());
 
-        render(change, "add definition \"new definition\"@en for EX:0001");
+        render(change, "add definition \"new definition\"@en to EX:0001", true, false);
     }
 
     /*
@@ -411,10 +412,11 @@ public class KGCLTextTranslatorTest {
      * Converts a KGCL change into its textual representation and check that the
      * conversion is what we expect.
      */
-    private void render(Change change, String expected, boolean shortenId) {
+    private void render(Change change, String expected, boolean shortenId, boolean roundtrip) {
         KGCLTextTranslator translator = null;
+        PrefixManager pm = null;
         if ( shortenId ) {
-            DefaultPrefixManager pm = new DefaultPrefixManager();
+            pm = new DefaultPrefixManager();
             pm.setPrefix("EX:", "https://example.org/");
             translator = new KGCLTextTranslator(pm);
         } else {
@@ -423,10 +425,20 @@ public class KGCLTextTranslatorTest {
 
         String actual = change.accept(translator);
         Assertions.assertEquals(expected, actual);
+
+        if ( roundtrip ) {
+            KGCLReader reader = new KGCLReader();
+            if ( shortenId ) {
+                reader.setPrefixManager(pm);
+            }
+
+            Assertions.assertTrue(reader.read(actual));
+            Assertions.assertEquals(change, reader.getChangeSet().get(0));
+        }
     }
 
     /* Same, but IDs are always shortened. */
     private void render(Change change, String expected) {
-        render(change, expected, true);
+        render(change, expected, true, true);
     }
 }
