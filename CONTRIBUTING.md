@@ -4,19 +4,19 @@ First of all, thank you for wanting to contribute.
 
 ## How to submit bug reports or feature requests
 Bug reports or feature requests can be submitted by opening an issue on
-<https://github.com/gouttegd/sssom-java/issues>. They may also be sent
+<https://github.com/gouttegd/kgcl-java/issues>. They may also be sent
 by e-mail to <devel@incenp.org>. When using e-mail, please prefix the
-subject with `[sssom] `.
+subject with `[kgcl] `.
 
 ## How to submit contributions
 Please discuss the change you wish to make first, either through an
 issue or by e-mail (see above), before submitting anything.
 
 Contributions can be submitted by opening a pull request on
-<https://github.com/gouttegd/sssom-java/pulls>. Pull requests or patches
+<https://github.com/gouttegd/kgcl-java/pulls>. Pull requests or patches
 may also be sent by e-mail to <devel@incenp.org>. As for bug reports or
 feature requests, when using e-mail, please prefix the subject with
-`[sssom] `.
+`[kgcl] `.
 
 Please check your contribution meets the following requirements:
 
