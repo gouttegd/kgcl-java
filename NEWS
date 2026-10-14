@@ -1,3 +1,9 @@
+Changes in kgcl-java-1.0.3
+--------------------------
+
+    * Fixed incorrect text rendering of NewTextDefinition.
+
+
 Changes in kgcl-java-1.0.2
 --------------------------
 
