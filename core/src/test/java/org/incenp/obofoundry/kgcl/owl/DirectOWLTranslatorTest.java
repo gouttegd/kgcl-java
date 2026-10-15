@@ -815,6 +815,26 @@ public class DirectOWLTranslatorTest implements RejectedChangeListener {
     }
 
     @Test
+    void testCreateSubClassOfEdgeWithMissingSubject() {
+        PlaceUnder change = new PlaceUnder();
+        change.setAboutEdge(new Edge());
+        change.getAboutEdge().setSubject(util.getNode("Calzone"));
+        change.getAboutEdge().setObject(util.getNode("NamedPizza"));
+
+        testChange(change, null, "Class <" + PIZZA_BASE + "Calzone> not found in signature");
+    }
+
+    @Test
+    void testCreateSubClassOfEdgeWithMissingObject() {
+        PlaceUnder change = new PlaceUnder();
+        change.setAboutEdge(new Edge());
+        change.getAboutEdge().setSubject(util.getNode("Margherita"));
+        change.getAboutEdge().setObject(util.getNode("Calzone"));
+
+        testChange(change, null, "Class <" + PIZZA_BASE + "Calzone> not found in signature");
+    }
+
+    @Test
     void testCreateExistentialRestrictionEdge() {
         EdgeCreation change = new EdgeCreation();
         change.setAboutEdge(new Edge());
@@ -824,6 +844,28 @@ public class DirectOWLTranslatorTest implements RejectedChangeListener {
 
         testChange(change, new AddAxiom(ontology, factory.getOWLSubClassOfAxiom(getKlass("LaReine"),
                 factory.getOWLObjectSomeValuesFrom(getObjectProperty("hasBase"), getKlass("DeepPanBase")))));
+    }
+
+    @Test
+    void testCreateExistentialRestrictionWithMissingSubject() {
+        EdgeCreation change = new EdgeCreation();
+        change.setAboutEdge(new Edge());
+        change.getAboutEdge().setSubject(util.getNode("Calzone"));
+        change.getAboutEdge().setPredicate(util.getNode("hasBase"));
+        change.getAboutEdge().setObject(util.getNode("DeepPanBase"));
+
+        testChange(change, null, "Class <" + PIZZA_BASE + "Calzone> not found in signature");
+    }
+
+    @Test
+    void testCreateExistentialRestrictionWithMissingObject() {
+        EdgeCreation change = new EdgeCreation();
+        change.setAboutEdge(new Edge());
+        change.getAboutEdge().setSubject(util.getNode("Margherita"));
+        change.getAboutEdge().setPredicate(util.getNode("hasBase"));
+        change.getAboutEdge().setObject(util.getNode("DepPanBase"));
+
+        testChange(change, null, "Class <" + PIZZA_BASE + "DepPanBase> not found in signature");
     }
 
     @Test
