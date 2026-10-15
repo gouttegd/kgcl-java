@@ -524,6 +524,24 @@ public class DirectOWLTranslatorTest implements RejectedChangeListener {
     }
 
     @Test
+    void testReplaceDefinitionWithSameDefinition() {
+        // Create the initial definition
+        OWLAxiom ax = getAnnotation(DEFINITION_IRI, "Margherita", "The classic tomato and mozzarella pizza.", null);
+        ontology.getOWLOntologyManager().addAxiom(ontology, ax);
+
+        // "Replace" with the same definition
+        TextDefinitionReplacement change = new TextDefinitionReplacement();
+        setAboutNode(change, "Margherita");
+        setValue(change, "The classic tomato and mozzarella pizza.", null);
+
+        testChange(change, new RemoveAxiom(ontology, ax), new AddAxiom(ontology, ax));
+
+        // Similar, but with an explicit old value identical to the existing value
+        setValue(change, "The classic tomato and mozzarella pizza.", null, true);
+        testChange(change, new RemoveAxiom(ontology, ax), new AddAxiom(ontology, ax));
+    }
+
+    @Test
     void testSimpleObsoletion() {
         NodeObsoletion change = new NodeObsoletion();
         setAboutNode(change, "SultanaTopping");
