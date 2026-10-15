@@ -570,11 +570,16 @@ public class DirectOWLTranslator extends OWLTranslator {
         }
 
         IRI predicateIRI = IRI.create(v.getAboutEdge().getPredicate().getId());
-        IRI objectIRI = IRI.create(v.getAboutEdge().getObject().getId());
         OWLAxiom edgeAxiom = null;
         EdgeType edgeType = getEdgeType(predicateIRI);
         if ( edgeType == null ) {
             onReject(v, "Edge predicate <%s> not found", v.getAboutEdge().getPredicate().getId());
+            return empty;
+        }
+
+        IRI objectIRI = edgeType != EdgeType.ANNOTATION ? findClass(v, v.getAboutEdge().getObject().getId())
+                : IRI.create(v.getAboutEdge().getObject().getId());
+        if ( objectIRI == null ) {
             return empty;
         }
 
