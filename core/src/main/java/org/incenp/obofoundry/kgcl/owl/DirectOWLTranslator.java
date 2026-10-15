@@ -390,26 +390,27 @@ public class DirectOWLTranslator extends OWLTranslator {
 
     @Override
     public List<OWLOntologyChange> visit(TextDefinitionReplacement v) {
-        RemoveTextDefinition removeOldDefinition = new RemoveTextDefinition();
-        removeOldDefinition.setAboutNode(v.getAboutNode());
-        removeOldDefinition.setOldValue(v.getOldValue());
-        removeOldDefinition.setOldLanguage(v.getOldLanguage());
-        removeOldDefinition.setOldDatatype(v.getOldDatatype());
-
-        NewTextDefinition addNewDefinition = new NewTextDefinition();
-        addNewDefinition.setAboutNode(v.getAboutNode());
-        addNewDefinition.setNewValue(v.getNewValue());
-        addNewDefinition.setNewLanguage(v.getNewLanguage());
-        addNewDefinition.setNewDatatype(v.getNewDatatype());
-
-        // Hack: the remove part may fail if we were provided with the text of the
-        // definition to remove and it doesn't match the existing definition -- in which
-        // case we should not proceed with the add part.
-
-        List<OWLOntologyChange> changes = removeOldDefinition.accept(this);
-        if ( !changes.isEmpty() ) {
-            changes.addAll(addNewDefinition.accept(this));
+        if ( !aboutNodeExists(v) ) {
+            return empty;
         }
+
+        ArrayList<OWLOntologyChange> changes = new ArrayList<OWLOntologyChange>();
+        IRI nodeIRI = IRI.create(v.getAboutNode().getId());
+        Set<OWLAnnotationAssertionAxiom> matches = findMatchingAnnotations(
+                Obo2OWLConstants.Obo2OWLVocabulary.IRI_IAO_0000115.getIRI(), nodeIRI, v);
+
+        if ( matches.isEmpty() ) {
+            onReject(v, "Definition not found on <%s>", v.getAboutNode().getId());
+        }
+        for ( OWLAnnotationAssertionAxiom match : matches ) {
+            changes.add(removeAxiom(match));
+            changes.add(new AddAxiom(ontology,
+                    factory.getOWLAnnotationAssertionAxiom(
+                            factory.getOWLAnnotationProperty(
+                                    Obo2OWLConstants.Obo2OWLVocabulary.IRI_IAO_0000115.getIRI()),
+                            nodeIRI, getLiteral(v, match.getValue().asLiteral().get().getLang()))));
+        }
+
         return changes;
     }
 
