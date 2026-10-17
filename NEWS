@@ -1,3 +1,13 @@
+Changes in kgcl-java 1.1.0
+--------------------------
+
+    * Migrated to OWLAPI 5.x.
+    * Fixed incorrect handling of TextDefinitionReplacement when the
+      "new" definition already exists.
+    * Fixed missing check for object existence when creating an edge.
+    * Fixed incorrect text rendering of NewTextDefinition changes.
+
+
 Changes in kgcl-java-1.0.2
 --------------------------
 
