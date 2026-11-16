@@ -53,6 +53,7 @@ import org.incenp.obofoundry.kgcl.model.MetadataAssertionPredicateChange;
 import org.incenp.obofoundry.kgcl.model.MetadataAssertionReplacement;
 import org.incenp.obofoundry.kgcl.model.MultiNodeObsoletion;
 import org.incenp.obofoundry.kgcl.model.NameBecomesSynonym;
+import org.incenp.obofoundry.kgcl.model.NewLabel;
 import org.incenp.obofoundry.kgcl.model.NewMapping;
 import org.incenp.obofoundry.kgcl.model.NewMetadataAssertion;
 import org.incenp.obofoundry.kgcl.model.NewSynonym;
@@ -226,6 +227,11 @@ public class ChangeVisitorBase<T> implements IChangeVisitor<T> {
 
     @Override
     public T visit(NameBecomesSynonym v) {
+        return doDefault(v);
+    }
+
+    @Override
+    public T visit(NewLabel v) {
         return doDefault(v);
     }
 

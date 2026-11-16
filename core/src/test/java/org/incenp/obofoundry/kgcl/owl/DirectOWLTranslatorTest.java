@@ -48,6 +48,7 @@ import org.incenp.obofoundry.kgcl.model.ClassCreation;
 import org.incenp.obofoundry.kgcl.model.Edge;
 import org.incenp.obofoundry.kgcl.model.EdgeCreation;
 import org.incenp.obofoundry.kgcl.model.EdgeDeletion;
+import org.incenp.obofoundry.kgcl.model.NewLabel;
 import org.incenp.obofoundry.kgcl.model.NewSynonym;
 import org.incenp.obofoundry.kgcl.model.NewTextDefinition;
 import org.incenp.obofoundry.kgcl.model.Node;
@@ -415,6 +416,24 @@ public class DirectOWLTranslatorTest implements RejectedChangeListener {
         setValue(change, "TheQueen", "en");
 
         testChange(change, null, "Synonym \"The Queen\" not found on <" + PIZZA_BASE + "LaReine>");
+    }
+
+    @Test
+    void testNewLabel() {
+        NewLabel change = new NewLabel();
+        setAboutNode(change, "LaReine");
+        setValue(change, "Die Königin", "de");
+
+        testChange(change, new AddAxiom(ontology, getAnnotation(LABEL_IRI, "LaReine", "Die Königin", "de")));
+    }
+
+    @Test
+    void testNewLabelAlreadyExists() {
+        NewLabel change = new NewLabel();
+        setAboutNode(change, "LaReine");
+        setValue(change, "LaReine", "en");
+
+        testChange(change, null, null);
     }
 
     @Test

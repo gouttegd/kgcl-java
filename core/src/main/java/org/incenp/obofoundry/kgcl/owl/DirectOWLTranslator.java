@@ -46,6 +46,7 @@ import org.incenp.obofoundry.kgcl.model.ClassCreation;
 import org.incenp.obofoundry.kgcl.model.DeprecationProfile;
 import org.incenp.obofoundry.kgcl.model.EdgeCreation;
 import org.incenp.obofoundry.kgcl.model.EdgeDeletion;
+import org.incenp.obofoundry.kgcl.model.NewLabel;
 import org.incenp.obofoundry.kgcl.model.NewSynonym;
 import org.incenp.obofoundry.kgcl.model.NewTextDefinition;
 import org.incenp.obofoundry.kgcl.model.Node;
@@ -346,6 +347,25 @@ public class DirectOWLTranslator extends OWLTranslator {
         }
 
         return changes;
+    }
+
+    @Override
+    public List<OWLOntologyChange> visit(NewLabel v) {
+        if ( !aboutNodeExists(v) ) {
+            return empty;
+        }
+
+        IRI aboutNodeIRI = IRI.create(v.getAboutNode().getId());
+        IRI labelIRI = OWLRDFVocabulary.RDFS_LABEL.getIRI();
+
+        // Check for existing label
+        Set<OWLAnnotationAssertionAxiom> existing = findMatchingAnnotations(labelIRI, aboutNodeIRI, v, true);
+        if ( !existing.isEmpty() ) {
+            return empty;
+        }
+
+        return makeList(new AddAxiom(ontology, factory.getOWLAnnotationAssertionAxiom(
+                factory.getOWLAnnotationProperty(labelIRI), aboutNodeIRI, getLiteral(v))));
     }
 
     @Override

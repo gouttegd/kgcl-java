@@ -41,6 +41,7 @@ import org.incenp.obofoundry.kgcl.model.Change;
 import org.incenp.obofoundry.kgcl.model.ClassCreation;
 import org.incenp.obofoundry.kgcl.model.EdgeCreation;
 import org.incenp.obofoundry.kgcl.model.EdgeDeletion;
+import org.incenp.obofoundry.kgcl.model.NewLabel;
 import org.incenp.obofoundry.kgcl.model.NewSynonym;
 import org.incenp.obofoundry.kgcl.model.NewTextDefinition;
 import org.incenp.obofoundry.kgcl.model.Node;
@@ -233,6 +234,11 @@ public class KGCLTextTranslator extends ChangeVisitorBase<String> {
     public String visit(SynonymReplacement v) {
         return String.format("change synonym from %s to %s for %s", renderOldValue(v), renderNewValue(v),
                 renderNode(v.getAboutNode()));
+    }
+
+    @Override
+    public String visit(NewLabel v) {
+        return String.format("add label %s to %s", renderNewValue(v), renderNode(v.getAboutNode()));
     }
 
     @Override

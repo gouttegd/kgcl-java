@@ -22,6 +22,7 @@ public interface IChangeVisitor<T> {
     public T visit(MetadataAssertionReplacement visited);
     public T visit(MultiNodeObsoletion visited);
     public T visit(NameBecomesSynonym visited);
+    public T visit(NewLabel visited);
     public T visit(NewMapping visited);
     public T visit(NewMetadataAssertion visited);
     public T visit(NewSynonym visited);
