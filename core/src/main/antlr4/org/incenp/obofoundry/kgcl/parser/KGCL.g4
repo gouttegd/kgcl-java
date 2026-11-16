@@ -11,6 +11,7 @@ change    : rename
           | removeSynonym
           | changeSynonym
           | newDefinition
+          | newLabel
           | removeDefinition
           | changeDefinition
           | newNode
@@ -39,6 +40,8 @@ newSynonym: 'create' qualifier? 'synonym' synonym=text 'for' id;
 removeSynonym: 'remove' 'synonym' synonym=text 'for' id;
 
 changeSynonym: 'change' 'synonym' 'from' old_synonym=text 'to' new_synonym=text 'for' id;
+
+newLabel: 'add' 'label' new_label=text 'to' id;
 
 newDefinition: 'add' 'definition' new_definition=text 'to' id;
 

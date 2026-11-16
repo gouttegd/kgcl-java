@@ -42,6 +42,7 @@ import org.incenp.obofoundry.kgcl.model.ClassCreation;
 import org.incenp.obofoundry.kgcl.model.Edge;
 import org.incenp.obofoundry.kgcl.model.EdgeCreation;
 import org.incenp.obofoundry.kgcl.model.EdgeDeletion;
+import org.incenp.obofoundry.kgcl.model.NewLabel;
 import org.incenp.obofoundry.kgcl.model.NewSynonym;
 import org.incenp.obofoundry.kgcl.model.NewTextDefinition;
 import org.incenp.obofoundry.kgcl.model.Node;
@@ -123,6 +124,15 @@ public class KGCLTextTranslatorTest {
         change.setNewValue("new synonym");
 
         render(change, "change synonym from \"old synonym\" to \"new synonym\" for EX:0001");
+    }
+
+    @Test
+    void testRenderNewLabel() {
+        NewLabel change = new NewLabel();
+        change.setAboutNode(defaultNode);
+        change.setNewValue("new label");
+
+        render(change, "add label \"new label\" to EX:0001");
     }
 
     @Test

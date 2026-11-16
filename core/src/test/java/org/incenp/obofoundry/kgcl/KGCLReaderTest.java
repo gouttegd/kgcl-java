@@ -47,6 +47,7 @@ import org.incenp.obofoundry.kgcl.model.ClassCreation;
 import org.incenp.obofoundry.kgcl.model.Edge;
 import org.incenp.obofoundry.kgcl.model.EdgeCreation;
 import org.incenp.obofoundry.kgcl.model.EdgeDeletion;
+import org.incenp.obofoundry.kgcl.model.NewLabel;
 import org.incenp.obofoundry.kgcl.model.NewSynonym;
 import org.incenp.obofoundry.kgcl.model.NewTextDefinition;
 import org.incenp.obofoundry.kgcl.model.Node;
@@ -434,6 +435,15 @@ class KGCLReaderTest {
         change.setNewValue("new synonym");
 
         testParse("change synonym from 'old synonym' to 'new synonym' for EX:0001", change);
+    }
+
+    @Test
+    void testNewLabelChange() {
+        NewLabel change = new NewLabel();
+        change.setAboutNode(util.getNode("0001"));
+        change.setNewValue("new label");
+
+        testParse("add label 'new label' to EX:0001", change);
     }
 
     @Test

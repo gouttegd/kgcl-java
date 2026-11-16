@@ -46,6 +46,7 @@ import org.incenp.obofoundry.kgcl.model.ClassCreation;
 import org.incenp.obofoundry.kgcl.model.Edge;
 import org.incenp.obofoundry.kgcl.model.EdgeCreation;
 import org.incenp.obofoundry.kgcl.model.EdgeDeletion;
+import org.incenp.obofoundry.kgcl.model.NewLabel;
 import org.incenp.obofoundry.kgcl.model.NewSynonym;
 import org.incenp.obofoundry.kgcl.model.NewTextDefinition;
 import org.incenp.obofoundry.kgcl.model.Node;
@@ -218,6 +219,18 @@ public class ParseTree2ChangeVisitor extends KGCLBaseVisitor<Void> {
         change.setAboutNode(getNode(ctx.id()));
         setOldValue(ctx.old_synonym, change);
         setNewValue(ctx.new_synonym, change);
+
+        maybeAddChange(change);
+
+        return null;
+    }
+
+    @Override
+    public Void visitNewLabel(KGCLParser.NewLabelContext ctx) {
+        NewLabel change = new NewLabel();
+
+        change.setAboutNode(getNode(ctx.id()));
+        setNewValue(ctx.new_label, change);
 
         maybeAddChange(change);
 
