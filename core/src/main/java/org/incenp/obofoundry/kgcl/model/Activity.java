@@ -23,11 +23,11 @@ public class Activity extends ProvElement {
 
     @SlotName("started_at_time")
     @LinkURI("http://www.w3.org/ns/prov#startedAtTime")
-    private String startedAtTime;
+    private ZonedDateTime startedAtTime;
 
     @SlotName("ended_at_time")
     @LinkURI("http://www.w3.org/ns/prov#endedAtTime")
-    private String endedAtTime;
+    private ZonedDateTime endedAtTime;
 
     @SlotName("was_informed_by")
     @LinkURI("http://www.w3.org/ns/prov#wasInformedBy")
@@ -51,19 +51,19 @@ public class Activity extends ProvElement {
         return this.id;
     }
 
-    public void setStartedAtTime(String startedAtTime) {
+    public void setStartedAtTime(ZonedDateTime startedAtTime) {
         this.startedAtTime = startedAtTime;
     }
 
-    public String getStartedAtTime() {
+    public ZonedDateTime getStartedAtTime() {
         return this.startedAtTime;
     }
 
-    public void setEndedAtTime(String endedAtTime) {
+    public void setEndedAtTime(ZonedDateTime endedAtTime) {
         this.endedAtTime = endedAtTime;
     }
 
-    public String getEndedAtTime() {
+    public ZonedDateTime getEndedAtTime() {
         return this.endedAtTime;
     }
 
